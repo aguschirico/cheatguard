@@ -516,6 +516,7 @@ footer { max-width: var(--wide); margin: 4rem auto 3rem; color: var(--pencil); f
     <pre id="install-cmd">npm i -D cheatguard &amp;&amp; npx cheatguard init claude-code</pre>
     <button type="button" id="copy">Copy command</button>
   </div>
+  <p>Or, without a dependency, as a Claude Code plugin: <code>claude plugin marketplace add aguschirico/cheatguard</code>, then <code>claude plugin install cheatguard@cheatguard</code>.</p>
   ${heroDiff()}
 </section>
 

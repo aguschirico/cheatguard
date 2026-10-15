@@ -1,0 +1,15 @@
+{
+  "name": "cheatguard",
+  "description": "Diff-aware guardrails for coding agents.",
+  "owner": {
+    "name": "aguschirico",
+    "url": "https://github.com/aguschirico"
+  },
+  "plugins": [
+    {
+      "name": "cheatguard",
+      "source": "./packages/cli/plugin",
+      "description": "Blocks weakened tests, type suppressions, config tampering, stubs and phantom imports, and shows only the lint and type errors the agent's change introduced."
+    }
+  ]
+}
