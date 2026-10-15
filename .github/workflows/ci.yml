@@ -10,6 +10,31 @@ permissions:
   contents: read
 
 jobs:
+  secrets:
+    # The benchmark corpus copies code from public pull requests, so it can carry
+    # someone else's credentials. Scan the tree and the commits being added.
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - name: install gitleaks 8.30.1 (checksum-pinned)
+        run: |
+          curl -sSfL -o gitleaks.tar.gz https://github.com/gitleaks/gitleaks/releases/download/v8.30.1/gitleaks_8.30.1_linux_x64.tar.gz
+          echo "551f6fc83ea457d62a0d98237cbad105af8d557003051f41f3e7ca7b3f2470eb  gitleaks.tar.gz" | sha256sum -c -
+          tar -xzf gitleaks.tar.gz -C "$RUNNER_TEMP" gitleaks
+          rm gitleaks.tar.gz
+      - name: scan the tree
+        run: '"$RUNNER_TEMP/gitleaks" dir --no-banner --redact .'
+      - name: scan the new commits
+        env:
+          BASE: ${{ github.event_name == 'pull_request' && github.event.pull_request.base.sha || github.event.before }}
+        run: |
+          # A force push or a new branch has no usable base: scan the whole history.
+          if git cat-file -e "$BASE^{commit}" 2>/dev/null; then range="$BASE..HEAD"; else range="HEAD"; fi
+          "$RUNNER_TEMP/gitleaks" git --no-banner --redact --log-opts="$range" .
+
   test:
     strategy:
       fail-fast: false
