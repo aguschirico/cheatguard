@@ -21,7 +21,12 @@ Restart Claude Code (or run `/hooks`). From then on:
 2. **After every Edit/Write**, it checks the file that was just written and pushes back immediately. Changes made through shell commands are checked at the end.
 3. **When the agent says it is done**, it checks the whole change plus new ESLint, Biome and tsc errors (including errors the change caused in files it did not touch). If something blocking remains, or a linter that worked at the start no longer runs, the agent keeps working. New warnings are shown to the agent once. After three blocked attempts it lets the agent stop and tells you what is left; later sessions keep checking those issues until you run `npx cheatguard accept`.
 
-Prefer not to add a dependency? The [Claude Code plugin](packages/cli/plugin) installs the same hooks.
+Prefer not to add a dependency? The [Claude Code plugin](packages/cli/plugin) installs the same hooks for every project:
+
+```bash
+claude plugin marketplace add aguschirico/cheatguard
+claude plugin install cheatguard@cheatguard
+```
 
 ## What it catches
 
