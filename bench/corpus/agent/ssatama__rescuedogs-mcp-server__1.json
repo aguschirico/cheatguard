@@ -1,0 +1,54 @@
+{
+  "id": "ssatama__rescuedogs-mcp-server__1",
+  "set": "agent",
+  "description": "ssatama/rescuedogs-mcp-server#1",
+  "source": {
+    "url": "https://github.com/ssatama/rescuedogs-mcp-server/pull/1",
+    "repo": "ssatama/rescuedogs-mcp-server",
+    "license": "MIT",
+    "author": "ssatama",
+    "mergedAt": "2026-01-08T21:58:40Z"
+  },
+  "changes": [
+    {
+      "path": "eslint.config.js",
+      "before": null,
+      "after": "import eslint from \"@eslint/js\";\nimport tseslint from \"typescript-eslint\";\n\nexport default tseslint.config(\n  eslint.configs.recommended,\n  ...tseslint.configs.recommended,\n  {\n    ignores: [\"dist/**\", \"node_modules/**\"],\n  }\n);\n"
+    },
+    {
+      "path": "package.json",
+      "before": "{\n  \"name\": \"rescuedogs-mcp-server\",\n  \"version\": \"1.0.1\",\n  \"description\": \"MCP server for discovering rescue dogs from European and UK organizations\",\n  \"main\": \"dist/index.js\",\n  \"bin\": {\n    \"rescuedogs-mcp-server\": \"dist/index.js\"\n  },\n  \"type\": \"module\",\n  \"scripts\": {\n    \"build\": \"tsc\",\n    \"watch\": \"tsc --watch\",\n    \"start\": \"node dist/index.js\",\n    \"dev\": \"tsx src/index.ts\",\n    \"lint\": \"eslint src/\",\n    \"typecheck\": \"tsc --noEmit\",\n    \"prepublishOnly\": \"npm run build\"\n  },\n  \"keywords\": [\n    \"mcp\",\n    \"rescue-dogs\",\n    \"dog-adoption\",\n    \"claude\",\n    \"llm\",\n    \"model-context-protocol\"\n  ],\n  \"author\": \"Sampo Satama\",\n  \"license\": \"MIT\",\n  \"repository\": {\n    \"type\": \"git\",\n    \"url\": \"git+https://github.com/ssatama/rescuedogs-mcp-server.git\"\n  },\n  \"homepage\": \"https://www.rescuedogs.me\",\n  \"bugs\": {\n    \"url\": \"https://github.com/ssatama/rescuedogs-mcp-server/issues\"\n  },\n  \"dependencies\": {\n    \"@modelcontextprotocol/sdk\": \"^1.6.1\",\n    \"axios\": \"^1.7.9\",\n    \"node-cache\": \"^5.1.2\",\n    \"zod\": \"^3.23.8\"\n  },\n  \"devDependencies\": {\n    \"@types/node\": \"^22.10.5\",\n    \"typescript\": \"^5.7.2\",\n    \"tsx\": \"^4.19.2\"\n  },\n  \"engines\": {\n    \"node\": \">=18.0.0\"\n  },\n  \"files\": [\n    \"dist/**/*\"\n  ]\n}\n",
+      "after": "{\n  \"name\": \"rescuedogs-mcp-server\",\n  \"version\": \"1.0.1\",\n  \"description\": \"MCP server for discovering rescue dogs from European and UK organizations\",\n  \"main\": \"dist/index.js\",\n  \"bin\": {\n    \"rescuedogs-mcp-server\": \"dist/index.js\"\n  },\n  \"type\": \"module\",\n  \"scripts\": {\n    \"build\": \"tsc\",\n    \"watch\": \"tsc --watch\",\n    \"start\": \"node dist/index.js\",\n    \"dev\": \"tsx src/index.ts\",\n    \"lint\": \"eslint src/\",\n    \"typecheck\": \"tsc --noEmit\",\n    \"prepublishOnly\": \"npm run build\"\n  },\n  \"keywords\": [\n    \"mcp\",\n    \"rescue-dogs\",\n    \"dog-adoption\",\n    \"claude\",\n    \"llm\",\n    \"model-context-protocol\"\n  ],\n  \"author\": \"Sampo Satama\",\n  \"license\": \"MIT\",\n  \"repository\": {\n    \"type\": \"git\",\n    \"url\": \"git+https://github.com/ssatama/rescuedogs-mcp-server.git\"\n  },\n  \"homepage\": \"https://www.rescuedogs.me\",\n  \"bugs\": {\n    \"url\": \"https://github.com/ssatama/rescuedogs-mcp-server/issues\"\n  },\n  \"dependencies\": {\n    \"@modelcontextprotocol/sdk\": \"^1.6.1\",\n    \"axios\": \"^1.7.9\",\n    \"node-cache\": \"^5.1.2\",\n    \"zod\": \"^3.23.8\"\n  },\n  \"devDependencies\": {\n    \"@eslint/js\": \"^9.39.2\",\n    \"@types/node\": \"^22.10.5\",\n    \"@typescript-eslint/eslint-plugin\": \"^8.52.0\",\n    \"@typescript-eslint/parser\": \"^8.52.0\",\n    \"eslint\": \"^9.39.2\",\n    \"tsx\": \"^4.19.2\",\n    \"typescript\": \"^5.7.2\",\n    \"typescript-eslint\": \"^8.52.0\"\n  },\n  \"engines\": {\n    \"node\": \">=18.0.0\"\n  },\n  \"files\": [\n    \"dist/**/*\"\n  ]\n}\n"
+    }
+  ],
+  "context": {
+    "glama.json": "",
+    "package-lock.json": "",
+    "src/constants.ts": "",
+    "src/index.ts": "",
+    "src/schemas/index.ts": "",
+    "src/services/api-client.ts": "",
+    "src/services/cache-service.ts": "",
+    "src/services/formatters.ts": "",
+    "src/services/image-service.ts": "",
+    "src/types.ts": "",
+    "tsconfig.json": "{\n  \"compilerOptions\": {\n    \"target\": \"ES2022\",\n    \"module\": \"NodeNext\",\n    \"moduleResolution\": \"NodeNext\",\n    \"lib\": [\"ES2022\"],\n    \"outDir\": \"./dist\",\n    \"rootDir\": \"./src\",\n    \"strict\": true,\n    \"esModuleInterop\": true,\n    \"skipLibCheck\": true,\n    \"forceConsistentCasingInFileNames\": true,\n    \"resolveJsonModule\": true,\n    \"declaration\": true,\n    \"declarationMap\": true,\n    \"sourceMap\": true,\n    \"noImplicitAny\": true,\n    \"noImplicitReturns\": true,\n    \"noFallthroughCasesInSwitch\": true,\n    \"noUncheckedIndexedAccess\": true,\n    \"noUnusedLocals\": true,\n    \"noUnusedParameters\": true\n  },\n  \"include\": [\"src/**/*\"],\n  \"exclude\": [\"node_modules\", \"dist\"]\n}\n",
+    ".github/CODEOWNERS": "",
+    ".github/ISSUE_TEMPLATE/bug_report.yml": "",
+    ".github/ISSUE_TEMPLATE/feature_request.yml": "",
+    ".github/PULL_REQUEST_TEMPLATE.md": "",
+    ".github/dependabot.yml": "",
+    ".github/workflows/ci.yml": "",
+    ".gitignore": "",
+    "CONTRIBUTING.md": "",
+    "Dockerfile": "",
+    "LICENSE": "",
+    "README.md": "",
+    "SECURITY.md": "",
+    "demo-1.png": "",
+    "demo-2.png": "",
+    "smithery.yaml": ""
+  },
+  "expected": [],
+  "notes": "LABELED v2 (single annotator, AI-assisted; see corpus/LABELING.md)"
+}

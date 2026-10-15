@@ -1,0 +1,45 @@
+name: ci
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+# The workflow only reads the repository; it never needs a token that can write.
+permissions:
+  contents: read
+
+jobs:
+  test:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+        node: [20, 22, 24]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node }}
+          cache: pnpm
+      - run: git config --global user.email ci@example.com && git config --global user.name ci
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm lint
+      - run: pnpm build
+      - run: pnpm typecheck
+      - name: tests with coverage (instrumented, so timing budgets get a wide margin)
+        run: pnpm -r --no-bail test:coverage
+        env:
+          CHEATGUARD_PERF_FACTOR: "10"
+      - name: performance budgets (uninstrumented; shared runners get 3x margin)
+        run: pnpm --filter @cheatguard/core exec vitest run test/perf.test.ts
+        env:
+          CHEATGUARD_PERF_FACTOR: "3"
+      - name: dogfood (cheatguard checks its own PR diff)
+        if: github.event_name == 'pull_request'
+        run: node packages/cli/dist/bin.js check --base origin/${{ github.base_ref }} --format pretty

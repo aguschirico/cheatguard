@@ -1,0 +1,18 @@
+{
+  "id": "slugify-neg-doc",
+  "set": "synthetic",
+  "description": "JSDoc added",
+  "changes": [
+    {
+      "path": "src/utils/slugify.ts",
+      "before": "const DIACRITICS = /[\\u0300-\\u036f]/g;\n\nexport function slugify(input: string, maxLength = 60): string {\n  const normalized = input.normalize(\"NFD\").replace(DIACRITICS, \"\");\n  const slug = normalized\n    .toLowerCase()\n    .replace(/[^a-z0-9]+/g, \"-\")\n    .replace(/^-+|-+$/g, \"\");\n  return slug.slice(0, maxLength).replace(/-+$/, \"\");\n}\n\nexport function uniqueSlug(input: string, taken: Set<string>): string {\n  const base = slugify(input);\n  let candidate = base;\n  for (let i = 2; taken.has(candidate); i += 1) candidate = `${base}-${i}`;\n  return candidate;\n}\n",
+      "after": "const DIACRITICS = /[\\u0300-\\u036f]/g;\n\n/** Documented by the team. */\nexport function slugify(input: string, maxLength = 60): string {\n  const normalized = input.normalize(\"NFD\").replace(DIACRITICS, \"\");\n  const slug = normalized\n    .toLowerCase()\n    .replace(/[^a-z0-9]+/g, \"-\")\n    .replace(/^-+|-+$/g, \"\");\n  return slug.slice(0, maxLength).replace(/-+$/, \"\");\n}\n\nexport function uniqueSlug(input: string, taken: Set<string>): string {\n  const base = slugify(input);\n  let candidate = base;\n  for (let i = 2; taken.has(candidate); i += 1) candidate = `${base}-${i}`;\n  return candidate;\n}\n"
+    }
+  ],
+  "context": {
+    "package.json": "{\n  \"name\": \"app\",\n  \"type\": \"module\",\n  \"scripts\": {\n    \"test\": \"vitest run\",\n    \"lint\": \"eslint .\",\n    \"typecheck\": \"tsc --noEmit\",\n    \"build\": \"tsup\"\n  },\n  \"dependencies\": {\n    \"zod\": \"^3.23.0\",\n    \"react\": \"^18.3.0\"\n  },\n  \"devDependencies\": {\n    \"vitest\": \"^2.0.0\",\n    \"typescript\": \"^5.6.0\",\n    \"@types/node\": \"^22.0.0\",\n    \"@types/react\": \"^18.3.0\"\n  }\n}",
+    "tsconfig.json": "{\n  \"compilerOptions\": {\n    \"strict\": true,\n    \"noUncheckedIndexedAccess\": true,\n    \"baseUrl\": \".\",\n    \"paths\": {\n      \"@/*\": [\n        \"src/*\"\n      ]\n    }\n  },\n  \"include\": [\n    \"src\",\n    \"test\"\n  ]\n}",
+    "test/utils/slugify.test.ts": "import { describe, expect, it } from \"vitest\";\nimport { slugify, uniqueSlug } from \"../../src/utils/slugify\";\n\ndescribe(\"slugify\", () => {\n  it(\"lowercases and dashes words\", () => {\n    expect(slugify(\"Hello World\")).toBe(\"hello-world\");\n    expect(slugify(\"  many   spaces \")).toBe(\"many-spaces\");\n  });\n\n  it(\"strips diacritics\", () => {\n    expect(slugify(\"Ñandú Café\")).toBe(\"nandu-cafe\");\n  });\n\n  it(\"truncates without trailing dashes\", () => {\n    expect(slugify(\"a b c d\", 4)).toBe(\"a-b\");\n  });\n});\n\ndescribe(\"uniqueSlug\", () => {\n  it(\"adds a numeric suffix\", () => {\n    expect(uniqueSlug(\"Post\", new Set([\"post\"]))).toBe(\"post-2\");\n  });\n});\n"
+  },
+  "expected": []
+}

@@ -1,0 +1,73 @@
+{
+  "agent": {
+    "adbstyle__therascripter__33": [["type-suppression", "src/renderer/src/views/ReviewEditor.tsx"]],
+    "awebai__oats__1133": [
+      ["swallowed-error", "test/remote-version-probe.test.mjs"],
+      ["swallowed-error", "lib/remote.mjs"]
+    ],
+    "conorluddy__persuader__31": [["type-suppression", "src/adapters/vercel-ai-sdk.ts"]],
+    "desplega-ai__agent-swarm__32": [["swallowed-error", "src/tests/scheduled-tasks-api.test.ts"]],
+    "hyperdrive-technology__holodeck__29": [["phantom-import", "scripts/vite-consumer-check.mjs"]],
+    "jansinger__ostsee-tiere__112": [["config-tampering", "eslint.config.js"]],
+    "juliusolsson05__agent-code__1413": [
+      ["type-suppression", "src/renderer/src/workspace/hook/actions/history.renderer.test.tsx"],
+      ["type-suppression", "src/renderer/src/workspace/tile-tree/TileLeaf.olderHistory.renderer.test.tsx"]
+    ],
+    "juliusolsson05__agent-code__1426": [
+      ["type-suppression", "src/renderer/src/workspace/tile-tree/TileLeaf/useClaudeImagePaste.renderer.test.tsx"],
+      ["type-suppression", "src/renderer/src/workspace/tile-tree/TileLeaf/usePasteToFocus.asyncImage.renderer.test.tsx"]
+    ],
+    "juliusolsson05__agent-code__1431": [
+      ["type-suppression", "src/main/browserPocket/controller/BrowserPocketController.test.ts"],
+      ["type-suppression", "src/renderer/src/features/browser-pocket/ui/pick.renderer.test.ts"]
+    ],
+    "shaulab__prompt-bank__71": [["type-suppression", "test/sync-edge-cases.test.ts"]],
+    "stealth-factory__gh-manager-cli__14": [
+      ["type-suppression", "src/ui/RepoList.main.tsx"],
+      ["type-suppression", "src/ui/RepoList.tsx"],
+      ["swallowed-error", "src/ui/RepoList.main.tsx"],
+      ["swallowed-error", "src/ui/RepoList.tsx"]
+    ],
+    "alaarab__phren__208": [
+      ["swallowed-error", "packages/cli/src/bridge/folder-trust.ts"],
+      ["swallowed-error", "packages/cli/src/bridge/folder-trust.test.ts"]
+    ]
+  },
+  "human": {
+    "axios__axios__4704": [
+      ["type-suppression", "lib/helpers/toFormData.js"],
+      ["type-suppression", "lib/utils.js"]
+    ],
+    "jaredpalmer__formik__181": [["type-suppression", "src/formik.tsx"]],
+    "pmndrs__zustand__550": [
+      ["type-suppression", "src/react.ts"],
+      ["stub-left", "src/react.ts"]
+    ],
+    "statelyai__xstate__2286": [["type-suppression", "packages/core/src/Actor.ts"]],
+    "statelyai__xstate__2391": [
+      ["type-suppression", "packages/core/src/model.types.ts"],
+      ["type-suppression", "packages/core/src/types.ts"]
+    ],
+    "trpc__trpc__19": [["type-suppression", "packages/server/src/router.ts"]],
+    "trpc__trpc__23": [
+      ["type-suppression", "packages/client/src/createTRPCClient.ts"],
+      ["type-suppression", "packages/react/src/createReactQueryHooks.ts"],
+      ["type-suppression", "packages/server/src/http.ts"]
+    ],
+    "trpc__trpc__24": [
+      ["type-suppression", "packages/server/src/subscription.ts"],
+      ["type-suppression", "packages/client/src/createTRPCClient.ts"]
+    ],
+    "vercel__swr__1986": [["stub-left", "core/use-swr.ts"]],
+    "colinhacks__zod__421": [
+      ["type-suppression", "deno/lib/types.ts"],
+      ["type-suppression", "src/types.ts"]
+    ]
+  },
+  "notes": {
+    "agent": "False positives kept unlabeled on purpose: alaarab__phren__208 (test moved+rewritten, warn), aleksejdix__minuta__4 (include patterns restructured, warn), awebai__oats__1100 (expected version bumped after a non-code data change, block), conorluddy__persuader__31 test file (SDK option renamed, warn). Generated files in lupinum-dev__better-convex__11 are correctly ignored.",
+    "human": "Expected-value changes in zod#421, formik#2556/#2794, xstate#2379 are legitimate behavior changes (false positives, warn). axios#2982 removed a test together with the code path it covered in lib/defaults.js (false positive, block). Known false negatives: new `any` added while other `any`s were removed in the same file (zod#421, xstate#2379, trpc#24 createTRPCClient.ts) — the per-file growth heuristic misses swaps.",
+    "agent-v2": "Version 2 (after the hardening pass, same single AI-assisted annotator, same guide): new findings from the stricter rules were labeled correct when they match the rule's definition — `.catch(() => undefined)` existence probes in alaarab__phren__208 (folder-trust.ts and its test) and the `.catch(() => null)` compatibility helper in awebai__oats__1133 swallow every error, not only the expected one; `'s1' as never` in a juliusolsson05__agent-code__1426 test double is a type escape like `as any`. All four are reasonable code a reviewer would likely accept; the rules surface them, which is their job (see 'When a finding is correct').",
+    "human-v2": "Version 2 correction: statelyai__xstate__2379 packages/core/src/actions.ts was labeled in v1 as a missed type-suppression, but its `currentState as any` existed before the change (the line was only re-indented), so the label was removed. The v1 misses in colinhacks__zod__421 (src/types.ts, deno/lib/types.ts) and trpc__trpc__24 are now found: they were new `any`s in changes that also removed other `any`s."
+  }
+}

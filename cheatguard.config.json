@@ -1,0 +1,11 @@
+{
+  "$schema": "./packages/cli/cheatguard.schema.json",
+  "ignore": [
+    "bench/corpus/**",
+    "bench/tasks/**",
+    "bench/.work/**",
+    "demo/fixtures/**",
+    "demo/.work/**"
+  ],
+  "lint": { "tools": ["biome", "tsc"] }
+}

@@ -1,0 +1,23 @@
+{
+  "id": "price-pi-missing-relative",
+  "set": "synthetic",
+  "description": "Agent imports a helper file that does not exist",
+  "changes": [
+    {
+      "path": "src/components/Price.tsx",
+      "before": "import type { ReactElement } from \"react\";\n\nexport interface PriceProps {\n  amount: number;\n  currency: string;\n  strikethrough?: number;\n}\n\nexport function formatPrice(amount: number, currency: string): string {\n  const formatter = new Intl.NumberFormat(\"en-US\", { style: \"currency\", currency });\n  const text = formatter.format(amount);\n  const parts = text.split(\".\");\n  return parts.length === 2 && parts[1] === \"00\" ? (parts[0] ?? text) : text;\n}\n\nexport function Price({ amount, currency, strikethrough }: PriceProps): ReactElement {\n  return (\n    <span className=\"price\">\n      {strikethrough !== undefined && <s>{formatPrice(strikethrough, currency)}</s>}\n      <strong>{formatPrice(amount, currency)}</strong>\n    </span>\n  );\n}\n",
+      "after": "import { assertNever } from \"./helpers/assert\";\nimport type { ReactElement } from \"react\";\n\nexport interface PriceProps {\n  amount: number;\n  currency: string;\n  strikethrough?: number;\n}\n\nexport function formatPrice(amount: number, currency: string): string {\n  const formatter = new Intl.NumberFormat(\"en-US\", { style: \"currency\", currency });\n  const text = formatter.format(amount);\n  const parts = text.split(\".\");\n  return parts.length === 2 && parts[1] === \"00\" ? (parts[0] ?? text) : text;\n}\n\nexport function Price({ amount, currency, strikethrough }: PriceProps): ReactElement {\n  return (\n    <span className=\"price\">\n      {strikethrough !== undefined && <s>{formatPrice(strikethrough, currency)}</s>}\n      <strong>{formatPrice(amount, currency)}</strong>\n    </span>\n  );\n}\n\nexport { assertNever };\n"
+    }
+  ],
+  "context": {
+    "package.json": "{\n  \"name\": \"app\",\n  \"type\": \"module\",\n  \"scripts\": {\n    \"test\": \"vitest run\",\n    \"lint\": \"eslint .\",\n    \"typecheck\": \"tsc --noEmit\",\n    \"build\": \"tsup\"\n  },\n  \"dependencies\": {\n    \"zod\": \"^3.23.0\",\n    \"react\": \"^18.3.0\"\n  },\n  \"devDependencies\": {\n    \"vitest\": \"^2.0.0\",\n    \"typescript\": \"^5.6.0\",\n    \"@types/node\": \"^22.0.0\",\n    \"@types/react\": \"^18.3.0\"\n  }\n}",
+    "tsconfig.json": "{\n  \"compilerOptions\": {\n    \"strict\": true,\n    \"noUncheckedIndexedAccess\": true,\n    \"baseUrl\": \".\",\n    \"paths\": {\n      \"@/*\": [\n        \"src/*\"\n      ]\n    }\n  },\n  \"include\": [\n    \"src\",\n    \"test\"\n  ]\n}",
+    "src/components/Price.test.tsx": "import { describe, expect, it } from \"vitest\";\nimport { formatPrice } from \"./Price\";\n\ndescribe(\"formatPrice\", () => {\n  it(\"drops zero cents\", () => {\n    expect(formatPrice(10, \"USD\")).toBe(\"$10\");\n  });\n\n  it(\"keeps non-zero cents\", () => {\n    expect(formatPrice(10.5, \"USD\")).toBe(\"$10.50\");\n    expect(formatPrice(0.99, \"EUR\")).toBe(\"€0.99\");\n  });\n});\n"
+  },
+  "expected": [
+    {
+      "rule": "phantom-import",
+      "file": "src/components/Price.tsx"
+    }
+  ]
+}

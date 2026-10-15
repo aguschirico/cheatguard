@@ -1,0 +1,51 @@
+{
+  "id": "unjs__ofetch__75",
+  "set": "human",
+  "description": "unjs/ofetch#75",
+  "source": {
+    "url": "https://github.com/unjs/ofetch/pull/75",
+    "repo": "unjs/ofetch",
+    "license": "MIT",
+    "author": "danielroe",
+    "mergedAt": "2022-04-29T18:45:48Z"
+  },
+  "changes": [
+    {
+      "path": "src/utils.ts",
+      "before": "const payloadMethods = new Set(Object.freeze(['PATCH', 'POST', 'PUT', 'DELETE']))\nexport function isPayloadMethod (method: string = 'GET') {\n  return payloadMethods.has(method.toUpperCase())\n}\n\nexport function isJSONSerializable (val: any) {\n  if (val === undefined) {\n    return false\n  }\n  const t = typeof val\n  if (t === 'string' || t === 'number' || t === 'boolean' || t === null) {\n    return true\n  }\n  if (t !== 'object') {\n    return false // bigint, function, symbol, undefined\n  }\n  if (Array.isArray(val)) {\n    return true\n  }\n  return (val.constructor && val.constructor.name === 'Object') ||\n   typeof val.toJSON === 'function'\n}\n\nconst textTypes = new Set([\n  'image/svg',\n  'application/xml',\n  'application/xhtml',\n  'application/html'\n])\n\nconst jsonTypes = new Set(['application/json', 'application/ld+json'])\n\ninterface ResponseMap {\n  blob: Blob\n  text: string\n  arrayBuffer: ArrayBuffer\n}\n\nexport type ResponseType = keyof ResponseMap | 'json'\nexport type MappedType<R extends ResponseType, JsonType = any> = R extends keyof ResponseMap ? ResponseMap[R] : JsonType\n\n// This provides reasonable defaults for the correct parser based on Content-Type header.\nexport function detectResponseType (_contentType = ''): ResponseType {\n  if (!_contentType) {\n    return 'json'\n  }\n\n  // Value might look like: `application/json; charset=utf-8`\n  const contentType = _contentType.split(';').shift()!\n\n  if (jsonTypes.has(contentType)) {\n    return 'json'\n  }\n\n  if (textTypes.has(contentType) || contentType.startsWith('text/')) {\n    return 'text'\n  }\n\n  return 'blob'\n}\n",
+      "after": "const payloadMethods = new Set(Object.freeze(['PATCH', 'POST', 'PUT', 'DELETE']))\nexport function isPayloadMethod (method: string = 'GET') {\n  return payloadMethods.has(method.toUpperCase())\n}\n\nexport function isJSONSerializable (val: any) {\n  if (val === undefined) {\n    return false\n  }\n  const t = typeof val\n  if (t === 'string' || t === 'number' || t === 'boolean' || t === null) {\n    return true\n  }\n  if (t !== 'object') {\n    return false // bigint, function, symbol, undefined\n  }\n  if (Array.isArray(val)) {\n    return true\n  }\n  return (val.constructor && val.constructor.name === 'Object') ||\n   typeof val.toJSON === 'function'\n}\n\nconst textTypes = new Set([\n  'image/svg',\n  'application/xml',\n  'application/xhtml',\n  'application/html'\n])\n\nconst JSON_RE = /^application\\/(?:[\\w!#$%&*`\\-.^~]*\\+)?json(;.+)?$/i\n\ninterface ResponseMap {\n  blob: Blob\n  text: string\n  arrayBuffer: ArrayBuffer\n}\n\nexport type ResponseType = keyof ResponseMap | 'json'\nexport type MappedType<R extends ResponseType, JsonType = any> = R extends keyof ResponseMap ? ResponseMap[R] : JsonType\n\n// This provides reasonable defaults for the correct parser based on Content-Type header.\nexport function detectResponseType (_contentType = ''): ResponseType {\n  if (!_contentType) {\n    return 'json'\n  }\n\n  // Value might look like: `application/json; charset=utf-8`\n  const contentType = _contentType.split(';').shift()!\n\n  if (JSON_RE.test(contentType)) {\n    return 'json'\n  }\n\n  if (textTypes.has(contentType) || contentType.startsWith('text/')) {\n    return 'text'\n  }\n\n  return 'blob'\n}\n"
+    }
+  ],
+  "context": {
+    "build.config.ts": "",
+    "cjs/index.cjs": "",
+    "cjs/node.cjs": "",
+    "cjs/undici.cjs": "",
+    "package.json": "{\n  \"name\": \"ohmyfetch\",\n  \"version\": \"0.4.15\",\n  \"description\": \"oh-my-fetch\",\n  \"repository\": \"unjs/ohmyfetch\",\n  \"license\": \"MIT\",\n  \"sideEffects\": false,\n  \"type\": \"module\",\n  \"exports\": {\n    \".\": {\n      \"node\": {\n        \"import\": \"./dist/node.mjs\",\n        \"require\": \"./cjs/node.cjs\"\n      },\n      \"default\": {\n        \"import\": \"./dist/index.mjs\",\n        \"require\": \"./cjs/index.cjs\"\n      }\n    },\n    \"./node\": {\n      \"import\": \"./dist/node.mjs\",\n      \"require\": \"./cjs/node.cjs\"\n    },\n    \"./undici\": {\n      \"import\": \"./dist/undici.mjs\",\n      \"require\": \"./cjs/undici.cjs\"\n    }\n  },\n  \"main\": \"./cjs/node.cjs\",\n  \"module\": \"./dist/index.mjs\",\n  \"types\": \"./dist/index.d.ts\",\n  \"files\": [\n    \"dist\",\n    \"cjs\"\n  ],\n  \"scripts\": {\n    \"build\": \"unbuild\",\n    \"dev\": \"vitest\",\n    \"lint\": \"eslint --ext .ts .\",\n    \"prepack\": \"pnpm build\",\n    \"play\": \"jiti playground/index.ts\",\n    \"release\": \"pnpm test && standard-version && git push --follow-tags && pnpm publish\",\n    \"test\": \"pnpm lint && vitest run\"\n  },\n  \"dependencies\": {\n    \"destr\": \"^1.1.1\",\n    \"node-fetch\": \"^3.2.4\",\n    \"ufo\": \"^0.8.3\",\n    \"undici\": \"^5.0.0\"\n  },\n  \"devDependencies\": {\n    \"@nuxtjs/eslint-config-typescript\": \"latest\",\n    \"@types/flat\": \"latest\",\n    \"@types/node\": \"latest\",\n    \"@types/node-fetch\": \"^3.0.3\",\n    \"c8\": \"^7.11.2\",\n    \"eslint\": \"latest\",\n    \"fetch-blob\": \"^3.1.5\",\n    \"formdata-polyfill\": \"^4.0.10\",\n    \"h3\": \"latest\",\n    \"jiti\": \"latest\",\n    \"listhen\": \"latest\",\n    \"standard-version\": \"latest\",\n    \"typescript\": \"latest\",\n    \"unbuild\": \"latest\",\n    \"vitest\": \"^0.10.0\"\n  },\n  \"packageManager\": \"pnpm@6.32.11\"\n}\n",
+    "playground/index.mjs": "",
+    "playground/index.ts": "",
+    "playground/undici.ts": "",
+    "renovate.json": "",
+    "src/base.ts": "",
+    "src/error.ts": "",
+    "src/fetch.ts": "",
+    "src/index.ts": "",
+    "src/node.ts": "",
+    "src/types.ts": "",
+    "src/undici.ts": "",
+    "test/index.test.ts": "",
+    "tsconfig.json": "{\n  \"compilerOptions\": {\n    \"target\": \"ESNext\",\n    \"module\": \"ESNext\",\n    \"moduleResolution\": \"Node\",\n    \"esModuleInterop\": true,\n    \"outDir\": \"dist\",\n    \"strict\": true,\n    \"declaration\": true,\n    \"types\": [\n      \"node\"\n    ]\n  },\n  \"include\": [\n    \"src\"\n  ]\n}\n",
+    ".editorconfig": "",
+    ".eslintignore": "",
+    ".eslintrc": "",
+    ".github/banner.svg": "",
+    ".github/workflows/ci.yml": "",
+    ".gitignore": "",
+    "CHANGELOG.md": "",
+    "LICENSE": "",
+    "README.md": "",
+    "pnpm-lock.yaml": ""
+  },
+  "expected": [],
+  "notes": "LABELED v2 (single annotator, AI-assisted; see corpus/LABELING.md)"
+}

@@ -1,0 +1,17 @@
+{
+  "id": "config-neg-ci-step",
+  "set": "synthetic",
+  "description": "CI step added",
+  "changes": [
+    {
+      "path": ".github/workflows/ci.yml",
+      "before": "name: ci\non: [push]\njobs:\n  test:\n    runs-on: ubuntu-latest\n    steps:\n      - uses: actions/checkout@v4\n      - run: npm ci\n      - run: npm test\n",
+      "after": "name: ci\non: [push]\njobs:\n  test:\n    runs-on: ubuntu-latest\n    steps:\n      - uses: actions/checkout@v4\n      - run: npm ci\n      - run: npm test\n      - run: npm run build\n"
+    }
+  ],
+  "context": {
+    "package.json": "{\n  \"name\": \"app\",\n  \"type\": \"module\",\n  \"scripts\": {\n    \"test\": \"vitest run\",\n    \"lint\": \"eslint .\",\n    \"typecheck\": \"tsc --noEmit\",\n    \"build\": \"tsup\"\n  },\n  \"dependencies\": {\n    \"zod\": \"^3.23.0\",\n    \"react\": \"^18.3.0\"\n  },\n  \"devDependencies\": {\n    \"vitest\": \"^2.0.0\",\n    \"typescript\": \"^5.6.0\",\n    \"@types/node\": \"^22.0.0\",\n    \"@types/react\": \"^18.3.0\"\n  }\n}",
+    "tsconfig.json": "{\n  \"compilerOptions\": {\n    \"strict\": true,\n    \"noUncheckedIndexedAccess\": true,\n    \"baseUrl\": \".\",\n    \"paths\": {\n      \"@/*\": [\n        \"src/*\"\n      ]\n    }\n  },\n  \"include\": [\n    \"src\",\n    \"test\"\n  ]\n}"
+  },
+  "expected": []
+}

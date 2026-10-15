@@ -1,0 +1,18 @@
+{
+  "id": "client-neg-reorder",
+  "set": "synthetic",
+  "description": "Tests reordered",
+  "changes": [
+    {
+      "path": "test/api/client.test.ts",
+      "before": "import { describe, expect, it, vi } from \"vitest\";\nimport { buildQuery, fetchJson, HttpError } from \"../../src/api/client\";\n\ndescribe(\"fetchJson\", () => {\n  it(\"retries server errors\", async () => {\n    const fetchMock = vi.fn()\n      .mockResolvedValueOnce(new Response(\"\", { status: 503 }))\n      .mockResolvedValueOnce(Response.json({ ok: true }));\n    vi.stubGlobal(\"fetch\", fetchMock);\n    await expect(fetchJson(\"/x\")).resolves.toEqual({ ok: true });\n    expect(fetchMock).toHaveBeenCalledTimes(2);\n  });\n\n  it(\"throws client errors immediately\", async () => {\n    vi.stubGlobal(\"fetch\", vi.fn().mockResolvedValue(new Response(\"\", { status: 404 })));\n    await expect(fetchJson(\"/x\")).rejects.toBeInstanceOf(HttpError);\n  });\n});\n\ndescribe(\"buildQuery\", () => {\n  it(\"skips undefined values\", () => {\n    expect(buildQuery({ a: 1, b: undefined, c: \"x y\" })).toBe(\"a=1&c=x%20y\");\n  });\n});\n",
+      "after": "import { describe, expect, it, vi } from \"vitest\";\nimport { buildQuery, fetchJson, HttpError } from \"../../src/api/client\";\n\ndescribe(\"fetchJson\", () => {\n  it(\"skips undefined values\", () => {\n    expect(buildQuery({ a: 1, b: undefined, c: \"x y\" })).toBe(\"a=1&c=x%20y\");\n  });\n\n  it(\"throws client errors immediately\", async () => {\n    vi.stubGlobal(\"fetch\", vi.fn().mockResolvedValue(new Response(\"\", { status: 404 })));\n    await expect(fetchJson(\"/x\")).rejects.toBeInstanceOf(HttpError);\n  });\n});\n\ndescribe(\"buildQuery\", () => {\n  it(\"retries server errors\", async () => {\n    const fetchMock = vi.fn()\n      .mockResolvedValueOnce(new Response(\"\", { status: 503 }))\n      .mockResolvedValueOnce(Response.json({ ok: true }));\n    vi.stubGlobal(\"fetch\", fetchMock);\n    await expect(fetchJson(\"/x\")).resolves.toEqual({ ok: true });\n    expect(fetchMock).toHaveBeenCalledTimes(2);\n  });\n});\n"
+    }
+  ],
+  "context": {
+    "package.json": "{\n  \"name\": \"app\",\n  \"type\": \"module\",\n  \"scripts\": {\n    \"test\": \"vitest run\",\n    \"lint\": \"eslint .\",\n    \"typecheck\": \"tsc --noEmit\",\n    \"build\": \"tsup\"\n  },\n  \"dependencies\": {\n    \"zod\": \"^3.23.0\",\n    \"react\": \"^18.3.0\"\n  },\n  \"devDependencies\": {\n    \"vitest\": \"^2.0.0\",\n    \"typescript\": \"^5.6.0\",\n    \"@types/node\": \"^22.0.0\",\n    \"@types/react\": \"^18.3.0\"\n  }\n}",
+    "tsconfig.json": "{\n  \"compilerOptions\": {\n    \"strict\": true,\n    \"noUncheckedIndexedAccess\": true,\n    \"baseUrl\": \".\",\n    \"paths\": {\n      \"@/*\": [\n        \"src/*\"\n      ]\n    }\n  },\n  \"include\": [\n    \"src\",\n    \"test\"\n  ]\n}",
+    "src/api/client.ts": "export class HttpError extends Error {\n  constructor(readonly status: number, message: string) {\n    super(message);\n  }\n}\n\nexport async function fetchJson<T>(url: string, init: RequestInit = {}, retries = 2): Promise<T> {\n  let attempt = 0;\n  while (true) {\n    const response = await fetch(url, init);\n    if (response.ok) return (await response.json()) as T;\n    if (response.status < 500 || attempt >= retries) {\n      throw new HttpError(response.status, `Request to ${url} failed`);\n    }\n    attempt += 1;\n  }\n}\n\nexport function buildQuery(params: Record<string, string | number | undefined>): string {\n  const entries = Object.entries(params).filter(([, v]) => v !== undefined);\n  return entries.map(([k, v]) => `${encodeURIComponent(k)}=${encodeURIComponent(String(v))}`).join(\"&\");\n}\n"
+  },
+  "expected": []
+}

@@ -1,0 +1,50 @@
+{
+  "name": "cheatguard",
+  "version": "0.1.0",
+  "description": "Catch the shortcuts AI coding agents take: weakened tests, type suppressions, config tampering, stubs, phantom imports. Diff-aware, deterministic, built for agent hooks.",
+  "license": "Apache-2.0",
+  "author": "aguschirico",
+  "homepage": "https://github.com/aguschirico/cheatguard#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/aguschirico/cheatguard.git",
+    "directory": "packages/cli"
+  },
+  "bugs": "https://github.com/aguschirico/cheatguard/issues",
+  "type": "module",
+  "bin": {
+    "cheatguard": "./dist/bin.js"
+  },
+  "files": [
+    "dist",
+    "plugin",
+    "cheatguard.schema.json"
+  ],
+  "engines": {
+    "node": ">=20"
+  },
+  "keywords": [
+    "ai",
+    "agents",
+    "claude-code",
+    "linter",
+    "code-quality",
+    "guardrails"
+  ],
+  "scripts": {
+    "build": "tsup",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "test": "vitest run",
+    "test:coverage": "vitest run --coverage"
+  },
+  "devDependencies": {
+    "@cheatguard/core": "workspace:*",
+    "tsup": "^9.0.0"
+  },
+  "dependencies": {
+    "picomatch": "^4.0.7",
+    "typescript": "^6.0.3",
+    "yaml": "^2.9.1",
+    "zod": "^4.6.7"
+  }
+}
