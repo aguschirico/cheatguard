@@ -1,0 +1,23 @@
+# gitleaks's default rules, plus credentials typed into login forms in test
+# code: the kind of secret its defaults miss and that a copied e2e test can carry.
+[extend]
+useDefault = true
+
+[[rules]]
+id = "password-typed-into-form"
+description = "A literal password typed into a form field by browser test code (Playwright, Puppeteer, Cypress)"
+regex = '''(?i)(?:passw(?:or)?d|pwd)[\w\-"'\]\\)]{0,30}\s*\.\s*(?:fill|type)\(\s*\\?['"`]([^'"`\\\s]{6,})\\?['"`]'''
+secretGroup = 1
+keywords = ["passw", "pwd"]
+
+[[rules]]
+id = "password-filled-by-selector"
+description = "A literal password passed to page.fill/page.type with a password selector"
+regex = '''(?i)\.(?:fill|type)\(\s*\\?['"`][^'"`]*(?:passw|pwd)[^'"`]*\\?['"`]\s*,\s*\\?['"`]([^'"`\\\s]{6,})\\?['"`]'''
+secretGroup = 1
+keywords = ["passw", "pwd"]
+
+[[allowlists]]
+description = "Placeholder values, environment lookups and already redacted text"
+regexTarget = "secret"
+regexes = ['''(?i)^(?:password\d*|passw0rd|secret\d*|test\w*|example\w*|changeme|hunter2|redacted.*|x+|\*+)$''', '''(?i)REDACTED''']
