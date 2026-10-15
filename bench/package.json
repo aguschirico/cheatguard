@@ -1,0 +1,16 @@
+{
+  "name": "@cheatguard/bench",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "corpus:synthetic": "node corpus/synthetic.ts",
+    "corpus": "node runner/corpus.ts",
+    "lint-bench": "node runner/lint.ts",
+    "agents": "node runner/agents.ts"
+  },
+  "dependencies": {
+    "@cheatguard/core": "workspace:*",
+    "zod": "^4.6.7"
+  }
+}

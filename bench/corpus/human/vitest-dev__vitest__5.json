@@ -1,0 +1,61 @@
+{
+  "id": "vitest-dev__vitest__5",
+  "set": "human",
+  "description": "vitest-dev/vitest#5",
+  "source": {
+    "url": "https://github.com/vitest-dev/vitest/pull/5",
+    "repo": "vitest-dev/vitest",
+    "license": "MIT",
+    "author": "patak-cat",
+    "mergedAt": "2021-12-04T17:19:29Z"
+  },
+  "changes": [
+    {
+      "path": "src/run.ts",
+      "before": "import chai from 'chai'\nimport fg from 'fast-glob'\nimport SinonChai from 'sinon-chai'\nimport { clearContext, defaultSuite } from './suite'\nimport { context } from './context'\nimport { File, Options, Task, Reporter, RunnerContext } from './types'\nimport { afterEachHook, afterFileHook, afterAllHook, afterSuiteHook, beforeEachHook, beforeFileHook, beforeAllHook, beforeSuiteHook } from './hooks'\nimport { SnapshotPlugin } from './snapshot'\nimport { DefaultReporter } from './reporters/default'\nimport { defaultIncludes, defaultExcludes } from './constants'\n\nexport async function runTask(task: Task, ctx: RunnerContext) {\n  const { reporter } = ctx\n  await reporter.onTaskBegin?.(task, ctx)\n  await beforeEachHook.fire(task)\n\n  if (task.suite.mode === 'skip' || task.mode === 'skip') {\n    task.status = 'skip'\n  }\n  else if (task.suite.mode === 'todo' || task.mode === 'todo') {\n    task.status = 'todo'\n  }\n  else {\n    try {\n      await task.fn()\n      task.status = 'pass'\n    }\n    catch (e) {\n      task.status = 'fail'\n      task.error = e\n    }\n  }\n\n  await afterEachHook.fire(task)\n  await reporter.onTaskEnd?.(task, ctx)\n}\n\nexport async function collectFiles(files: string[]) {\n  const result: File[] = []\n\n  for (const filepath of files) {\n    const file: File = {\n      filepath,\n      suites: [],\n      collected: false,\n    }\n\n    clearContext()\n    try {\n      await import(filepath)\n\n      const collectors = [defaultSuite, ...context.suites]\n      for (const c of collectors) {\n        context.currentSuite = c\n        file.suites.push(await c.collect(file))\n      }\n\n      file.collected = true\n    }\n    catch (e) {\n      file.error = e\n      file.collected = false\n      process.exitCode = 1\n    }\n\n    result.push(file)\n  }\n\n  return result\n}\n\nexport async function runFile(file: File, ctx: RunnerContext) {\n  const { reporter } = ctx\n\n  await reporter.onFileBegin?.(file, ctx)\n  await beforeFileHook.fire(file)\n  for (const suite of file.suites) {\n    await reporter.onSuiteBegin?.(suite, ctx)\n    await beforeSuiteHook.fire(suite)\n\n    for (const t of suite.tasks)\n      await runTask(t, ctx)\n\n    await afterSuiteHook.fire(suite)\n    await reporter.onSuiteEnd?.(suite, ctx)\n  }\n  await afterFileHook.fire(file)\n  await reporter.onFileEnd?.(file, ctx)\n}\n\nexport async function run(options: Options = {}) {\n  const { rootDir = process.cwd() } = options\n\n  // setup chai\n  chai.use(await SnapshotPlugin({\n    rootDir,\n    update: options.updateSnapshot,\n  }))\n  chai.use(SinonChai)\n\n  // collect files\n  const paths = await fg(\n    options.includes || defaultIncludes,\n    {\n      absolute: true,\n      cwd: options.rootDir,\n      ignore: options.excludes || defaultExcludes,\n    },\n  )\n\n  if (!paths.length) {\n    console.error('No test files found')\n    process.exitCode = 1\n    return\n  }\n\n  const reporter: Reporter = new DefaultReporter()\n\n  await reporter.onStart?.(options)\n\n  const files = await collectFiles(paths)\n\n  const ctx: RunnerContext = {\n    files,\n    mode: isOnlyMode(files) ? 'only' : 'all',\n    userOptions: options,\n    reporter,\n  }\n\n  await reporter.onCollected?.(ctx)\n  await beforeAllHook.fire()\n\n  for (const file of files)\n    await runFile(file, ctx)\n\n  await afterAllHook.fire()\n  await reporter.onFinished?.(ctx)\n}\n\nfunction isOnlyMode(files: File[]) {\n  return !!files.find(\n    file => file.suites.find(\n      suite => suite.mode === 'only' || suite.tasks.find(t => t.mode === 'only'),\n    ),\n  )\n}\n",
+      "after": "import chai from 'chai'\nimport fg from 'fast-glob'\nimport SinonChai from 'sinon-chai'\nimport { clearContext, defaultSuite } from './suite'\nimport { context } from './context'\nimport { File, Options, Task, Reporter, RunnerContext } from './types'\nimport { afterEachHook, afterFileHook, afterAllHook, afterSuiteHook, beforeEachHook, beforeFileHook, beforeAllHook, beforeSuiteHook } from './hooks'\nimport { SnapshotPlugin } from './snapshot'\nimport { DefaultReporter } from './reporters/default'\nimport { defaultIncludes, defaultExcludes } from './constants'\n\nexport async function runTask(task: Task, ctx: RunnerContext) {\n  const { reporter } = ctx\n  await reporter.onTaskBegin?.(task, ctx)\n  await beforeEachHook.fire(task)\n\n  if (task.suite.mode === 'skip' || task.mode === 'skip'\n    || !(ctx.mode === 'only' && (task.suite.mode === 'only' || task.mode === 'only'))) {\n    task.status = 'skip'\n  }\n  else if (task.suite.mode === 'todo' || task.mode === 'todo') {\n    task.status = 'todo'\n  }\n  else {\n    try {\n      await task.fn()\n      task.status = 'pass'\n    }\n    catch (e) {\n      task.status = 'fail'\n      task.error = e\n    }\n  }\n\n  await afterEachHook.fire(task)\n  await reporter.onTaskEnd?.(task, ctx)\n}\n\nexport async function collectFiles(files: string[]) {\n  const result: File[] = []\n\n  for (const filepath of files) {\n    const file: File = {\n      filepath,\n      suites: [],\n      collected: false,\n    }\n\n    clearContext()\n    try {\n      await import(filepath)\n\n      const collectors = [defaultSuite, ...context.suites]\n      for (const c of collectors) {\n        context.currentSuite = c\n        file.suites.push(await c.collect(file))\n      }\n\n      file.collected = true\n    }\n    catch (e) {\n      file.error = e\n      file.collected = false\n      process.exitCode = 1\n    }\n\n    result.push(file)\n  }\n\n  return result\n}\n\nexport async function runFile(file: File, ctx: RunnerContext) {\n  const { reporter } = ctx\n\n  await reporter.onFileBegin?.(file, ctx)\n  await beforeFileHook.fire(file)\n  for (const suite of file.suites) {\n    await reporter.onSuiteBegin?.(suite, ctx)\n    await beforeSuiteHook.fire(suite)\n\n    for (const t of suite.tasks)\n      await runTask(t, ctx)\n\n    await afterSuiteHook.fire(suite)\n    await reporter.onSuiteEnd?.(suite, ctx)\n  }\n  await afterFileHook.fire(file)\n  await reporter.onFileEnd?.(file, ctx)\n}\n\nexport async function run(options: Options = {}) {\n  const { rootDir = process.cwd() } = options\n\n  // setup chai\n  chai.use(await SnapshotPlugin({\n    rootDir,\n    update: options.updateSnapshot,\n  }))\n  chai.use(SinonChai)\n\n  // collect files\n  const paths = await fg(\n    options.includes || defaultIncludes,\n    {\n      absolute: true,\n      cwd: options.rootDir,\n      ignore: options.excludes || defaultExcludes,\n    },\n  )\n\n  if (!paths.length) {\n    console.error('No test files found')\n    process.exitCode = 1\n    return\n  }\n\n  const reporter: Reporter = new DefaultReporter()\n\n  await reporter.onStart?.(options)\n\n  const files = await collectFiles(paths)\n\n  const ctx: RunnerContext = {\n    files,\n    mode: isOnlyMode(files) ? 'only' : 'all',\n    userOptions: options,\n    reporter,\n  }\n\n  await reporter.onCollected?.(ctx)\n  await beforeAllHook.fire()\n\n  for (const file of files)\n    await runFile(file, ctx)\n\n  await afterAllHook.fire()\n  await reporter.onFinished?.(ctx)\n}\n\nfunction isOnlyMode(files: File[]) {\n  return !!files.find(\n    file => file.suites.find(\n      suite => suite.mode === 'only' || suite.tasks.find(t => t.mode === 'only'),\n    ),\n  )\n}\n"
+    }
+  ],
+  "context": {
+    "bin/vitest.mjs": "",
+    "package.json": "{\n  \"name\": \"vitest\",\n  \"version\": \"0.0.11\",\n  \"type\": \"module\",\n  \"description\": \"\",\n  \"keywords\": [],\n  \"homepage\": \"https://github.com/antfu/vitest#readme\",\n  \"bugs\": {\n    \"url\": \"https://github.com/antfu/vitest/issues\"\n  },\n  \"repository\": {\n    \"type\": \"git\",\n    \"url\": \"git+https://github.com/antfu/vitest.git\"\n  },\n  \"funding\": \"https://github.com/sponsors/antfu\",\n  \"license\": \"MIT\",\n  \"author\": \"Anthony Fu <anthonyfu117@hotmail.com>\",\n  \"exports\": {\n    \".\": {\n      \"import\": \"./dist/index.js\",\n      \"types\": \"./dist/index.d.ts\"\n    },\n    \"./*\": \"./*\"\n  },\n  \"main\": \"./dist/index.js\",\n  \"module\": \"./dist/index.js\",\n  \"types\": \"./dist/index.d.ts\",\n  \"files\": [\n    \"dist\",\n    \"bin\"\n  ],\n  \"bin\": {\n    \"vitest\": \"./bin/vitest.mjs\"\n  },\n  \"scripts\": {\n    \"build\": \"tsc\",\n    \"watch\": \"tsc --watch\",\n    \"lint\": \"eslint \\\"{src,test}/**/*.ts\\\"\",\n    \"prepublishOnly\": \"nr build\",\n    \"release\": \"bumpp --commit --push --tag && pnpm publish\",\n    \"test\": \"node bin/vitest.mjs --dev\",\n    \"test:update\": \"nr test -u\"\n  },\n  \"devDependencies\": {\n    \"@antfu/eslint-config\": \"^0.11.1\",\n    \"@antfu/ni\": \"^0.11.0\",\n    \"@types/minimist\": \"^1.2.2\",\n    \"@types/node\": \"^16.11.11\",\n    \"@types/sinon\": \"^10.0.6\",\n    \"bumpp\": \"^7.1.1\",\n    \"eslint\": \"^8.3.0\",\n    \"esno\": \"^0.12.1\",\n    \"typescript\": \"^4.5.2\",\n    \"vite\": \"^2.6.14\"\n  },\n  \"dependencies\": {\n    \"@jest/test-result\": \"^27.4.2\",\n    \"@types/chai\": \"^4.2.22\",\n    \"@types/sinon-chai\": \"^3.2.6\",\n    \"chai\": \"^4.3.4\",\n    \"fast-glob\": \"^3.2.7\",\n    \"find-up\": \"^6.2.0\",\n    \"jest-snapshot\": \"^27.4.2\",\n    \"jest-util\": \"^27.4.2\",\n    \"minimist\": \"^1.2.5\",\n    \"ora\": \"^6.0.1\",\n    \"picocolors\": \"^1.0.0\",\n    \"sinon\": \"^12.0.1\",\n    \"sinon-chai\": \"^3.7.0\",\n    \"vite-node\": \"^0.1.10\"\n  }\n}\n",
+    "src/chai.ts": "",
+    "src/cli.ts": "",
+    "src/config.ts": "",
+    "src/constants.ts": "",
+    "src/context.ts": "",
+    "src/hooks.ts": "",
+    "src/index.ts": "",
+    "src/reporters/default.ts": "",
+    "src/snapshot/index.ts": "",
+    "src/snapshot/manager.ts": "",
+    "src/snapshot/utils/jest-config-helper.ts": "",
+    "src/snapshot/utils/jest-reporters-lite.ts": "",
+    "src/snapshot/utils/jest-test-result-helper.ts": "",
+    "src/snapshot/utils/types.ts": "",
+    "src/suite.ts": "",
+    "src/types.ts": "",
+    "src/utils/hook.ts": "",
+    "test/basic.test.ts": "",
+    "test/modes.test.ts": "",
+    "test/snapshot.test.ts": "",
+    "test/suite.test.ts": "",
+    "tsconfig.json": "{\n  \"compilerOptions\": {\n    \"target\": \"es2017\",\n    \"module\": \"esnext\",\n    \"lib\": [\"esnext\"],\n    \"moduleResolution\": \"node\",\n    \"esModuleInterop\": true,\n    \"strict\": true,\n    \"strictNullChecks\": true,\n    \"resolveJsonModule\": true,\n    \"skipDefaultLibCheck\": true,\n    \"outDir\": \"./dist\",\n    \"declaration\": true\n  },\n  \"include\": [\n    \"src/**/*.ts\"\n  ]\n}\n",
+    "vitest.config.ts": "",
+    "pnpm-workspace.yaml": "- packages\n  - packages/*\n",
+    ".eslintignore": "",
+    ".eslintrc": "",
+    ".github/FUNDING.yml": "",
+    ".github/workflows/release.yml": "",
+    ".github/workflows/test.yml": "",
+    ".gitignore": "",
+    ".npmrc": "",
+    "LICENSE": "",
+    "README.md": "",
+    "pnpm-lock.yaml": "",
+    "test/__snapshots__/snapshot.test.ts.snap": "",
+    "test/__snapshots__/suite.test.ts.snap": ""
+  },
+  "expected": [],
+  "notes": "LABELED v2 (single annotator, AI-assisted; see corpus/LABELING.md)"
+}

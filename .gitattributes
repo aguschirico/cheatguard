@@ -1,0 +1,9 @@
+# Every text file is checked out with LF on all platforms: fixtures, snapshots and the formatter
+# expect LF, and Windows runners default to CRLF.
+* text=auto eol=lf
+
+*.png binary
+*.gif binary
+*.mp4 binary
+*.tgz binary
+*.tar.gz binary

@@ -1,0 +1,44 @@
+{
+  "name": "@cheatguard/core",
+  "version": "0.1.0",
+  "description": "Diff-aware engine that catches the shortcuts AI coding agents take.",
+  "license": "Apache-2.0",
+  "author": "aguschirico",
+  "homepage": "https://github.com/aguschirico/cheatguard#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/aguschirico/cheatguard.git",
+    "directory": "packages/core"
+  },
+  "bugs": "https://github.com/aguschirico/cheatguard/issues",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.build.json",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "test": "vitest run",
+    "test:coverage": "vitest run --coverage"
+  },
+  "dependencies": {
+    "picomatch": "^4.0.7",
+    "typescript": "^6.0.3",
+    "yaml": "^2.9.1",
+    "zod": "^4.6.7"
+  },
+  "devDependencies": {
+    "@types/picomatch": "^4.0.3"
+  }
+}

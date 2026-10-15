@@ -1,0 +1,120 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "rules": {
+      "type": "object",
+      "propertyNames": {
+        "type": "string",
+        "enum": [
+          "test-weakened",
+          "type-suppression",
+          "config-tampering",
+          "stub-left",
+          "phantom-import",
+          "swallowed-error",
+          "duplicate-export",
+          "scope-creep",
+          "parse-error"
+        ]
+      },
+      "additionalProperties": {
+        "type": "string",
+        "enum": ["block", "warn", "off"]
+      }
+    },
+    "scope": {
+      "type": "object",
+      "properties": {
+        "allow": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    "tests": {
+      "type": "object",
+      "properties": {
+        "patterns": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    "ignore": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "lint": {
+      "type": "object",
+      "properties": {
+        "tools": {
+          "anyOf": [
+            {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "enum": ["eslint", "biome", "tsc"]
+              }
+            },
+            {
+              "type": "string",
+              "const": "auto"
+            }
+          ]
+        },
+        "onEdit": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": ["eslint", "biome", "tsc"]
+          }
+        },
+        "onStop": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": ["eslint", "biome", "tsc"]
+          }
+        },
+        "maxDiagnostics": {
+          "type": "integer",
+          "exclusiveMinimum": 0,
+          "maximum": 9007199254740991
+        },
+        "blockOnStop": {
+          "type": "boolean"
+        }
+      },
+      "additionalProperties": false
+    },
+    "hooks": {
+      "type": "object",
+      "properties": {
+        "maxStopBlocks": {
+          "type": "integer",
+          "exclusiveMinimum": 0,
+          "maximum": 9007199254740991
+        },
+        "warnAgentOnStop": {
+          "type": "boolean"
+        },
+        "baselineWaitSeconds": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 240
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": false
+}

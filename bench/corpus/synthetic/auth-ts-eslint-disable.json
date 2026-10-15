@@ -1,0 +1,23 @@
+{
+  "id": "auth-ts-eslint-disable",
+  "set": "synthetic",
+  "description": "Agent disables a lint rule inline",
+  "changes": [
+    {
+      "path": "src/auth/token.ts",
+      "before": "export type TokenStatus = 200 | 400 | 401;\n\nexport function verifyToken(token: string | null, now: number): TokenStatus {\n  if (token === null || token.length === 0) return 400;\n  const [payload, expires] = token.split(\".\");\n  if (!payload || !expires) return 400;\n  return Number(expires) > now ? 200 : 401;\n}\n\nexport function bearer(header: string | undefined): string | null {\n  if (!header?.startsWith(\"Bearer \")) return null;\n  return header.slice(\"Bearer \".length).trim() || null;\n}\n",
+      "after": "export type TokenStatus = 200 | 400 | 401;\n\nexport function verifyToken(token: string | null, now: number): TokenStatus {\n  if (token === null || token.length === 0) return 400;\n  // eslint-disable-next-line @typescript-eslint/no-unused-vars\n  const [payload, expires] = token.split(\".\");\n  if (!payload || !expires) return 400;\n  return Number(expires) > now ? 200 : 401;\n}\n\nexport function bearer(header: string | undefined): string | null {\n  if (!header?.startsWith(\"Bearer \")) return null;\n  return header.slice(\"Bearer \".length).trim() || null;\n}\n"
+    }
+  ],
+  "context": {
+    "package.json": "{\n  \"name\": \"app\",\n  \"type\": \"module\",\n  \"scripts\": {\n    \"test\": \"vitest run\",\n    \"lint\": \"eslint .\",\n    \"typecheck\": \"tsc --noEmit\",\n    \"build\": \"tsup\"\n  },\n  \"dependencies\": {\n    \"zod\": \"^3.23.0\",\n    \"react\": \"^18.3.0\"\n  },\n  \"devDependencies\": {\n    \"vitest\": \"^2.0.0\",\n    \"typescript\": \"^5.6.0\",\n    \"@types/node\": \"^22.0.0\",\n    \"@types/react\": \"^18.3.0\"\n  }\n}",
+    "tsconfig.json": "{\n  \"compilerOptions\": {\n    \"strict\": true,\n    \"noUncheckedIndexedAccess\": true,\n    \"baseUrl\": \".\",\n    \"paths\": {\n      \"@/*\": [\n        \"src/*\"\n      ]\n    }\n  },\n  \"include\": [\n    \"src\",\n    \"test\"\n  ]\n}",
+    "src/auth/token.test.ts": "import { describe, expect, it } from \"vitest\";\nimport { bearer, verifyToken } from \"./token\";\n\ndescribe(\"verifyToken\", () => {\n  it(\"rejects missing tokens\", () => {\n    expect(verifyToken(null, 0)).toBe(400);\n    expect(verifyToken(\"\", 0)).toBe(400);\n  });\n\n  it(\"rejects expired tokens\", () => {\n    expect(verifyToken(\"user.100\", 200)).toBe(401);\n  });\n\n  it(\"accepts valid tokens\", () => {\n    expect(verifyToken(\"user.300\", 200)).toBe(200);\n  });\n});\n\ndescribe(\"bearer\", () => {\n  it(\"extracts the token\", () => {\n    expect(bearer(\"Bearer abc\")).toBe(\"abc\");\n    expect(bearer(\"Basic abc\")).toBeNull();\n  });\n});\n"
+  },
+  "expected": [
+    {
+      "rule": "type-suppression",
+      "file": "src/auth/token.ts"
+    }
+  ]
+}

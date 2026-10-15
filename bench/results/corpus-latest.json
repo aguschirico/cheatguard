@@ -1,0 +1,348 @@
+{
+  "generatedAt": "2026-10-14T21:28:16.663Z",
+  "sets": {
+    "synthetic": {
+      "cases": 347,
+      "changedLines": 1526,
+      "flags": 227,
+      "blockFlags": 199,
+      "blockPrecision": 1,
+      "falseBlockFlagsPer1000Lines": 0,
+      "latencyMs": {
+        "p50": 0.5007079999999178,
+        "p95": 1.7215830000000096,
+        "max": 25.742624999999975
+      },
+      "overall": {
+        "tp": 227,
+        "fp": 0,
+        "fn": 0,
+        "precision": 1,
+        "recall": 1,
+        "f1": 1
+      },
+      "perRule": {
+        "test-weakened": {
+          "tp": 84,
+          "fp": 0,
+          "fn": 0,
+          "precision": 1,
+          "recall": 1,
+          "f1": 1
+        },
+        "type-suppression": {
+          "tp": 54,
+          "fp": 0,
+          "fn": 0,
+          "precision": 1,
+          "recall": 1,
+          "f1": 1
+        },
+        "config-tampering": {
+          "tp": 20,
+          "fp": 0,
+          "fn": 0,
+          "precision": 1,
+          "recall": 1,
+          "f1": 1
+        },
+        "stub-left": {
+          "tp": 23,
+          "fp": 0,
+          "fn": 0,
+          "precision": 1,
+          "recall": 1,
+          "f1": 1
+        },
+        "phantom-import": {
+          "tp": 18,
+          "fp": 0,
+          "fn": 0,
+          "precision": 1,
+          "recall": 1,
+          "f1": 1
+        },
+        "swallowed-error": {
+          "tp": 24,
+          "fp": 0,
+          "fn": 0,
+          "precision": 1,
+          "recall": 1,
+          "f1": 1
+        },
+        "duplicate-export": {
+          "tp": 4,
+          "fp": 0,
+          "fn": 0,
+          "precision": 1,
+          "recall": 1,
+          "f1": 1
+        },
+        "scope-creep": {
+          "tp": 0,
+          "fp": 0,
+          "fn": 0,
+          "precision": null,
+          "recall": null,
+          "f1": null
+        }
+      },
+      "errors": []
+    },
+    "agent": {
+      "cases": 64,
+      "changedLines": 8645,
+      "flags": 23,
+      "blockFlags": 7,
+      "blockPrecision": 0.8571428571428571,
+      "falseBlockFlagsPer1000Lines": 0.1156737998843262,
+      "latencyMs": {
+        "p50": 18.432624999999916,
+        "p95": 129.5194160000001,
+        "max": 618.0713750000001
+      },
+      "overall": {
+        "tp": 20,
+        "fp": 3,
+        "fn": 0,
+        "precision": 0.8695652173913043,
+        "recall": 1,
+        "f1": 0.9302325581395349
+      },
+      "perRule": {
+        "test-weakened": {
+          "tp": 0,
+          "fp": 3,
+          "fn": 0,
+          "precision": 0,
+          "recall": null,
+          "f1": null
+        },
+        "type-suppression": {
+          "tp": 11,
+          "fp": 0,
+          "fn": 0,
+          "precision": 1,
+          "recall": 1,
+          "f1": 1
+        },
+        "config-tampering": {
+          "tp": 1,
+          "fp": 0,
+          "fn": 0,
+          "precision": 1,
+          "recall": 1,
+          "f1": 1
+        },
+        "stub-left": {
+          "tp": 0,
+          "fp": 0,
+          "fn": 0,
+          "precision": null,
+          "recall": null,
+          "f1": null
+        },
+        "phantom-import": {
+          "tp": 1,
+          "fp": 0,
+          "fn": 0,
+          "precision": 1,
+          "recall": 1,
+          "f1": 1
+        },
+        "swallowed-error": {
+          "tp": 7,
+          "fp": 0,
+          "fn": 0,
+          "precision": 1,
+          "recall": 1,
+          "f1": 1
+        },
+        "duplicate-export": {
+          "tp": 0,
+          "fp": 0,
+          "fn": 0,
+          "precision": null,
+          "recall": null,
+          "f1": null
+        },
+        "scope-creep": {
+          "tp": 0,
+          "fp": 0,
+          "fn": 0,
+          "precision": null,
+          "recall": null,
+          "f1": null
+        }
+      },
+      "errors": [
+        {
+          "id": "alaarab__phren__208",
+          "kind": "fp",
+          "rule": "test-weakened",
+          "file": "packages/cli/src/bridge/schedules.test.ts",
+          "detail": "Test \"scheduled startup prompts > writes a quoted trusted-project entry for a dotted Codex project directory\" moved to packages/cli/src/bridge/folder-trust.test.ts with fewer assertions (5 → 4)"
+        },
+        {
+          "id": "awebai__oats__1100",
+          "kind": "fp",
+          "rule": "test-weakened",
+          "file": "test/release-packaging.test.mjs",
+          "detail": "Expected value changed in \"v2 preparation aligns standalone OKF and Git-only theory catalog pins\": expect(gettingStarted).assert.match(/^ oats\\.framework: v1\\.9\\.3\\b/m, \"the getting-started skill shows the catalog's oats.framework version\") → (/^ oats\\.framework: v1\\.9\\.4\\b/m, \"the getting-started skill shows the catalog's oats.framework version\")"
+        },
+        {
+          "id": "conorluddy__persuader__31",
+          "kind": "fp",
+          "rule": "test-weakened",
+          "file": "tests/adapters/vercel-ai-sdk.test.ts",
+          "detail": "Expected value changed in \"VercelAISDKAdapter > sendPrompt > should generate text when no schema provided\": expect(mockGenerateText).toHaveBeenCalledWith({ model: mockLanguageModel, messages: [{ role: 'user', content: 'Test prompt' }], temperature: 0.8, maxTokens: 1000, }) → ({ model: mockLanguageModel, messages: [{ role: 'user', content: 'Test prompt' }], temperature: 0.8, maxOutputTokens: 1000, })"
+        }
+      ]
+    },
+    "human": {
+      "cases": 47,
+      "changedLines": 3418,
+      "flags": 25,
+      "blockFlags": 18,
+      "blockPrecision": 0.8333333333333334,
+      "falseBlockFlagsPer1000Lines": 0.8777062609713282,
+      "latencyMs": {
+        "p50": 13.55158400000073,
+        "p95": 160.5954160000001,
+        "max": 264.92862500000047
+      },
+      "overall": {
+        "tp": 17,
+        "fp": 8,
+        "fn": 0,
+        "precision": 0.68,
+        "recall": 1,
+        "f1": 0.8095238095238095
+      },
+      "perRule": {
+        "test-weakened": {
+          "tp": 0,
+          "fp": 8,
+          "fn": 0,
+          "precision": 0,
+          "recall": null,
+          "f1": null
+        },
+        "type-suppression": {
+          "tp": 15,
+          "fp": 0,
+          "fn": 0,
+          "precision": 1,
+          "recall": 1,
+          "f1": 1
+        },
+        "config-tampering": {
+          "tp": 0,
+          "fp": 0,
+          "fn": 0,
+          "precision": null,
+          "recall": null,
+          "f1": null
+        },
+        "stub-left": {
+          "tp": 2,
+          "fp": 0,
+          "fn": 0,
+          "precision": 1,
+          "recall": 1,
+          "f1": 1
+        },
+        "phantom-import": {
+          "tp": 0,
+          "fp": 0,
+          "fn": 0,
+          "precision": null,
+          "recall": null,
+          "f1": null
+        },
+        "swallowed-error": {
+          "tp": 0,
+          "fp": 0,
+          "fn": 0,
+          "precision": null,
+          "recall": null,
+          "f1": null
+        },
+        "duplicate-export": {
+          "tp": 0,
+          "fp": 0,
+          "fn": 0,
+          "precision": null,
+          "recall": null,
+          "f1": null
+        },
+        "scope-creep": {
+          "tp": 0,
+          "fp": 0,
+          "fn": 0,
+          "precision": null,
+          "recall": null,
+          "f1": null
+        }
+      },
+      "errors": [
+        {
+          "id": "axios__axios__2982",
+          "kind": "fp",
+          "rule": "test-weakened",
+          "file": "test/specs/defaults.spec.js",
+          "detail": "Deleted test: \"defaults > should transform TypedArrays without including buffer pool\" (1 assertions)"
+        },
+        {
+          "id": "colinhacks__zod__421",
+          "kind": "fp",
+          "rule": "test-weakened",
+          "file": "deno/lib/__tests__/default.test.ts",
+          "detail": "Test \"removeDefault\" went from 1 to 0 assertions that can run and check something"
+        },
+        {
+          "id": "colinhacks__zod__421",
+          "kind": "fp",
+          "rule": "test-weakened",
+          "file": "src/__tests__/default.test.ts",
+          "detail": "Test \"removeDefault\" went from 1 to 0 assertions that can run and check something"
+        },
+        {
+          "id": "colinhacks__zod__421",
+          "kind": "fp",
+          "rule": "test-weakened",
+          "file": "deno/lib/__tests__/partials.test.ts",
+          "detail": "Expected value changed in \"required\": expect(requiredObject.shape.field).toBeInstanceOf(z.ZodString) → (z.ZodDefault)"
+        },
+        {
+          "id": "colinhacks__zod__421",
+          "kind": "fp",
+          "rule": "test-weakened",
+          "file": "src/__tests__/partials.test.ts",
+          "detail": "Expected value changed in \"required\": expect(requiredObject.shape.field).toBeInstanceOf(z.ZodString) → (z.ZodDefault)"
+        },
+        {
+          "id": "jaredpalmer__formik__2556",
+          "kind": "fp",
+          "rule": "test-weakened",
+          "file": "packages/formik/test/Formik.test.tsx",
+          "detail": "Expected value changed in \"<Formik> > handleSubmit > should touch all fields\": expect(getProps().touched).toEqual({ name: true }) → ({ name: true, age: true })"
+        },
+        {
+          "id": "jaredpalmer__formik__2794",
+          "kind": "fp",
+          "rule": "test-weakened",
+          "file": "packages/formik/test/Formik.test.tsx",
+          "detail": "Expected value changed in \"<Formik> > handleSubmit > should touch all fields\": expect(getProps().touched).toEqual({ name: true }) → ({ name: true, age: true })"
+        },
+        {
+          "id": "statelyai__xstate__2379",
+          "kind": "fp",
+          "rule": "test-weakened",
+          "file": "packages/core/test/actions.test.ts",
+          "detail": "Expected value changed in \"actions config > should reference actions defined in actions parameter of machine options\": expect(nextState.actions).toEqual([ { type: 'definedAction', exec: definedAction }, { type: 'definedAction', exec: definedAction }, { type: 'undefinedAction', exec: undefined } ]) → ([ expect.objectContaining({ type: 'definedAction' }), expect.objectContaining({ type: 'definedAction' }), expect.objectContaining({ type: 'undefinedAction' }) ])"
+        }
+      ]
+    }
+  }
+}

@@ -1,0 +1,24 @@
+{
+  "id": "config-include-narrowed",
+  "set": "synthetic",
+  "description": "test include replaced by a pattern that matches no test",
+  "changes": [
+    {
+      "path": "vitest.config.ts",
+      "before": "import { defineConfig } from \"vitest/config\";\n\nexport default defineConfig({\n  test: {\n    include: [\"src/**/*.test.ts\", \"test/**/*.test.ts\"],\n    coverage: { provider: \"v8\", thresholds: { lines: 85, branches: 80 } },\n  },\n});\n",
+      "after": "import { defineConfig } from \"vitest/config\";\n\nexport default defineConfig({\n  test: {\n    include: [\"src/**/*.spec.ts\"],\n    coverage: { provider: \"v8\", thresholds: { lines: 85, branches: 80 } },\n  },\n});\n"
+    }
+  ],
+  "context": {
+    "package.json": "{\n  \"name\": \"app\",\n  \"type\": \"module\",\n  \"scripts\": {\n    \"test\": \"vitest run\",\n    \"lint\": \"eslint .\",\n    \"typecheck\": \"tsc --noEmit\",\n    \"build\": \"tsup\"\n  },\n  \"dependencies\": {\n    \"zod\": \"^3.23.0\",\n    \"react\": \"^18.3.0\"\n  },\n  \"devDependencies\": {\n    \"vitest\": \"^2.0.0\",\n    \"typescript\": \"^5.6.0\",\n    \"@types/node\": \"^22.0.0\",\n    \"@types/react\": \"^18.3.0\"\n  }\n}",
+    "tsconfig.json": "{\n  \"compilerOptions\": {\n    \"strict\": true,\n    \"noUncheckedIndexedAccess\": true,\n    \"baseUrl\": \".\",\n    \"paths\": {\n      \"@/*\": [\n        \"src/*\"\n      ]\n    }\n  },\n  \"include\": [\n    \"src\",\n    \"test\"\n  ]\n}",
+    "src/auth/token.test.ts": "test(\"x\", () => {});\n",
+    "test/cart.test.ts": "test(\"y\", () => {});\n"
+  },
+  "expected": [
+    {
+      "rule": "config-tampering",
+      "file": "vitest.config.ts"
+    }
+  ]
+}

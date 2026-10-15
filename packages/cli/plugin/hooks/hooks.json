@@ -1,0 +1,39 @@
+{
+  "description": "cheatguard: diff-aware guardrails for coding agents",
+  "hooks": {
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "npx -y cheatguard@0.1.0 hook claude-code",
+            "timeout": 120
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "Edit|Write|MultiEdit|NotebookEdit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "npx -y cheatguard@0.1.0 hook claude-code",
+            "timeout": 60
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "npx -y cheatguard@0.1.0 hook claude-code",
+            "timeout": 300
+          }
+        ]
+      }
+    ]
+  }
+}
