@@ -1,5 +1,5 @@
 import { randomInt } from "node:crypto";
-import { readSync } from "node:fs";
+import { closeSync, openSync, readSync } from "node:fs";
 import { parseArgs } from "node:util";
 import { clearRelease, loadRelease, logIntervention, repoRoot } from "@cheatguard/core";
 import { EXIT, UsageError } from "../errors.js";
@@ -18,11 +18,35 @@ export function interactiveHuman(): boolean {
   );
 }
 
-/** Reads one line typed at the terminal (stdin is a TTY here, so reads return at Enter). */
-function readTypedLine(): string {
+type Read = (fd: number, buffer: Buffer, offset: number, length: number, position: null) => number;
+
+/**
+ * Reads one line from a terminal descriptor (reads return at Enter). A shell can leave the
+ * descriptor non-blocking, and then a read fails with EAGAIN until something is typed.
+ */
+export function readLineFrom(fd: number, read: Read = readSync): string {
   const buffer = Buffer.alloc(256);
-  const bytes = readSync(0, buffer, 0, buffer.length, null);
-  return buffer.subarray(0, bytes).toString("utf8").trim();
+  const pause = new Int32Array(new SharedArrayBuffer(4));
+  for (;;) {
+    try {
+      const bytes = read(fd, buffer, 0, buffer.length, null);
+      return buffer.subarray(0, bytes).toString("utf8").trim();
+    } catch (error) {
+      if ((error as NodeJS.ErrnoException).code !== "EAGAIN") throw error;
+      Atomics.wait(pause, 0, 0, 50);
+    }
+  }
+}
+
+/** Reads the line from /dev/tty where there is one: a fresh descriptor blocks even if stdin doesn't. */
+function readTypedLine(): string {
+  if (process.platform === "win32") return readLineFrom(0);
+  const fd = openSync("/dev/tty", "r");
+  try {
+    return readLineFrom(fd);
+  } finally {
+    closeSync(fd);
+  }
 }
 
 export function runAccept(
@@ -40,7 +64,7 @@ export function runAccept(
   }
   if (!human) {
     throw new UsageError(
-      "cheatguard accept must be run by a person in an interactive terminal (agents should fix the issues instead)",
+      "cheatguard accept must be run by a person in an interactive terminal (agents should fix the issues instead). Claude Code's ! prefix is not one: run it in a separate terminal.",
     );
   }
   const root = repoRoot(process.cwd());

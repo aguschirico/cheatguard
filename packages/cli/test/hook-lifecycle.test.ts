@@ -179,6 +179,8 @@ describe("baseline edges", () => {
     const refused = cli(["accept"], { cwd: repo.root, env: { CLAUDECODE: "1" } });
     expect(refused.status).toBe(3);
     expect(refused.stderr).toContain("person");
+    // Claude Code's ! prefix has no TTY either: say where to run it instead.
+    expect(refused.stderr).toContain("separate terminal");
     const cwd = process.cwd();
     process.chdir(repo.root);
     try {
