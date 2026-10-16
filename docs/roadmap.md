@@ -4,7 +4,7 @@ Phases 2 to 5 can be reordered by what users ask for.
 
 ## Phase 1 — MVP and launch (this release)
 
-The eight diff-aware rules, linter orchestration (ESLint, Biome, tsc), the CLI, Claude Code hooks and plugin, three benchmarks, the landing page and demos.
+The eight diff-aware rules, linter orchestration (ESLint, Biome, oxlint, tsc), the CLI, Claude Code hooks and plugin, three benchmarks, the landing page and demos.
 
 ## Phase 2 — Depth and precision
 

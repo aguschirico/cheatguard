@@ -20,6 +20,7 @@
     "@vitest/coverage-v8": "^5.0.4",
     "eslint": "^9.39.5",
     "fast-check": "^4.10.2",
+    "oxlint": "^1.88.0",
     "typescript": "^6.0.3",
     "typescript-eslint": "^8.71.2",
     "vitest": "^5.0.4"

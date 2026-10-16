@@ -12,7 +12,7 @@ const HELP = `cheatguard ${VERSION} — catch the shortcuts AI coding agents tak
 
 Usage:
   cheatguard check [paths...]      Check changed files for agent shortcuts (+ new lint/type errors)
-  cheatguard lint                  Run eslint/biome/tsc and show only diagnostics you introduced
+  cheatguard lint                  Run eslint/biome/oxlint/tsc and show only diagnostics you introduced
   cheatguard init claude-code      Install the Claude Code hooks in this repository
   cheatguard accept                Stop carrying over issues a released agent session left open
   cheatguard hook claude-code      Hook entry point (reads the hook payload from stdin)

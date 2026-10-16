@@ -30,8 +30,8 @@ export const DEFAULT_CONFIG: CheatguardConfig = {
   ],
   lint: {
     tools: "auto",
-    onEdit: ["eslint", "biome"],
-    onStop: ["eslint", "biome", "tsc"],
+    onEdit: ["eslint", "biome", "oxlint"],
+    onStop: ["eslint", "biome", "oxlint", "tsc"],
     maxDiagnostics: 20,
     blockOnStop: true,
   },

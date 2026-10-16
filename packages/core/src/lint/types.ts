@@ -6,7 +6,7 @@ export interface Diagnostic {
   file: string;
   line: number;
   column: number;
-  /** Rule name (ESLint/Biome) or TS error code ("TS2322"). */
+  /** Rule name (ESLint/Biome/oxlint) or TS error code ("TS2322"). */
   code: string;
   message: string;
   severity: "error" | "warning";

@@ -69,6 +69,7 @@ interface LintMeasure {
 }
 interface LintRow {
   repo: string;
+  linters?: string[];
   seededDiagnostics?: number;
   raw?: LintMeasure;
   cheatguard?: LintMeasure;
@@ -140,7 +141,7 @@ const RULES: Array<[string, string, "blocks" | "warns"]> = [
   ],
   [
     "type-suppression",
-    "New any, as any, as never, double casts, Function, untyped modules, @ts-ignore, eslint-disable, coverage-ignore comments.",
+    "New any, as any, as never, double casts, Function, untyped modules, @ts-ignore, eslint-disable, oxlint-disable, coverage-ignore comments.",
     "blocks",
   ],
   [
@@ -229,6 +230,20 @@ function agentTables(): string {
     .join("");
 }
 
+const LINTER_NAMES: Record<string, string> = {
+  eslint: "ESLint",
+  biome: "Biome",
+  oxlint: "oxlint",
+  tsc: "tsc",
+};
+const linters = (r: LintRow): string =>
+  (r.linters ?? []).map((t) => LINTER_NAMES[t] ?? t).join(" + ") || "—";
+/** Repositories where cheatguard took longer than running the linters once. */
+const slowerThanRaw = (): string[] =>
+  (lint?.results ?? [])
+    .filter((r) => r.raw && r.cheatguard && r.cheatguard.ms > r.raw.ms)
+    .map((r) => r.repo);
+
 function lintTable(): string {
   if (!lint) return "";
   const rows = lint.results
@@ -237,10 +252,10 @@ function lintTable(): string {
       const raw = r.raw as LintMeasure;
       const cg = r.cheatguard as LintMeasure;
       const base = r.cheatguardWithBaseline ?? cg;
-      return `<tr><th scope="row">${esc(r.repo)}</th><td>${raw.tokens}</td><td>${cg.tokens} (${base.tokens})</td><td>${Math.round((1 - base.tokens / raw.tokens) * 100)}%</td><td>${(raw.ms / 1000).toFixed(1)} s</td><td>${(cg.ms / 1000).toFixed(1)} s</td><td>${cg.seededFound} / ${r.seededDiagnostics ?? "?"}</td></tr>`;
+      return `<tr><th scope="row">${esc(r.repo)}</th><td>${esc(linters(r))}</td><td>${raw.tokens}</td><td>${cg.tokens} (${base.tokens})</td><td>${Math.round((1 - base.tokens / raw.tokens) * 100)}%</td><td>${(raw.ms / 1000).toFixed(1)} s</td><td>${(cg.ms / 1000).toFixed(1)} s</td><td>${cg.seededFound} / ${r.seededDiagnostics ?? "?"}</td></tr>`;
     })
     .join("");
-  return `<table><thead><tr><th scope="col">Repository</th><th scope="col">Tokens, raw linters</th><th scope="col">Tokens, cheatguard (with baseline)</th><th scope="col">Saved</th><th scope="col">Time, raw</th><th scope="col">Time, cheatguard</th><th scope="col">New problems kept</th></tr></thead><tbody>${rows}</tbody></table>`;
+  return `<table><thead><tr><th scope="col">Repository</th><th scope="col">Linters</th><th scope="col">Tokens, raw linters</th><th scope="col">Tokens, cheatguard (with baseline)</th><th scope="col">Saved</th><th scope="col">Time, raw</th><th scope="col">Time, cheatguard</th><th scope="col">New problems kept</th></tr></thead><tbody>${rows}</tbody></table>`;
 }
 
 const DIFF: Array<{ kind: "ctx" | "add" | "del"; code: string; note?: string }> = [
@@ -526,7 +541,7 @@ footer { max-width: var(--wide); margin: 4rem auto 3rem; color: var(--pencil); f
   <div class="table-scroll"><table class="rules"><thead><tr><th scope="col">Rule</th><th scope="col">What it reports</th><th scope="col">Effect</th></tr></thead><tbody>
   ${RULES.map(([id, what, effect]) => `<tr><td><code>${id}</code></td><td>${esc(what)}</td><td class="verdict-${effect}">${effect === "blocks" ? "Blocks" : "Warns"}</td></tr>`).join("")}
   </tbody></table></div>
-  <p>It also runs the linters you already have (ESLint, Biome, tsc) on just the changed files and shows only the problems the change introduced, so the agent reads a few lines instead of a wall of old warnings.</p>
+  <p>It also runs the linters you already have (ESLint, Biome, oxlint, tsc) on just the changed files and shows only the problems the change introduced, so the agent reads a few lines instead of a wall of old warnings.</p>
 </section>
 
 <section>
@@ -566,7 +581,7 @@ footer { max-width: var(--wide); margin: 4rem auto 3rem; color: var(--pencil); f
 
   <h3>How much less does the agent have to read?</h3>
   <div class="table-scroll">${lintTable()}</div>
-  <p>Clean repositories produce little output either way; the savings grow with existing noise. On the smallest project cheatguard was slower than running the linter once, because it also snapshots the working tree.</p>
+  <p>Clean repositories produce little output either way; the savings grow with existing noise.${slowerThanRaw().length > 0 ? ` On ${esc(slowerThanRaw().join(" and "))} cheatguard was slower than running the linters once, because it also snapshots the working tree.` : ""}</p>
 </section>
 
 <section>
@@ -649,13 +664,13 @@ function markdownSection(): string {
     out.push(
       "**How much less does the agent read?** (benchmark C: seeded change in real repositories)",
       "",
-      "| Repository | Tokens, raw linters | Tokens, cheatguard (with baseline) | Time, raw | Time, cheatguard | New problems kept |",
-      "|---|---:|---:|---:|---:|---:|",
+      "| Repository | Linters | Tokens, raw linters | Tokens, cheatguard (with baseline) | Time, raw | Time, cheatguard | New problems kept |",
+      "|---|---|---:|---:|---:|---:|---:|",
     );
     for (const r of lint.results) {
       if (!r.raw || !r.cheatguard) continue;
       out.push(
-        `| ${r.repo} | ${r.raw.tokens} | ${r.cheatguard.tokens} (${(r.cheatguardWithBaseline ?? r.cheatguard).tokens}) | ${(r.raw.ms / 1000).toFixed(1)} s | ${(r.cheatguard.ms / 1000).toFixed(1)} s | ${r.cheatguard.seededFound} / ${r.seededDiagnostics ?? "?"} |`,
+        `| ${r.repo} | ${linters(r)} | ${r.raw.tokens} | ${r.cheatguard.tokens} (${(r.cheatguardWithBaseline ?? r.cheatguard).tokens}) | ${(r.raw.ms / 1000).toFixed(1)} s | ${(r.cheatguard.ms / 1000).toFixed(1)} s | ${r.cheatguard.seededFound} / ${r.seededDiagnostics ?? "?"} |`,
       );
     }
     out.push("");

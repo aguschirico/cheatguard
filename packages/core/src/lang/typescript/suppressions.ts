@@ -7,7 +7,8 @@ const DIRECTIVES: ReadonlyArray<[RegExp, SuppressionKind]> = [
   [/^@ts-ignore\b/, "ts-ignore"],
   [/^@ts-expect-error\b/, "ts-expect-error"],
   [/^@ts-nocheck\b/, "ts-nocheck"],
-  [/^(eslint|oxlint)-disable(-next-line|-line)?\b/, "eslint-disable"],
+  [/^eslint-disable(-next-line|-line)?\b/, "eslint-disable"],
+  [/^oxlint-disable(-next-line|-line)?\b/, "oxlint-disable"],
   [/^biome-ignore(-all|-start)?\b/, "biome-ignore"],
   [/^(v8|c8|istanbul)\s+ignore\b/, "coverage-ignore"],
 ];

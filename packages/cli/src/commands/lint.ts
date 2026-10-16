@@ -5,6 +5,7 @@ import {
   check,
   formatJson,
   formatPretty,
+  LINT_TOOLS,
   type LintBaseline,
   loadSession,
   planTools,
@@ -19,9 +20,11 @@ import {
 import { openRepo, useColor } from "../context.js";
 import { EXIT, UsageError } from "../errors.js";
 
+const LINT_TOOL_NAMES: ReadonlySet<string> = new Set(LINT_TOOLS);
+
 export const LINT_HELP = `cheatguard lint [options]
 
-Runs your existing linters (eslint, biome, tsc) on what changed and prints only NEW diagnostics,
+Runs your existing linters (eslint, biome, oxlint, tsc) on what changed and prints only NEW diagnostics,
 compactly. Pre-existing problems are hidden.
 
 Options:
@@ -43,8 +46,8 @@ export function readBaselineFile(path: string): LintBaseline {
     if (!isRecord(parsed) || !Array.isArray(parsed.fingerprints))
       throw new Error("missing fingerprints");
     return {
-      tools: stringList(parsed.tools).filter(
-        (t): t is LintBaseline["tools"][number] => t === "eslint" || t === "biome" || t === "tsc",
+      tools: stringList(parsed.tools).filter((t): t is LintBaseline["tools"][number] =>
+        LINT_TOOL_NAMES.has(t),
       ),
       fingerprints: stringList(parsed.fingerprints),
       errors: [],
@@ -125,7 +128,7 @@ export function runLintCommand(argv: string[]): number {
   }
   if (tools.length === 0 && plan.missing.length === 0) {
     process.stdout.write(
-      "No configured linters found (eslint, biome or tsc with a config and a local install).\n",
+      "No configured linters found (eslint, biome, oxlint or tsc with a config and a local install).\n",
     );
     return EXIT.ok;
   }

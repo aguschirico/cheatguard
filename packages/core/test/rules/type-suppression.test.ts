@@ -36,6 +36,12 @@ describe("type-suppression: positives", () => {
     ],
     ["file-level eslint-disable", `/* eslint-disable */\n${SRC}`, "eslint-disable"],
     [
+      "oxlint-disable-next-line",
+      SRC.replace("  return value;", "  // oxlint-disable-next-line no-debugger\n  return value;"),
+      "`oxlint-disable` directive",
+    ],
+    ["file-level oxlint-disable", `/* oxlint-disable */\n${SRC}`, "`oxlint-disable` directive"],
+    [
       "biome-ignore",
       SRC.replace("  return value;", "  // biome-ignore lint: x\n  return value;"),
       "biome-ignore",

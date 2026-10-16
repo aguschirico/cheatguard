@@ -13,7 +13,12 @@ import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { parseArgs } from "node:util";
-import { parseBiomeGithub, parseEslintJson, parseTscOutput } from "@cheatguard/core";
+import {
+  parseBiomeGithub,
+  parseEslintJson,
+  parseOxlintJson,
+  parseTscOutput,
+} from "@cheatguard/core";
 import { z } from "zod";
 
 const BENCH = join(import.meta.dirname, "..");
@@ -29,7 +34,7 @@ interface Repo {
   seedFile: string;
   /** Commands an agent would typically run to lint/typecheck the project. */
   raw: string[][];
-  tools: Array<"eslint" | "biome" | "tsc">;
+  tools: Array<"eslint" | "biome" | "oxlint" | "tsc">;
   /** JavaScript seed (no type annotations). */
   js?: boolean;
 }
@@ -77,6 +82,28 @@ const REPOS: Repo[] = [
     tools: ["eslint"],
     js: true,
   },
+  {
+    name: "vue-test-utils",
+    url: "https://github.com/vuejs/test-utils.git",
+    ref: "main",
+    seedFile: "src/utils.ts",
+    raw: [
+      ["npx", "oxlint"],
+      ["npx", "tsc", "--noEmit", "-p", "."],
+    ],
+    tools: ["oxlint", "tsc"],
+  },
+  {
+    name: "update-electron-app",
+    url: "https://github.com/electron/update-electron-app.git",
+    ref: "main",
+    seedFile: "src/index.ts",
+    raw: [
+      ["npx", "oxlint"],
+      ["npx", "tsc", "--noEmit", "-p", "."],
+    ],
+    tools: ["oxlint", "tsc"],
+  },
 ];
 
 const JS_SEED = `
@@ -94,6 +121,19 @@ export function cheatguardSeed(input: string): number {
   return parsed;
 }
 `;
+
+/** oxlint configs often leave no-unused-vars off; \`debugger\` is in its default correctness category. */
+const OXLINT_SEED = `
+export function cheatguardSeed(input: string): number {
+  let unusedCounter = 0;
+  const parsed: number = input;
+  debugger;
+  return parsed;
+}
+`;
+
+const seedFor = (repo: Repo): string =>
+  repo.js ? JS_SEED : repo.tools.includes("oxlint") ? OXLINT_SEED : SEED;
 
 function sh(
   cwd: string,
@@ -129,7 +169,7 @@ function prepare(repo: Repo): string {
   execFileSync("git", ["clean", "-fdq", "-e", "node_modules"], { cwd: dir });
   if (!existsSync(join(dir, "node_modules"))) {
     const pnpm = existsSync(join(dir, "pnpm-lock.yaml"));
-    const r = pnpm
+    let r = pnpm
       ? sh(dir, "pnpm", [
           "install",
           "--ignore-workspace",
@@ -139,6 +179,16 @@ function prepare(repo: Repo): string {
           "--config.confirmModulesPurge=false",
         ])
       : sh(dir, "npm", ["install", "--ignore-scripts", "--no-audit", "--no-fund"]);
+    // Projects managed with yarn can carry peer conflicts npm refuses by default.
+    if (r.status !== 0 && !pnpm && /ERESOLVE/.test(r.out)) {
+      r = sh(dir, "npm", [
+        "install",
+        "--ignore-scripts",
+        "--no-audit",
+        "--no-fund",
+        "--legacy-peer-deps",
+      ]);
+    }
     if (r.status !== 0) throw new Error(`install failed for ${repo.name}: ${r.out.slice(-400)}`);
   }
   return dir;
@@ -154,10 +204,11 @@ interface Measure {
   seededFound: number;
 }
 
-function seededLines(dir: string, file: string): Set<number> {
+function seededLines(dir: string, file: string, seed: string): Set<number> {
   const lines = readFileSync(join(dir, file), "utf8").split("\n");
   const start = lines.findIndex((l) => l.includes("cheatguardSeed"));
-  return new Set(Array.from({ length: 5 }, (_, i) => start + 1 + i));
+  const length = seed.trim().split("\n").length;
+  return new Set(Array.from({ length }, (_, i) => start + 1 + i));
 }
 
 function rawDiagnostics(repo: Repo, dir: string): Array<{ file: string; line: number }> {
@@ -176,6 +227,10 @@ function rawDiagnostics(repo: Repo, dir: string): Array<{ file: string; line: nu
           sh(dir, "npx", ["biome", "lint", "--reporter=github", repo.seedFile]).stdout,
           dir,
         ),
+      );
+    if (tool === "oxlint")
+      out.push(
+        ...parseOxlintJson(sh(dir, "npx", ["oxlint", "--format=json", repo.seedFile]).stdout, dir),
       );
     if (tool === "tsc")
       out.push(
@@ -245,9 +300,9 @@ for (const repo of selected) {
     sh(dir, process.execPath, [CLI, "lint", "--snapshot", baselineFile]);
     writeFileSync(
       join(dir, repo.seedFile),
-      `${readFileSync(join(dir, repo.seedFile), "utf8")}${repo.js ? JS_SEED : SEED}`,
+      `${readFileSync(join(dir, repo.seedFile), "utf8")}${seedFor(repo)}`,
     );
-    const seeded = seededLines(dir, repo.seedFile);
+    const seeded = seededLines(dir, repo.seedFile, seedFor(repo));
     const truth = rawDiagnostics(repo, dir).filter(
       (d) => d.file === repo.seedFile && seeded.has(d.line),
     ).length;
@@ -257,6 +312,7 @@ for (const repo of selected) {
     execFileSync("git", ["checkout", "--", "."], { cwd: dir });
     results.push({
       repo: repo.name,
+      linters: repo.tools,
       seededDiagnostics: truth,
       raw,
       cheatguard: noBaseline,
@@ -270,7 +326,19 @@ for (const repo of selected) {
     console.log(`${repo.name}: ERROR ${String(error).slice(0, 300)}`);
   }
 }
+// A run limited with --repos keeps the other repositories' last results.
+const latest = join(BENCH, "results", "lint-latest.json");
+const previous = z
+  .object({ results: z.array(z.object({ repo: z.string() }).loose()) })
+  .safeParse(existsSync(latest) ? JSON.parse(readFileSync(latest, "utf8")) : null);
+const fresh = new Set(results.map((r) => r.repo));
+const kept = (values.repos && previous.success ? previous.data.results : [])
+  .filter((r) => !fresh.has(r.repo))
+  // Which linters a repository runs is its definition above, not a measurement.
+  .map((r) => ({ linters: REPOS.find((repo) => repo.name === r.repo)?.tools, ...r }));
+const order = (r: Record<string, unknown>): number =>
+  REPOS.findIndex((repo) => repo.name === r.repo);
 writeFileSync(
-  join(BENCH, "results", "lint-latest.json"),
-  `${JSON.stringify({ generatedAt: new Date().toISOString(), results }, null, 2)}\n`,
+  latest,
+  `${JSON.stringify({ generatedAt: new Date().toISOString(), results: [...kept, ...results].sort((a, b) => order(a) - order(b)) }, null, 2)}\n`,
 );

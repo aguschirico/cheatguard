@@ -22,7 +22,7 @@ Options:
   --base <ref>        Compare against this git ref (default: HEAD)
   --staged            Check only staged changes (the index)
   --format <fmt>      pretty (default) or json
-  --no-lint           Skip running eslint/biome/tsc on the changed files
+  --no-lint           Skip running eslint/biome/oxlint/tsc on the changed files
   --lint-baseline <f> Lint baseline file from "cheatguard lint --snapshot" (report only new diagnostics)
 
 Exit codes: 0 clean · 1 blocking issues · 3 tool error (including a linter that could not run)`;

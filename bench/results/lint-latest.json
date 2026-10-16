@@ -1,8 +1,12 @@
 {
-  "generatedAt": "2026-10-14T22:35:01.835Z",
+  "generatedAt": "2026-10-16T13:45:07.730Z",
   "results": [
     {
       "repo": "zustand",
+      "linters": [
+        "eslint",
+        "tsc"
+      ],
       "seededDiagnostics": 3,
       "raw": {
         "chars": 731,
@@ -28,6 +32,10 @@
     },
     {
       "repo": "ofetch",
+      "linters": [
+        "eslint",
+        "tsc"
+      ],
       "seededDiagnostics": 3,
       "raw": {
         "chars": 722,
@@ -53,6 +61,10 @@
     },
     {
       "repo": "jotai",
+      "linters": [
+        "eslint",
+        "tsc"
+      ],
       "seededDiagnostics": 3,
       "raw": {
         "chars": 744,
@@ -78,6 +90,9 @@
     },
     {
       "repo": "axios",
+      "linters": [
+        "eslint"
+      ],
       "seededDiagnostics": 1,
       "raw": {
         "chars": 1001,
@@ -99,6 +114,64 @@
         "ms": 1697.0021669999987,
         "diagnostics": 1,
         "seededFound": 1
+      }
+    },
+    {
+      "repo": "vue-test-utils",
+      "linters": [
+        "oxlint",
+        "tsc"
+      ],
+      "seededDiagnostics": 3,
+      "raw": {
+        "chars": 17043,
+        "tokens": 4261,
+        "ms": 3932.2718330000007,
+        "diagnostics": 77,
+        "seededFound": 3
+      },
+      "cheatguard": {
+        "chars": 474,
+        "tokens": 119,
+        "ms": 4123.286917000001,
+        "diagnostics": 3,
+        "seededFound": 3
+      },
+      "cheatguardWithBaseline": {
+        "chars": 388,
+        "tokens": 97,
+        "ms": 3919.6919589999998,
+        "diagnostics": 3,
+        "seededFound": 3
+      }
+    },
+    {
+      "repo": "update-electron-app",
+      "linters": [
+        "oxlint",
+        "tsc"
+      ],
+      "seededDiagnostics": 3,
+      "raw": {
+        "chars": 567,
+        "tokens": 142,
+        "ms": 1737.945249000004,
+        "diagnostics": 3,
+        "seededFound": 3
+      },
+      "cheatguard": {
+        "chars": 445,
+        "tokens": 111,
+        "ms": 1598.1292079999985,
+        "diagnostics": 3,
+        "seededFound": 3
+      },
+      "cheatguardWithBaseline": {
+        "chars": 445,
+        "tokens": 111,
+        "ms": 1588.2648340000014,
+        "diagnostics": 3,
+        "seededFound": 3
       }
     }
   ]
