@@ -1,6 +1,6 @@
 {
   "name": "cheatguard",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "Stops coding agents from cheating: blocks weakened tests, type suppressions, config tampering, stubs and phantom imports, and shows only the lint/type errors your change introduced.",
   "author": { "name": "aguschirico" },
   "homepage": "https://github.com/aguschirico/cheatguard",
