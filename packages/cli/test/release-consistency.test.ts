@@ -21,6 +21,10 @@ describe("release consistency", () => {
     const commands = [...read("../plugin/hooks/hooks.json").matchAll(/cheatguard@([\w.-]+)/g)];
     expect(commands.length).toBeGreaterThan(0);
     for (const match of commands) expect(match[1]).toBe(VERSION);
+    // The plugin README tells people which exact version the hooks download.
+    const documented = [...read("../plugin/README.md").matchAll(/cheatguard@(\d[\w.-]*)/g)];
+    expect(documented.length).toBeGreaterThan(0);
+    for (const match of documented) expect(match[1]).toBe(VERSION);
   });
 
   test("the published JSON schema matches the config the code accepts", () => {

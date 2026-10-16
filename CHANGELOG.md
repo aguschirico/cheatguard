@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.1.2
+
+- `cheatguard accept` no longer crashes with `EAGAIN` when the terminal leaves stdin non-blocking: it reads the code from `/dev/tty` and waits for it. Its refusal message now says that Claude Code's `!` prefix is not an interactive terminal.
+- The Claude Code plugin installs from the repository's own marketplace (`claude plugin marketplace add aguschirico/cheatguard`), its README says what it runs, reads and writes, and it pins `cheatguard@0.1.2`.
+
 ## 0.1.1
 
 - Windows: session state and hook file paths are resolved to one canonical path, so 8.3 short names (`RUNNER~1`) and `C:/...` vs `C:\...` spellings no longer split a session or make an edited file look outside the repository.
