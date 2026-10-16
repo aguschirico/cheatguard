@@ -1,6 +1,7 @@
 import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { type CheatguardConfig, LINT_TOOLS, type LintToolName } from "../types.js";
+import { isRecord } from "../util/json.js";
 import { workspaceTsconfigs } from "./projects.js";
 
 const CONFIGS: Record<LintToolName, readonly string[]> = {
@@ -19,6 +20,7 @@ const CONFIGS: Record<LintToolName, readonly string[]> = {
     ".eslintrc.yml",
   ],
   biome: ["biome.json", "biome.jsonc"],
+  oxlint: [".oxlintrc.json", "oxlint.config.ts"],
   tsc: ["tsconfig.json"],
 };
 
@@ -26,6 +28,7 @@ const CONFIGS: Record<LintToolName, readonly string[]> = {
 const SCRIPTS: Record<LintToolName, readonly string[]> = {
   eslint: ["eslint/bin/eslint.js"],
   biome: ["@biomejs/biome/bin/biome"],
+  oxlint: ["oxlint/bin/oxlint"],
   tsc: ["typescript/bin/tsc"],
 };
 
@@ -37,16 +40,28 @@ export function toolScript(root: string, tool: LintToolName): string | null {
   return null;
 }
 
+function readPackage(root: string): Record<string, unknown> | null {
+  try {
+    const pkg: unknown = JSON.parse(readFileSync(join(root, "package.json"), "utf8"));
+    return isRecord(pkg) ? pkg : null;
+  } catch {
+    return null;
+  }
+}
+
+/** oxlint runs with built-in defaults, so a package script that calls it counts as configuring it. */
+const OXLINT_SCRIPT_RE = /(^|[\s;&|(])oxlint(\s|$)/;
+
 function hasConfig(root: string, tool: LintToolName): boolean {
   if (CONFIGS[tool].some((f) => existsSync(join(root, f)))) return true;
   if (tool === "tsc") return workspaceTsconfigs(root).length > 0;
-  if (tool === "eslint") {
-    try {
-      const pkg: unknown = JSON.parse(readFileSync(join(root, "package.json"), "utf8"));
-      return typeof pkg === "object" && pkg !== null && "eslintConfig" in pkg;
-    } catch {
-      return false;
-    }
+  if (tool === "eslint") return readPackage(root)?.eslintConfig !== undefined;
+  if (tool === "oxlint") {
+    const scripts = readPackage(root)?.scripts;
+    return (
+      isRecord(scripts) &&
+      Object.values(scripts).some((s) => typeof s === "string" && OXLINT_SCRIPT_RE.test(s))
+    );
   }
   return false;
 }
@@ -86,7 +101,9 @@ export function planTools(root: string, config: CheatguardConfig): ToolPlan {
           ? `${tool} is not installed (node_modules/${SCRIPTS[tool][0]} is missing)`
           : tool === "tsc"
             ? "tsc has no tsconfig.json in the repository root or in any workspace package"
-            : `${tool} has no config file in the repository root`,
+            : tool === "oxlint"
+              ? "oxlint has no config file in the repository root and no package script runs it"
+              : `${tool} has no config file in the repository root`,
       });
     }
   }

@@ -5,7 +5,7 @@ import ts from "typescript";
 import type { LintToolName } from "../types.js";
 import { asArray, isRecord } from "../util/json.js";
 import { toolScript } from "./detect.js";
-import { parseBiomeGithub, parseEslintJson, parseTscOutput } from "./parsers.js";
+import { parseBiomeGithub, parseEslintJson, parseOxlintJson, parseTscOutput } from "./parsers.js";
 import { workspaceTsconfigs } from "./projects.js";
 import type { Diagnostic } from "./types.js";
 
@@ -129,6 +129,18 @@ export function runTool(
           ? (result.stderr || result.stdout).trim().split("\n").slice(0, 3).join(" ")
           : undefined,
       );
+    }
+    if (tool === "oxlint") {
+      const result = runNode(root, bin, ["--format=json", ...targets], timeoutMs);
+      if (result.error) return done([], 0, result.error);
+      const raw = result.stdout.length + result.stderr.length;
+      try {
+        // Exit 1 also means "lint errors found" or "every target is ignored": only output decides.
+        return done(parseOxlintJson(result.stdout, root), raw);
+      } catch {
+        const text = (result.stderr || result.stdout).trim().split("\n").slice(0, 3).join(" ");
+        return done([], raw, `oxlint failed: ${text || `exit code ${String(result.status)}`}`);
+      }
     }
     const diagnostics: Diagnostic[] = [];
     let raw = 0;

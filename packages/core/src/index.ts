@@ -45,7 +45,12 @@ export {
   snapshotLintBaselineAt,
   type ToolPlan,
 } from "./lint/index.js";
-export { parseBiomeGithub, parseEslintJson, parseTscOutput } from "./lint/parsers.js";
+export {
+  parseBiomeGithub,
+  parseEslintJson,
+  parseOxlintJson,
+  parseTscOutput,
+} from "./lint/parsers.js";
 export type { Diagnostic, LintResult, ToolRun } from "./lint/types.js";
 export { createProjectContext, diskSource, memorySource, treeSource } from "./project.js";
 export { canonicalPath } from "./realpath.js";

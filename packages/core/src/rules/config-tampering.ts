@@ -33,6 +33,17 @@ const STRICT_FLAGS = [
 const GUARDED_SCRIPT_RE = /^(test|tests|lint|typecheck|type-check|types|check|verify|ci)(:.*)?$/;
 const ESLINT_SEVERITY: Record<string, number> = { off: 0, warn: 1, error: 2 };
 const BIOME_SEVERITY: Record<string, number> = { off: 0, info: 1, warn: 2, on: 3, error: 3 };
+const OXLINT_SEVERITY: Record<string, number> = { off: 0, allow: 0, warn: 1, error: 2, deny: 2 };
+/** Plugins oxlint enables when a config sets no `plugins` (oxlint 1.x, from --print-config). */
+const OXLINT_DEFAULT_PLUGINS = ["unicorn", "typescript", "oxc"];
+
+/** ESLint-style configs: ESLint itself, and oxlint, whose config mirrors it. */
+interface EslintLike {
+  name: string;
+  severity: Record<string, number>;
+}
+const ESLINT: EslintLike = { name: "ESLint", severity: ESLINT_SEVERITY };
+const OXLINT: EslintLike = { name: "oxlint", severity: OXLINT_SEVERITY };
 
 const TEST_LIKE_RE =
   /(^|[/._*-])(tests?|specs?|__tests__|__mocks__|mocks?|fixtures?|stories)([/._*-]|$)|\.d\.ts$/i;
@@ -233,27 +244,28 @@ function eslintFindings(
   after: ConfigView,
   fresh: boolean,
   scope: Scope,
+  tool: EslintLike = ESLINT,
 ): Finding[] {
   const findings: Finding[] = [];
   const was = eslintRules(before);
   const now = eslintRules(after);
   for (const [key, { rule, entry }] of now) {
-    const nowRank = severityRank(entry.value, ESLINT_SEVERITY);
+    const nowRank = severityRank(entry.value, tool.severity);
     const previous = was.get(key);
-    const wasRank = severityRank(previous?.entry.value, ESLINT_SEVERITY);
+    const wasRank = severityRank(previous?.entry.value, tool.severity);
     if (nowRank === null) continue;
     if (previous && wasRank !== null && nowRank < wasRank) {
       findings.push({
         severity: "block",
         line: entry.line,
-        detail: `ESLint rule "${rule}" was weakened: ${String(previous.entry.value)} → ${String(entry.value)}`,
+        detail: `${tool.name} rule "${rule}" was weakened: ${String(previous.entry.value)} → ${String(entry.value)}`,
         fix: `Restore "${rule}" to ${String(previous.entry.value)} and fix the violations it reports.`,
       });
     } else if (!previous && nowRank === 0) {
       findings.push({
         severity: "block",
         line: entry.line,
-        detail: `ESLint rule "${rule}" was turned off`,
+        detail: `${tool.name} rule "${rule}" was turned off`,
         fix: `Remove the "off" override for "${rule}" and fix the violations it reports.`,
       });
     }
@@ -264,16 +276,16 @@ function eslintFindings(
       -1,
       ...[...now.values()]
         .filter((n) => n.rule === rule)
-        .map((n) => severityRank(n.entry.value, ESLINT_SEVERITY) ?? -1),
+        .map((n) => severityRank(n.entry.value, tool.severity) ?? -1),
     );
   for (const [key, { rule, entry }] of was) {
-    const rank = severityRank(entry.value, ESLINT_SEVERITY);
+    const rank = severityRank(entry.value, tool.severity);
     // Index shifts (an object inserted before) move a rule without removing it.
     if (!now.has(key) && rank !== null && rank > 0 && strongest(rule) < rank) {
       findings.push({
         severity: "warn",
         line: 1,
-        detail: `ESLint rule "${rule}" was removed from the config`,
+        detail: `${tool.name} rule "${rule}" was removed from the config`,
         fix: `Restore "${rule}" unless the team decided to drop it.`,
       });
     }
@@ -283,11 +295,60 @@ function eslintFindings(
     findings.push({
       severity: "block",
       line: e.line,
-      detail: `"${String(e.value)}" was added to ESLint ignores`,
+      detail: `"${String(e.value)}" was added to ${tool.name} ignores`,
       fix: "Fix the lint errors instead of ignoring the files.",
     });
   }
-  findings.push(...narrowedSets(before, after, /(^|\.)files\[\]$/, scope, "ESLint"));
+  findings.push(...narrowedSets(before, after, /(^|\.)files\[\]$/, scope, tool.name));
+  return findings;
+}
+
+function oxlintFindings(
+  before: ConfigView,
+  after: ConfigView,
+  fresh: boolean,
+  scope: Scope,
+): Finding[] {
+  const findings = eslintFindings(before, after, fresh, scope, OXLINT);
+  for (const [path, now] of after.exact) {
+    const match = /^categories\.([^.]+)$/.exec(path);
+    if (!match) continue;
+    const nowRank = severityRank(now.value, OXLINT_SEVERITY);
+    const was = before.exact.get(path);
+    const wasRank = severityRank(was?.value, OXLINT_SEVERITY);
+    const weakened = was && wasRank !== null && nowRank !== null && nowRank < wasRank;
+    const newlyOff = !was && nowRank === 0;
+    if (weakened || newlyOff) {
+      findings.push({
+        severity: "block",
+        line: now.line,
+        detail: `oxlint category "${match[1]}" was ${newlyOff ? "turned off" : `weakened: ${String(was?.value)} → ${String(now.value)}`}`,
+        fix: `Restore the "${match[1]}" category level and fix the violations it reports.`,
+      });
+    }
+  }
+  if (fresh) return findings;
+  for (const e of shrunk(before, after, /^plugins\[\]$/)) {
+    findings.push({
+      severity: "block",
+      line: 1,
+      detail: `oxlint plugin "${String(e.value)}" was removed, which turns off all of its rules`,
+      fix: `Restore "${String(e.value)}" in plugins and fix the violations its rules report.`,
+    });
+  }
+  // Setting `plugins` replaces oxlint's default set instead of adding to it.
+  if (!before.loose.has("plugins[]") && after.loose.has("plugins[]")) {
+    const kept = new Set(values(after, "plugins[]"));
+    const dropped = OXLINT_DEFAULT_PLUGINS.filter((p) => !kept.has(p));
+    if (dropped.length > 0) {
+      findings.push({
+        severity: "block",
+        line: after.loose.get("plugins[]")?.[0]?.line ?? 1,
+        detail: `Setting plugins replaced oxlint's default plugins, so ${dropped.map((p) => `"${p}"`).join(", ")} no longer run`,
+        fix: `Add ${dropped.map((p) => `"${p}"`).join(", ")} to plugins (it replaces the defaults, it does not extend them).`,
+      });
+    }
+  }
   return findings;
 }
 
@@ -671,6 +732,8 @@ function findingsFor(
       return eslintFindings(before, after, fresh, scope);
     case "biome":
       return biomeFindings(before, after, fresh, scope);
+    case "oxlint":
+      return oxlintFindings(before, after, fresh, scope);
     case "test-runner":
       return testRunnerFindings(
         before,

@@ -8,7 +8,7 @@ npx cheatguard init claude-code   # SessionStart, PostToolUse and Stop hooks in 
 ```
 
 ```bash
-npx cheatguard check                        # working tree vs HEAD (+ new eslint/biome/tsc errors)
+npx cheatguard check                        # working tree vs HEAD (+ new eslint/biome/oxlint/tsc errors)
 npx cheatguard check --base origin/main     # in CI
 npx cheatguard check --staged               # in a pre-commit hook
 npx cheatguard lint                         # only the diagnostics you introduced

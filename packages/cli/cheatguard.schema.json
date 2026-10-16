@@ -62,7 +62,7 @@
               "type": "array",
               "items": {
                 "type": "string",
-                "enum": ["eslint", "biome", "tsc"]
+                "enum": ["eslint", "biome", "oxlint", "tsc"]
               }
             },
             {
@@ -75,14 +75,14 @@
           "type": "array",
           "items": {
             "type": "string",
-            "enum": ["eslint", "biome", "tsc"]
+            "enum": ["eslint", "biome", "oxlint", "tsc"]
           }
         },
         "onStop": {
           "type": "array",
           "items": {
             "type": "string",
-            "enum": ["eslint", "biome", "tsc"]
+            "enum": ["eslint", "biome", "oxlint", "tsc"]
           }
         },
         "maxDiagnostics": {

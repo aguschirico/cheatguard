@@ -4,8 +4,19 @@ import { describe, expect, test } from "vitest";
 import { computeAddedLines, type FileChange } from "../src/changes.js";
 import { DEFAULT_CONFIG, parseConfig } from "../src/config/index.js";
 import { fingerprintAll } from "../src/lint/fingerprint.js";
-import { detectTools, runLint, selectNew, snapshotLintBaseline } from "../src/lint/index.js";
-import { parseBiomeGithub, parseEslintJson, parseTscOutput } from "../src/lint/parsers.js";
+import {
+  detectTools,
+  planTools,
+  runLint,
+  selectNew,
+  snapshotLintBaseline,
+} from "../src/lint/index.js";
+import {
+  parseBiomeGithub,
+  parseEslintJson,
+  parseOxlintJson,
+  parseTscOutput,
+} from "../src/lint/parsers.js";
 import type { Diagnostic } from "../src/lint/types.js";
 import { createTempRepo } from "./helpers/repo.js";
 
@@ -113,6 +124,53 @@ describe("parsers", () => {
         severity: "error",
       },
     ]);
+  });
+
+  test("oxlint json: rule codes, severities, relative and absolute paths, text before the JSON", () => {
+    // Real oxlint 1.88 output; it prints a notice before the JSON when every target is ignored.
+    const out = `No files found to lint. Please check your paths and ignore patterns.
+{ "diagnostics": [{"message": "Variable 'unused' is declared but never used.","code": "eslint(no-unused-vars)","severity": "warning","url": "https://oxc.rs","help": "Consider removing this declaration.","filename": "src/a.ts","labels": [{"label": "'unused' is declared here","span": {"offset": 6,"length": 6,"line": 1,"column": 7}}]},
+{"message": "\`debugger\` statement is not allowed","code": "eslint(no-debugger)","severity": "error","filename": "/repo/src/b.ts","labels": [{"span": {"offset": 18,"length": 9,"line": 2,"column": 1}}]},
+{"message": "File could not be parsed","severity": "error","filename": "src/c.ts","labels": []}],
+  "number_of_files": 3, "number_of_rules": 96, "threads_count": 8, "start_time": 0.004 }`;
+    expect(parseOxlintJson(out, ROOT)).toEqual([
+      {
+        tool: "oxlint",
+        file: "src/a.ts",
+        line: 1,
+        column: 7,
+        code: "eslint(no-unused-vars)",
+        message: "Variable 'unused' is declared but never used.",
+        severity: "warning",
+      },
+      {
+        tool: "oxlint",
+        file: "src/b.ts",
+        line: 2,
+        column: 1,
+        code: "eslint(no-debugger)",
+        message: "`debugger` statement is not allowed",
+        severity: "error",
+      },
+      {
+        tool: "oxlint",
+        file: "src/c.ts",
+        line: 1,
+        column: 1,
+        code: "oxlint",
+        message: "File could not be parsed",
+        severity: "error",
+      },
+    ]);
+  });
+
+  test("oxlint json: a config error (no JSON) throws", () => {
+    expect(() =>
+      parseOxlintJson(
+        "Failed to parse oxlint configuration file.\n  x key must be a string at line 1 column 2",
+        ROOT,
+      ),
+    ).toThrow();
   });
 
   test("tsc output with continuation lines, Windows paths and CRLF", () => {
@@ -347,5 +405,86 @@ describe("lint hardening", () => {
     expect(result.newDiagnostics.map((d) => `${d.code}:${d.file}`)).toContain(
       "prefer-const:src/b.ts",
     );
+  }, 60_000);
+});
+
+function oxlintRepo(config: string | null, scripts: Record<string, string> = {}) {
+  const files: Record<string, string> = {
+    "package.json": JSON.stringify({ name: "fixture", type: "module", scripts }),
+    ".gitignore": "node_modules\n",
+    "src/a.ts": "debugger;\nexport const a = 1;\n",
+    "src/b.ts": "export const b = 2;\n",
+  };
+  if (config !== null) files[".oxlintrc.json"] = config;
+  const repo = createTempRepo(files);
+  symlinkSync(WORKSPACE_NODE_MODULES, join(repo.root, "node_modules"), "junction");
+  return repo;
+}
+
+describe("oxlint", () => {
+  test("is detected by its config file, or by a package script that runs it", () => {
+    expect(detectTools(oxlintRepo("{}").root, DEFAULT_CONFIG)).toEqual(["oxlint"]);
+    expect(detectTools(oxlintRepo(null, { lint: "oxlint src" }).root, DEFAULT_CONFIG)).toEqual([
+      "oxlint",
+    ]);
+    expect(detectTools(oxlintRepo(null, { lint: "eslint ." }).root, DEFAULT_CONFIG)).toEqual([]);
+  });
+
+  test("a configured but uninstalled oxlint is reported as missing", () => {
+    const repo = createTempRepo({ "package.json": "{}", ".oxlintrc.json": "{}" });
+    const plan = planTools(repo.root, DEFAULT_CONFIG);
+    expect(plan.tools).toEqual([]);
+    expect(plan.missing.map((m) => m.tool)).toEqual(["oxlint"]);
+  });
+
+  test("reports only diagnostics introduced by the change (real oxlint)", () => {
+    const repo = oxlintRepo(JSON.stringify({ rules: { "no-debugger": "error" } }));
+    const baseline = snapshotLintBaseline(repo.root, ["oxlint"]);
+    expect(baseline.errors).toEqual([]);
+    const after = "debugger;\nexport const b = 2;\n";
+    repo.write("src/b.ts", after);
+    // a.ts already had its debugger statement: editing another line must not surface it.
+    const legacy = "debugger;\nexport const a = 1;\n";
+    repo.write("src/a.ts", `${legacy}export const more = 1;\n`);
+    const result = runLint({
+      root: repo.root,
+      tools: ["oxlint"],
+      changes: [
+        change("src/b.ts", "export const b = 2;\n", after),
+        change("src/a.ts", legacy, `${legacy}export const more = 1;\n`),
+      ],
+      baseline: baseline.fingerprints,
+    });
+    expect(result.newDiagnostics.map((d) => `${d.tool}:${d.code}:${d.file}:${d.line}`)).toEqual([
+      "oxlint:eslint(no-debugger):src/b.ts:1",
+    ]);
+    expect(result.preexisting).toBe(1);
+    expect(result.tools.every((t) => t.ok)).toBe(true);
+  }, 60_000);
+
+  test("files the config ignores are not a failure (real oxlint)", () => {
+    const repo = oxlintRepo(JSON.stringify({ ignorePatterns: ["src/b.ts"] }));
+    repo.write("src/b.ts", "export const b = 3;\n");
+    const result = runLint({
+      root: repo.root,
+      tools: ["oxlint"],
+      changes: [change("src/b.ts", "export const b = 2;\n", "export const b = 3;\n")],
+      baseline: null,
+    });
+    expect(result.tools[0]?.ok).toBe(true);
+    expect(result.newDiagnostics).toEqual([]);
+  }, 60_000);
+
+  test("a broken config is reported as a tool error, not thrown (real oxlint)", () => {
+    const repo = oxlintRepo("{bad");
+    repo.write("src/b.ts", "export const b = 3;\n");
+    const result = runLint({
+      root: repo.root,
+      tools: ["oxlint"],
+      changes: [change("src/b.ts", "export const b = 2;\n", "export const b = 3;\n")],
+      baseline: null,
+    });
+    expect(result.tools[0]?.ok).toBe(false);
+    expect(result.tools[0]?.error).toContain("oxlint");
   }, 60_000);
 });

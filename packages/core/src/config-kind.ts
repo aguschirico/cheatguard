@@ -4,6 +4,7 @@ export type ConfigKind =
   | "eslint"
   | "eslint-ignore"
   | "biome"
+  | "oxlint"
   | "test-runner"
   | "ci"
   | "agent-settings"
@@ -29,6 +30,7 @@ export function configKindOf(path: string): ConfigKind | null {
   )
     return "eslint";
   if (/^biome\.jsonc?$/.test(base)) return "biome";
+  if (base === ".oxlintrc.json" || /^oxlint\.config\.[cm]?[jt]s$/.test(base)) return "oxlint";
   if (/^(vitest|vite|jest)(\.[\w-]+)*\.config(\.[\w-]+)*\.([cm]?[jt]s|json)$/.test(base))
     return "test-runner";
   if (/^vitest\.(workspace|projects)(\.[\w-]+)*\.[cm]?[jt]s$/.test(base)) return "test-runner";

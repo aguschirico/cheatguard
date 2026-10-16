@@ -23,9 +23,9 @@ A change therefore cannot relax the rules it is judged by. Editing the file is r
 | `scope.allow` | string[] | `[]` | Globs of paths the task may touch. Enables `scope-creep`. |
 | `tests.patterns` | string[] | `**/*.test.*`, `**/*.spec.*`, `**/__tests__/**`, `**/test/**`, `**/tests/**` | Which files are tests. |
 | `ignore` | string[] | `node_modules`, `dist`, `build`, `coverage`, `*.min.js`, `*.generated.*`, `_generated/`, `__generated__/` | Added to the defaults. Config files are never ignored. |
-| `lint.tools` | `"auto"` or `("eslint" \| "biome" \| "tsc")[]` | `"auto"` | Linters to run. `auto` uses every tool that has a config and a local install, and warns about a configured tool that is not installed. Listing tools makes them **required**: if one cannot run, `check` and `lint` exit 3 and the Stop hook blocks. tsc uses the root `tsconfig.json`, or, in a monorepo without one, the `tsconfig.json` of every workspace package. |
-| `lint.onEdit` | tool[] | `["eslint", "biome"]` | Linters run after each edit (fast, on the edited file). |
-| `lint.onStop` | tool[] | `["eslint", "biome", "tsc"]` | Linters run before the agent may finish. |
+| `lint.tools` | `"auto"` or `("eslint" \| "biome" \| "oxlint" \| "tsc")[]` | `"auto"` | Linters to run. `auto` uses every tool that has a config and a local install, and warns about a configured tool that is not installed. oxlint also counts as configured when a `package.json` script runs it, since it works without a config file. Listing tools makes them **required**: if one cannot run, `check` and `lint` exit 3 and the Stop hook blocks. tsc uses the root `tsconfig.json`, or, in a monorepo without one, the `tsconfig.json` of every workspace package. |
+| `lint.onEdit` | tool[] | `["eslint", "biome", "oxlint"]` | Linters run after each edit (fast, on the edited file). |
+| `lint.onStop` | tool[] | `["eslint", "biome", "oxlint", "tsc"]` | Linters run before the agent may finish. |
 | `lint.maxDiagnostics` | number | `20` | How many new diagnostics to print (JSON output always has all of them). |
 | `lint.blockOnStop` | boolean | `true` | Whether new lint/type **errors** block finishing (and make `check` exit 1). |
 | `hooks.maxStopBlocks` | number | `3` | Consecutive blocked attempts to finish before cheatguard lets the agent stop and reports what is left. Those issues do not block the same session again (you are reminded at each later Stop), and new sessions keep checking them until you run `cheatguard accept`. |

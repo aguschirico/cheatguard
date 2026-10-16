@@ -15,6 +15,7 @@ const LABELS: Record<SuppressionKind, string> = {
   "ts-expect-error": "`@ts-expect-error` directive",
   "ts-nocheck": "`@ts-nocheck` directive",
   "eslint-disable": "`eslint-disable` directive",
+  "oxlint-disable": "`oxlint-disable` directive",
   "biome-ignore": "`biome-ignore` directive",
 };
 
@@ -31,6 +32,7 @@ const FIXES: Record<SuppressionKind, string> = {
   "ts-expect-error": "Remove the directive and fix the type error it hides.",
   "ts-nocheck": "Remove `@ts-nocheck` and fix the file's type errors.",
   "eslint-disable": "Remove the directive and fix the lint error.",
+  "oxlint-disable": "Remove the directive and fix the lint error.",
   "biome-ignore": "Remove the directive and fix the lint error.",
 };
 

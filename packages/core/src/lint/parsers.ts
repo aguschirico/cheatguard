@@ -69,6 +69,31 @@ export function parseBiomeGithub(output: string, root: string): Diagnostic[] {
   return diagnostics;
 }
 
+/** `oxlint --format=json`: `{ diagnostics: [...] }`, sometimes after a plain-text notice. */
+export function parseOxlintJson(output: string, root: string): Diagnostic[] {
+  const start = output.indexOf("{");
+  if (start === -1) throw new Error("oxlint did not produce JSON output");
+  const parsed: unknown = JSON.parse(output.slice(start));
+  if (!isRecord(parsed) || !Array.isArray(parsed.diagnostics))
+    throw new Error("Unexpected oxlint JSON shape");
+  const diagnostics: Diagnostic[] = [];
+  for (const d of parsed.diagnostics) {
+    if (!isRecord(d) || typeof d.filename !== "string") continue;
+    const label = asArray(d.labels).find(isRecord);
+    const span = label && isRecord(label.span) ? label.span : {};
+    diagnostics.push({
+      tool: "oxlint",
+      file: toRepoPath(root, d.filename),
+      line: num(span.line),
+      column: num(span.column),
+      code: typeof d.code === "string" && d.code ? d.code : "oxlint",
+      message: typeof d.message === "string" ? d.message : "",
+      severity: d.severity === "error" ? "error" : "warning",
+    });
+  }
+  return diagnostics;
+}
+
 const TSC_RE = /^(.+?)\((\d+),(\d+)\): (error|warning|message) (TS\d+): (.*)$/;
 
 export function parseTscOutput(output: string, root: string): Diagnostic[] {

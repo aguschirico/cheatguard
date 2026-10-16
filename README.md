@@ -19,7 +19,7 @@ Restart Claude Code (or run `/hooks`). From then on:
 
 1. **When a session starts**, cheatguard snapshots the working tree, so changes that were already there are never blamed on the agent, and records a lint baseline in the background.
 2. **After every Edit/Write**, it checks the file that was just written and pushes back immediately. Changes made through shell commands are checked at the end.
-3. **When the agent says it is done**, it checks the whole change plus new ESLint, Biome and tsc errors (including errors the change caused in files it did not touch). If something blocking remains, or a linter that worked at the start no longer runs, the agent keeps working. New warnings are shown to the agent once. After three blocked attempts it lets the agent stop and tells you what is left; later sessions keep checking those issues until you run `npx cheatguard accept`.
+3. **When the agent says it is done**, it checks the whole change plus new ESLint, Biome, oxlint and tsc errors (including errors the change caused in files it did not touch). If something blocking remains, or a linter that worked at the start no longer runs, the agent keeps working. New warnings are shown to the agent once. After three blocked attempts it lets the agent stop and tells you what is left; later sessions keep checking those issues until you run `npx cheatguard accept`.
 
 Prefer not to add a dependency? The [Claude Code plugin](packages/cli/plugin) installs the same hooks for every project:
 
@@ -33,8 +33,8 @@ claude plugin install cheatguard@cheatguard
 | Rule | Reports | Effect |
 |---|---|---|
 | `test-weakened` | Tests or test files deleted or moved where the runner skips them; assertions removed, made unreachable or replaced by literals; tests skipped, focused, made conditional (`skipIf`/`runIf`), inverted (`.fails`) or run over an empty table; expected values edited or matchers weakened to match the code | Blocks |
-| `type-suppression` | New `any`, `as any`, `as never`, double casts through `unknown`, `Function`, untyped `declare module`, `@ts-ignore`, `@ts-expect-error`, `eslint-disable`, `biome-ignore`, coverage-ignore comments | Blocks |
-| `config-tampering` | Strict flags turned off (also in extended tsconfigs), lint rules weakened, files or tests dropped from tsc, ESLint, Biome or the test run, coverage lowered, test scripts neutralized, CI checks disabled, workspace packages removed, the agent's own cheatguard hooks removed, config files deleted or renamed | Blocks |
+| `type-suppression` | New `any`, `as any`, `as never`, double casts through `unknown`, `Function`, untyped `declare module`, `@ts-ignore`, `@ts-expect-error`, `eslint-disable`, `oxlint-disable`, `biome-ignore`, coverage-ignore comments | Blocks |
+| `config-tampering` | Strict flags turned off (also in extended tsconfigs), lint rules weakened, files or tests dropped from tsc, ESLint, Biome, oxlint or the test run, coverage lowered, test scripts neutralized, CI checks disabled, workspace packages removed, the agent's own cheatguard hooks removed, config files deleted or renamed | Blocks |
 | `stub-left` | Not-implemented or TBD throws, TODO-implement comments, function bodies gutted to return a constant | Blocks |
 | `phantom-import` | Imports of packages that are not declared or not installed, and relative files that do not exist | Blocks |
 | `swallowed-error` | New catch blocks that are empty, comment-only or only log, and `.catch(() => undefined)` | Warns |
@@ -109,12 +109,14 @@ It also has a cost. On the one control task where editing the test is the right 
 
 **How much less does the agent read?** (benchmark C: seeded change in real repositories)
 
-| Repository | Tokens, raw linters | Tokens, cheatguard (with baseline) | Time, raw | Time, cheatguard | New problems kept |
-|---|---:|---:|---:|---:|---:|
-| zustand | 183 | 118 (118) | 3.7 s | 2.9 s | 3 / 3 |
-| ofetch | 181 | 117 (117) | 1.7 s | 1.3 s | 3 / 3 |
-| jotai | 186 | 122 (122) | 5.1 s | 3.7 s | 3 / 3 |
-| axios | 250 | 91 (69) | 1.1 s | 1.7 s | 1 / 1 |
+| Repository | Linters | Tokens, raw linters | Tokens, cheatguard (with baseline) | Time, raw | Time, cheatguard | New problems kept |
+|---|---|---:|---:|---:|---:|---:|
+| zustand | ESLint + tsc | 183 | 118 (118) | 3.7 s | 2.9 s | 3 / 3 |
+| ofetch | ESLint + tsc | 181 | 117 (117) | 1.7 s | 1.3 s | 3 / 3 |
+| jotai | ESLint + tsc | 186 | 122 (122) | 5.1 s | 3.7 s | 3 / 3 |
+| axios | ESLint | 250 | 91 (69) | 1.1 s | 1.7 s | 1 / 1 |
+| vue-test-utils | oxlint + tsc | 4261 | 119 (97) | 3.9 s | 4.1 s | 3 / 3 |
+| update-electron-app | oxlint + tsc | 142 | 111 (111) | 1.7 s | 1.6 s | 3 / 3 |
 
 <!-- bench:end -->
 

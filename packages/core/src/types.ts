@@ -14,7 +14,7 @@ export const RULE_IDS = [
 
 export type RuleId = (typeof RULE_IDS)[number];
 
-export const LINT_TOOLS = ["eslint", "biome", "tsc"] as const;
+export const LINT_TOOLS = ["eslint", "biome", "oxlint", "tsc"] as const;
 
 export type LintToolName = (typeof LINT_TOOLS)[number];
 

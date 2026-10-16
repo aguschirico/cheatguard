@@ -38,6 +38,7 @@ export type SuppressionKind =
   | "ts-expect-error"
   | "ts-nocheck"
   | "eslint-disable"
+  | "oxlint-disable"
   | "biome-ignore";
 
 export interface Suppression {
