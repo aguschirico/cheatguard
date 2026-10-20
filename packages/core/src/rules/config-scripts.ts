@@ -88,40 +88,23 @@ const head = (command: string): string => command.split(" ").slice(0, -1).join("
 const RUNNER_PREFIX_RE = /^(npx|pnpx|bunx|yarn|pnpm( exec)?|npm exec|bun x) (?=[^-])/;
 
 /**
- * Programs that only read and check the files they are given. Anything else (test runners,
- * interpreters, shells, file tools) may run or change its argument, so another argument is another
- * program. Biome's subcommands are listed with it.
- */
-const CHECKERS = new Set(["tsc", "vue-tsc", "eslint", "oxlint", "biome", "prettier", "stylelint"]);
-const BIOME_READS = new Set(["lint", "check", "ci"]);
-/** Flags that make a checker change files instead of only reading them. */
-const WRITES_RE = /^(--fix|--fix-type|--write|--apply|--apply-unsafe|--unsafe|-w)(=|$)/;
-
-/**
- * A head whose extra runs only check more files: a listed checker (or `node --check`) with flags
- * that do not write, after any wrapper (`npx`, `pnpm exec`, `cross-env`) or variable assignment.
+ * A head whose extra runs only check more files, and never run them: `node --check` (parses only)
+ * or `tsc --noEmit` without `--build` (tsconfig files are JSON and nothing is written). Other
+ * checkers load executable configuration found next to the files they are given (ESLint, Prettier,
+ * oxlint, vue-tsc plugins) or write files, so another argument can run another program.
  */
 function repeatableHead(head: string): boolean {
-  const words = head.split(" ").filter(Boolean);
-  const launcher = (w: string): boolean => WRAPPERS.has(w) || /^[A-Z_][A-Z0-9_]*=/.test(w);
-  // `node --check` only parses its argument; `node <anything else>` runs it.
-  const node = words.indexOf("node");
-  if (node !== -1) {
-    const after = words.slice(node + 1);
-    return (
-      words.slice(0, node).every(launcher) &&
-      after.length === 1 &&
-      (after[0] === "--check" || after[0] === "-c")
-    );
-  }
-  const start = words.findIndex((w) => !launcher(w));
-  const program = words[start]?.replace(/^.*\//, "");
-  if (program === undefined || !CHECKERS.has(program)) return false;
-  const rest = words.slice(start + 1);
-  const args = program === "biome" && BIOME_READS.has(rest[0] ?? "") ? rest.slice(1) : rest;
-  return (
-    args.every((w) => w.startsWith("-") && !WRITES_RE.test(w)) &&
-    (program !== "prettier" || args.includes("--check"))
+  const words = head.replace(RUNNER_PREFIX_RE, "").split(" ").filter(Boolean);
+  const [program, ...flags] = words;
+  if (program === "node")
+    return flags.length === 1 && (flags[0] === "--check" || flags[0] === "-c");
+  if (program !== "tsc" || !flags.includes("--noEmit")) return false;
+  // Every word is a flag, except the project path right after -p.
+  return flags.every(
+    (w, i) =>
+      (w.startsWith("-") && !/^(-b|--build|-w|--watch)$/.test(w)) ||
+      flags[i - 1] === "-p" ||
+      flags[i - 1] === "--project",
   );
 }
 
@@ -138,7 +121,8 @@ export function sameChecksOrMore(was: string, now: string): boolean {
   if (!plain(was) || !plain(now) || was === now) return false;
   const before = commands(was);
   const after = commands(now);
-  const heads = new Set(before.map(head).filter(repeatableHead));
+  const unprefixed = (h: string): string => h.replace(RUNNER_PREFIX_RE, "");
+  const heads = new Set(before.map(head).filter(repeatableHead).map(unprefixed));
   let next = 0;
   for (const command of after) {
     const expected = before[next];
@@ -147,7 +131,10 @@ export function sameChecksOrMore(was: string, now: string): boolean {
       (command === expected || command === expected.replace(RUNNER_PREFIX_RE, ""))
     ) {
       next += 1;
-    } else if (!heads.has(head(command)) || command.split(" ").at(-1)?.startsWith("-")) {
+    } else if (
+      !heads.has(unprefixed(head(command))) ||
+      command.split(" ").at(-1)?.startsWith("-")
+    ) {
       // A new run must be the same check on another argument: `jest -u` is the same tool
       // rewriting snapshots before the real run.
       return false;
