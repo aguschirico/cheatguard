@@ -19,6 +19,11 @@ function unwrapParens(expr: ts.Expression): ts.Expression {
   return current;
 }
 
+const isFunctionType = (node: ts.Node): boolean =>
+  ts.isTypeReferenceNode(node) &&
+  ts.isIdentifier(node.typeName) &&
+  node.typeName.text === "Function";
+
 export function extractSuppressions(
   sf: ts.SourceFile,
   comments: readonly CommentToken[],
@@ -65,12 +70,13 @@ export function extractSuppressions(
         return;
       }
     }
-    if (
-      ts.isTypeReferenceNode(node) &&
-      ts.isIdentifier(node.typeName) &&
-      node.typeName.text === "Function"
-    ) {
-      record("function-type", node);
+    if (isFunctionType(node)) record("function-type", node);
+    // `T extends Function ? never : T` tests whether T is callable; it loosens nothing.
+    if (ts.isConditionalTypeNode(node) && isFunctionType(node.extendsType)) {
+      visit(node.checkType);
+      visit(node.trueType);
+      visit(node.falseType);
+      return;
     }
     // `declare module "x";` without a body types every import from "x" as any.
     if (ts.isModuleDeclaration(node) && ts.isStringLiteral(node.name) && !node.body) {

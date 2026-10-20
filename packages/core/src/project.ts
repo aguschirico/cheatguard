@@ -82,6 +82,8 @@ export interface ProjectContext {
   isAliased(specifier: string, fromFile?: string): boolean;
   /** Resolves a relative import to an existing repo file, or null. */
   resolveRelative(fromFile: string, specifier: string): string | null;
+  /** Resolves a bare specifier through tsconfig paths or baseUrl to an existing repo file, or null. */
+  resolveAlias(specifier: string): string | null;
   /** Whether a package is installed in a node_modules visible from the file (null when nothing is installed at all). */
   isInstalled(pkg: string, fromFile: string): boolean | null;
 }
@@ -278,13 +280,19 @@ export function createProjectContext(root: string, source: FileSource): ProjectC
   };
   const matchesPattern = (pattern: string, specifier: string): boolean =>
     capture(pattern, specifier) !== null;
-  /** An alias only counts when one of its targets points at a file that exists. */
-  const aliasResolves = (specifier: string): boolean =>
-    aliases.some(({ pattern, targets, dir }) => {
+  /** The first existing file an alias maps the specifier to (an alias only counts when it exists). */
+  const aliasTarget = (specifier: string): string | null => {
+    for (const { pattern, targets, dir } of aliases) {
       const captured = capture(pattern, specifier);
-      if (captured === null) return false;
-      return targets.some((t) => resolveFile(posix.join(dir, t.replace("*", captured))) !== null);
-    });
+      if (captured === null) continue;
+      for (const target of targets) {
+        const file = resolveFile(posix.join(dir, target.replace("*", captured)));
+        if (file !== null) return file;
+      }
+    }
+    return null;
+  };
+  const aliasResolves = (specifier: string): boolean => aliasTarget(specifier) !== null;
 
   return {
     root,
@@ -324,6 +332,15 @@ export function createProjectContext(root: string, source: FileSource): ProjectC
         if (existsSync(join(modules, pkg, "package.json"))) return true;
       }
       return sawNodeModules ? false : null;
+    },
+    resolveAlias(specifier) {
+      const direct = aliasTarget(specifier);
+      if (direct !== null) return direct;
+      loadAllConfigs();
+      return (
+        aliasTarget(specifier) ??
+        (baseUrl !== null ? resolveFile(posix.join(baseUrl, specifier)) : null)
+      );
     },
     resolveRelative(fromFile, specifier) {
       const dir = posix.dirname(fromFile);

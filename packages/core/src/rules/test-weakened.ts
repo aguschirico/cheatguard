@@ -16,8 +16,9 @@ const SUBJECT_DEPTH = 4;
 const SUBJECT_MAX_FILES = 200;
 
 /**
- * Changed (non-test) modules reachable from a test through relative imports, following barrels
- * and re-exports a few levels deep.
+ * Changed (non-test) modules reachable from a test through relative imports and tsconfig paths
+ * aliases (a package's tests often import it by its own name), following barrels and re-exports a
+ * few levels deep.
  */
 function changedSubjects(ctx: RuleContext, testPath: string, facts: FileFacts): AnalyzedChange[] {
   const subjects: AnalyzedChange[] = [];
@@ -31,8 +32,9 @@ function changedSubjects(ctx: RuleContext, testPath: string, facts: FileFacts): 
     const next: Array<{ from: string; facts: FileFacts }> = [];
     for (const { from, facts: current } of frontier) {
       for (const imp of current.imports) {
-        if (!imp.specifier.startsWith(".")) continue;
-        const resolved = resolveAnyState(ctx, from, imp.specifier);
+        const resolved = imp.specifier.startsWith(".")
+          ? resolveAnyState(ctx, from, imp.specifier)
+          : ctx.project.resolveAlias(imp.specifier);
         if (!resolved || seen.has(resolved)) continue;
         seen.add(resolved);
         const change = ctx.changeFor(resolved);

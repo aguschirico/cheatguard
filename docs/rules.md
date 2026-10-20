@@ -38,7 +38,7 @@ Known limits: runtime conditions that are never true are only warnings, un-await
 
 New escapes from the type checker, the linter or coverage:
 
-`any` in a type position, `as any`, `<any>x`, `as never` / `<never>x`, double casts through `unknown` in either syntax (`x as unknown as T`, `<T><unknown>x`, `<T>(x as unknown)`), the `Function` type, a body-less `declare module "x";` (every import from it becomes `any`), `// @ts-ignore`, `// @ts-expect-error`, `// @ts-nocheck`, `eslint-disable*`, `oxlint-disable*`, `biome-ignore*`, and `/* v8 ignore */`, `/* c8 ignore */`, `/* istanbul ignore */` comments.
+`any` in a type position, `as any`, `<any>x`, `as never` / `<never>x`, double casts through `unknown` in either syntax (`x as unknown as T`, `<T><unknown>x`, `<T>(x as unknown)`), the `Function` type (except as the test of a conditional type, `T extends Function ? never : T`), a body-less `declare module "x";` (every import from it becomes `any`), `// @ts-ignore`, `// @ts-expect-error`, `// @ts-nocheck`, `eslint-disable*`, `oxlint-disable*`, `biome-ignore*`, and `/* v8 ignore */`, `/* c8 ignore */`, `/* istanbul ignore */` comments.
 
 The word "any" in strings or comments is never reported, and typed wildcard modules (`declare module "*.svg" { … }`) are fine. In test files these are warnings, because test doubles legitimately need casts, except `@ts-ignore` and `@ts-nocheck`, which still block (use `@ts-expect-error` to test invalid inputs).
 
@@ -55,7 +55,7 @@ Changes that relax a quality gate. The configuration is compared semantically, n
 | `biome.json(c)` | Linter or recommended rules disabled; a rule weakened or turned off (overrides included); files excluded or `includes` narrowed |
 | `.oxlintrc.json`, `oxlint.config.ts` | A rule weakened or turned off (overrides included); a category (`correctness`, `suspicious`, ...) weakened or turned off; a plugin removed, or `plugins` set for the first time without oxlint's default plugins (`unicorn`, `typescript`, `oxc`); paths added to `ignorePatterns`; `overrides[].files` narrowed; an `extends` entry removed |
 | Vitest, Vite (`test` section), Jest, Playwright, Cypress, Mocha, Karma, AVA | Coverage thresholds lowered or removed; `passWithNoTests` enabled; tests excluded (`exclude`, `testPathIgnorePatterns`, `testIgnore`, `ignore`…); include/testMatch/spec patterns changed so an existing test file no longer matches; a new config that leaves existing tests out; source files excluded from coverage. Warnings: new `alias`, `setupFiles`, `globalSetup`, `moduleNameMapper`, raised `retry`/`retries` |
-| `package.json` scripts | `test`, `lint`, `typecheck`, `check`, `verify`, `ci` scripts removed, or edited so they can pass without doing the work: a tool they ran dropped, `\|\| true`, `; true`, `&`, a pipe or `exit` added, narrowing flags (`--exclude`, `-t`, `--testPathIgnorePatterns`, `--changed`…), `--passWithNoTests`; other edits to those scripts are warnings |
+| `package.json` scripts | `test`, `lint`, `typecheck`, `check`, `verify`, `ci` scripts removed, or edited so they can pass without doing the work: a tool they ran dropped, `\|\| true`, `; true`, `&`, a pipe or `exit` added, narrowing flags (`--exclude`, `-t`, `--testPathIgnorePatterns`, `--changed`…), `--passWithNoTests`; other edits to those scripts are warnings, except more runs of a check the script already runs (`&& node --check another.mjs`) or a dropped package-manager prefix (`yarn tsc` → `tsc`) |
 | Workspaces (`pnpm-workspace.yaml`, `package.json#workspaces`) | A workspace package removed (it would no longer be type-checked) |
 | CI (`.github/workflows/*.yml`, `.gitlab-ci.yml`) | `continue-on-error` / `allow_failure`, a constant-false `if` or `when: never`, `set +e`, `\|\| true` on a check, a check step removed (line-based) |
 | `.claude/settings.json`, `.claude/settings.local.json` | A hook that runs cheatguard removed or changed, the cheatguard plugin disabled, `disableAllHooks` turned on, the file made invalid JSON |
@@ -72,7 +72,7 @@ Placeholder code left instead of an implementation:
 
 - A new `throw new Error("Not implemented")` (also "TODO", "TBD", "FIXME", "unimplemented", `new NotImplementedError()`).
 - A function whose body had three or more statements now just returns a constant or is empty ("gutted").
-- New comments saying the code is missing: "TODO: implement", "not implemented yet", "placeholder implementation", "stub for now". Other new TODO/FIXME comments are warnings.
+- New comments saying the code is missing: "TODO: implement", "not implemented yet", "placeholder implementation", "stub for now". Other new TODO/FIXME comments are warnings. Comments at the end of a line of code count; a marker quoted as `inline code` inside a comment does not.
 
 ## `phantom-import` — blocks
 
