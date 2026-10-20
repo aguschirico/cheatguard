@@ -27,7 +27,7 @@ Options:
 
 Exit codes: 0 clean · 1 blocking issues · 3 tool error (including a linter that could not run)`;
 
-export function runCheck(argv: string[]): number {
+export async function runCheck(argv: string[]): Promise<number> {
   const { values, positionals } = parseArgs({
     args: argv,
     allowPositionals: true,
@@ -60,7 +60,7 @@ export function runCheck(argv: string[]): number {
     const plan = planTools(root, config);
     if (plan.tools.length > 0) {
       const baseline = values["lint-baseline"] ? readBaselineFile(values["lint-baseline"]) : null;
-      lint = runLint({
+      lint = await runLint({
         root,
         tools: plan.tools,
         changes: result.changes,

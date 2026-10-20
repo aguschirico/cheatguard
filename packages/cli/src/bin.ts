@@ -29,7 +29,7 @@ ${INIT_HELP}
 
 ${ACCEPT_HELP}`;
 
-function main(argv: string[]): number {
+async function main(argv: string[]): Promise<number> {
   const [command, ...rest] = argv;
   switch (command) {
     case undefined:
@@ -76,7 +76,7 @@ function isParseArgsError(error: unknown): boolean {
 }
 
 try {
-  process.exitCode = main(process.argv.slice(2));
+  process.exitCode = await main(process.argv.slice(2));
 } catch (error) {
   const expected =
     isParseArgsError(error) ||

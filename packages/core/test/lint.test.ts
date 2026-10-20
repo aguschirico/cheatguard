@@ -323,9 +323,9 @@ describe("detectTools", () => {
 });
 
 describe("runLint (real tools)", () => {
-  test("reports only diagnostics introduced by the change", () => {
+  test("reports only diagnostics introduced by the change", async () => {
     const repo = lintRepo();
-    const baseline = snapshotLintBaseline(repo.root, ["eslint", "biome", "tsc"]);
+    const baseline = await snapshotLintBaseline(repo.root, ["eslint", "biome", "tsc"]);
     expect(baseline.errors).toEqual([]);
     repo.write("src/b.ts", "let fresh = 2;\nexport const b: string = fresh;\n");
     repo.write(
@@ -344,7 +344,7 @@ describe("runLint (real tools)", () => {
         "let legacy = 1;\nexport const a: number = legacy;\nexport const more = 1;\n",
       ),
     ];
-    const result = runLint({
+    const result = await runLint({
       root: repo.root,
       tools: ["eslint", "biome", "tsc"],
       changes,
@@ -362,11 +362,11 @@ describe("runLint (real tools)", () => {
     expect(result.tools.every((t) => t.ok)).toBe(true);
   }, 120_000);
 
-  test("a tool that crashes is reported, not thrown", () => {
+  test("a tool that crashes is reported, not thrown", async () => {
     const repo = lintRepo();
     writeFileSync(join(repo.root, "eslint.config.mjs"), "export default [{ rules: \n");
     repo.write("src/b.ts", "export const b = 3;\n");
-    const result = runLint({
+    const result = await runLint({
       root: repo.root,
       tools: ["eslint"],
       changes: [change("src/b.ts", "export const b = 2;\n", "export const b = 3;\n")],
@@ -376,9 +376,9 @@ describe("runLint (real tools)", () => {
     expect(result.tools[0]?.error).toBeTruthy();
   }, 60_000);
 
-  test("skips per-file tools when no lintable files changed", () => {
+  test("skips per-file tools when no lintable files changed", async () => {
     const repo = lintRepo();
-    const result = runLint({
+    const result = await runLint({
       root: repo.root,
       tools: ["eslint", "biome"],
       changes: [change("README.md", "a", "b")],
@@ -389,11 +389,11 @@ describe("runLint (real tools)", () => {
 });
 
 describe("lint hardening", () => {
-  test("a changed file named like a CLI option cannot inject options", () => {
+  test("a changed file named like a CLI option cannot inject options", async () => {
     const repo = lintRepo();
     repo.write("--config=evil.mjs", "export default [];\n");
     repo.write("src/b.ts", "let fresh = 2;\nexport const b = fresh;\n");
-    const result = runLint({
+    const result = await runLint({
       root: repo.root,
       tools: ["eslint"],
       changes: [
@@ -437,16 +437,16 @@ describe("oxlint", () => {
     expect(plan.missing.map((m) => m.tool)).toEqual(["oxlint"]);
   });
 
-  test("reports only diagnostics introduced by the change (real oxlint)", () => {
+  test("reports only diagnostics introduced by the change (real oxlint)", async () => {
     const repo = oxlintRepo(JSON.stringify({ rules: { "no-debugger": "error" } }));
-    const baseline = snapshotLintBaseline(repo.root, ["oxlint"]);
+    const baseline = await snapshotLintBaseline(repo.root, ["oxlint"]);
     expect(baseline.errors).toEqual([]);
     const after = "debugger;\nexport const b = 2;\n";
     repo.write("src/b.ts", after);
     // a.ts already had its debugger statement: editing another line must not surface it.
     const legacy = "debugger;\nexport const a = 1;\n";
     repo.write("src/a.ts", `${legacy}export const more = 1;\n`);
-    const result = runLint({
+    const result = await runLint({
       root: repo.root,
       tools: ["oxlint"],
       changes: [
@@ -462,10 +462,10 @@ describe("oxlint", () => {
     expect(result.tools.every((t) => t.ok)).toBe(true);
   }, 60_000);
 
-  test("files the config ignores are not a failure (real oxlint)", () => {
+  test("files the config ignores are not a failure (real oxlint)", async () => {
     const repo = oxlintRepo(JSON.stringify({ ignorePatterns: ["src/b.ts"] }));
     repo.write("src/b.ts", "export const b = 3;\n");
-    const result = runLint({
+    const result = await runLint({
       root: repo.root,
       tools: ["oxlint"],
       changes: [change("src/b.ts", "export const b = 2;\n", "export const b = 3;\n")],
@@ -475,10 +475,10 @@ describe("oxlint", () => {
     expect(result.newDiagnostics).toEqual([]);
   }, 60_000);
 
-  test("a broken config is reported as a tool error, not thrown (real oxlint)", () => {
+  test("a broken config is reported as a tool error, not thrown (real oxlint)", async () => {
     const repo = oxlintRepo("{bad");
     repo.write("src/b.ts", "export const b = 3;\n");
-    const result = runLint({
+    const result = await runLint({
       root: repo.root,
       tools: ["oxlint"],
       changes: [change("src/b.ts", "export const b = 2;\n", "export const b = 3;\n")],
