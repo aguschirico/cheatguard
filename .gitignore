@@ -9,3 +9,5 @@ bench/.work/
 site/dist/
 .vitest/
 demo/.work/
+# Working notes and plans written by coding agents stay out of the public repository.
+docs/superpowers/
