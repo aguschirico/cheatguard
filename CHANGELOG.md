@@ -18,6 +18,10 @@ Categories: **Added** (new rules, checks, commands, integrations), **Changed** (
 - `test-weakened` finds the code under test through tsconfig `paths` too (tests that import their package by its own name), so an expected value updated together with that code is a warning instead of a block.
 - `Function` as the test of a conditional type (`T extends Function ? never : T`) is no longer reported as a type escape.
 
+### Security
+
+- `config-tampering` judges a gate script split across lines like one joined with `;` (the shell runs each line as its own command): `"vitest run\nexit 0"` or `"vitest run\ntrue"` in a `test` script were not blocked.
+
 ### Benchmarks
 
 - Benchmark A: 154 agent pull requests (Cursor, Jules and Codex added) and 122 human ones, labeled v3. Precision on agent pull requests is lower on the larger sample (72%, from 87%); every wrong finding there comes from `test-weakened`.
