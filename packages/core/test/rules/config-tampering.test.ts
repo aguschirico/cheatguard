@@ -349,6 +349,36 @@ describe("config-tampering: negatives", () => {
     expect(vs.map((v) => v.severity)).toEqual(["warn"]);
   });
 
+  test.each([
+    ["a script before a one-word check", "vitest", "./delete-tests.sh && vitest"],
+    ["another shell script through sh", "sh -e check.sh", "sh -e other.sh && sh -e check.sh"],
+    [
+      "another file run through node",
+      "node --import tsx a.ts",
+      "node --import tsx b.ts && node --import tsx a.ts",
+    ],
+    [
+      "another file removed",
+      "rm -f out.log && vitest run",
+      "rm -f test/a.test.ts && rm -f out.log && vitest run",
+    ],
+  ])("a gate that gains %s is still a warning", (_name, was, now) => {
+    const vs = run(configTampering, [
+      { path: "package.json", before: pkg({ test: was }), after: pkg({ test: now }) },
+    ]);
+    expect(vs.map((v) => v.severity)).toEqual(["warn"]);
+  });
+
+  test.each([["vitest run\nexit 0"], ["vitest run\ntrue"], ["vitest run\r\n:"]])(
+    "a command added on a new line is judged like `;` (%j)",
+    (now) => {
+      const vs = run(configTampering, [
+        { path: "package.json", before: pkg({ test: "vitest run" }), after: pkg({ test: now }) },
+      ]);
+      expect(vs.map((v) => v.severity)).toEqual(["block"]);
+    },
+  );
+
   test("a package-manager prefix added to a check is still a warning", () => {
     // `yarn tsc` runs a package script named "tsc" when there is one.
     const vs = run(configTampering, [

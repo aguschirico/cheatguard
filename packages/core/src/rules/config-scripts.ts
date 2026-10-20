@@ -56,8 +56,13 @@ export function scriptRunners(script: string): Set<string> {
   return runners;
 }
 
+/** The shell runs each line of a script as its own command, like `;`. */
+const oneLine = (script: string): string => script.replace(/\r\n|\r|\n/g, ";");
+
 /** Why the new version of a guarded script can pass without doing the work, or null. */
-export function neutralizedScript(was: string, now: string): string | null {
+export function neutralizedScript(wasScript: string, nowScript: string): string | null {
+  const was = oneLine(wasScript);
+  const now = oneLine(nowScript);
   if (NEUTRALIZER_RE.test(now) && !NEUTRALIZER_RE.test(was)) return "it can no longer fail";
   const runners = scriptRunners(now);
   const dropped = [...scriptRunners(was)].filter((r) => !runners.has(r));
@@ -82,6 +87,45 @@ const head = (command: string): string => command.split(" ").slice(0, -1).join("
 /** `yarn tsc` → `tsc`: the package-manager prefix that runs a binary (or a script of that name). */
 const RUNNER_PREFIX_RE = /^(npx|pnpx|bunx|yarn|pnpm( exec)?|npm exec|bun x) (?=[^-])/;
 
+/** Programs that run, execute or destroy their argument: another argument is another program. */
+const RUNS_ITS_ARGUMENT = new Set([
+  "sh",
+  "bash",
+  "zsh",
+  "dash",
+  "tsx",
+  "ts-node",
+  "esno",
+  "jiti",
+  "python",
+  "python3",
+  "deno",
+  "bun",
+  "rm",
+  "mv",
+  "cp",
+  "ln",
+  "chmod",
+  "git",
+  "sed",
+  "find",
+  "xargs",
+  "curl",
+  "wget",
+  "eval",
+  "source",
+]);
+
+/** A head whose extra runs only check more files: a known program with its flags, never a runner. */
+function repeatableHead(head: string): boolean {
+  const words = head.split(" ").filter(Boolean);
+  // `node --check` only parses; any other `node <flags>` runs its argument.
+  if (words[0] === "node")
+    return words.length === 2 && (words[1] === "--check" || words[1] === "-c");
+  const program = words.find((w) => !WRAPPERS.has(w) && !w.startsWith("-"));
+  return program !== undefined && !RUNS_ITS_ARGUMENT.has(program.replace(/^.*\//, ""));
+}
+
 /**
  * True when `now` runs every `&&`-chained command of `was` and at most adds more runs of a command
  * it already ran on other arguments (`node --check a.mjs && node --check b.mjs` gaining `&& node
@@ -89,14 +133,13 @@ const RUNNER_PREFIX_RE = /^(npx|pnpx|bunx|yarn|pnpm( exec)?|npm exec|bun x) (?=[
  * runs the binary itself, where the prefix could have run a script of the same name instead.
  */
 export function sameChecksOrMore(was: string, now: string): boolean {
-  // Anything but plain `&&` chains (pipes, `;`, `||`, substitutions) is judged by the other checks.
-  const plain = (s: string): boolean => !/[|;&`$<>]/.test(s.replaceAll("&&", ""));
+  // Anything but plain `&&` chains (pipes, `;`, new lines, `||`, substitutions) is judged by the
+  // other checks.
+  const plain = (s: string): boolean => !/[|;&`$<>\r\n]/.test(s.replaceAll("&&", ""));
   if (!plain(was) || !plain(now) || was === now) return false;
   const before = commands(was);
   const after = commands(now);
-  const heads = new Set(
-    before.map(head).filter((h) => h.split(" ").some((word) => !WRAPPERS.has(word))),
-  );
+  const heads = new Set(before.map(head).filter(repeatableHead));
   let next = 0;
   for (const command of after) {
     const expected = before[next];
