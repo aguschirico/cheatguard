@@ -322,13 +322,10 @@ describe("config-tampering: negatives", () => {
       pkg({ test: "jest", typecheck: "tsc --noEmit" }),
     ],
     [
-      "lint script type-checks one more project",
+      "typecheck script checks one more project with --noEmit",
       "package.json",
-      pkg({ test: "vitest run", lint: "tsc -p a && npx eslint src" }),
-      pkg({
-        test: "vitest run",
-        lint: "tsc -p a && tsc -p b && npx eslint src && npx eslint test",
-      }),
+      pkg({ test: "vitest run", typecheck: "tsc --noEmit -p a" }),
+      pkg({ test: "vitest run", typecheck: "tsc --noEmit -p a && npx tsc --noEmit -p b" }),
     ],
   ])("accepts %s", (_name, path, before, after) => {
     expect(run(configTampering, [{ path, before, after }])).toEqual([]);
@@ -383,6 +380,23 @@ describe("config-tampering: negatives", () => {
       "vitest run b.test.ts && vitest run a.test.ts",
     ],
     ["a checker that writes", "eslint --fix src", "eslint --fix test && eslint --fix src"],
+    [
+      "eslint on another directory (its config may be code)",
+      "eslint src",
+      "eslint other && eslint src",
+    ],
+    [
+      "eslint with another config",
+      "eslint -c a.mjs src",
+      "eslint -c b.mjs src && eslint -c a.mjs src",
+    ],
+    [
+      "prettier on another directory",
+      "prettier --check src",
+      "prettier --check other && prettier --check src",
+    ],
+    ["tsc that emits", "tsc -p a", "tsc -p b && tsc -p a"],
+    ["tsc --build", "tsc --noEmit -b a", "tsc --noEmit -b b && tsc --noEmit -b a"],
   ])("a gate that gains %s is still a warning", (_name, was, now) => {
     const vs = run(configTampering, [
       { path: "package.json", before: pkg({ test: was }), after: pkg({ test: now }) },

@@ -9,7 +9,7 @@ Categories: **Added** (new rules, checks, commands, integrations), **Changed** (
 ### Changed
 
 - Linters run in parallel, and so do up to four tsc projects, so the end-of-task check takes about as long as the slowest tool instead of the sum.
-- `config-tampering` no longer warns about a test or lint script that only gains more runs, on other files, of a read-only checker it already runs with the same flags (`&& node --check another.mjs`, `&& tsc -p b`), or drops a package-manager prefix (`yarn tsc` → `tsc`). Test runners, interpreters, shells and checkers with `--fix` or `--write` are not exempt: another argument can be another program.
+- `config-tampering` no longer warns about a test or lint script that only gains more runs, on other files, of `node --check` or `tsc --noEmit` it already runs with the same flags (`&& node --check another.mjs`, `&& tsc --noEmit -p b`), or drops a package-manager prefix (`yarn tsc` → `tsc`). Every other added command is still a warning: test runners, interpreters and shells run their argument, and ESLint, Prettier and oxlint load executable configuration found next to the files they check.
 
 ### Fixed
 
