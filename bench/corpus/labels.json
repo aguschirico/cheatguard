@@ -1,14 +1,35 @@
 {
   "agent": {
+    "actions__setup-java__1149": [["type-suppression", "__tests__/distributors/temurin-installer.test.ts"]],
     "adbstyle__therascripter__33": [["type-suppression", "src/renderer/src/views/ReviewEditor.tsx"]],
+    "advanced-security__generate-sbom-action__175": [["type-suppression", "__tests__/generate-sbom.test.ts"]],
+    "alaarab__phren__208": [
+      ["swallowed-error", "packages/cli/src/bridge/folder-trust.ts"],
+      ["swallowed-error", "packages/cli/src/bridge/folder-trust.test.ts"]
+    ],
+    "apisandipas__lore__2": [["swallowed-error", "src/session.ts"]],
     "awebai__oats__1133": [
       ["swallowed-error", "test/remote-version-probe.test.mjs"],
       ["swallowed-error", "lib/remote.mjs"]
     ],
     "conorluddy__persuader__31": [["type-suppression", "src/adapters/vercel-ai-sdk.ts"]],
+    "dalyisaac__gitlab-ci-template__3": [["type-suppression", "utils/env-vars.mts"]],
     "desplega-ai__agent-swarm__32": [["swallowed-error", "src/tests/scheduled-tasks-api.test.ts"]],
+    "djav1985__v-serpbear__802": [
+      ["type-suppression", "pages/api/domains.ts"],
+      ["type-suppression", "__tests__/api/domains.test.ts"],
+      ["type-suppression", "__tests__/api/keywords.test.ts"]
+    ],
+    "drmusab__recurring-task-management__87": [
+      ["type-suppression", "src/utils/debounce.ts"],
+      ["type-suppression", "tests/integration/phase3-split-view.test.ts"]
+    ],
+    "echocog__azurechodatastudio__139": [["swallowed-error", "src/vs/loader.js"]],
+    "humanwhocodes__pr-comment-inbox__2": [["swallowed-error", "src/pages/api/pr/[owner]/[repo]/[number]/suggestion.ts"]],
     "hyperdrive-technology__holodeck__29": [["phantom-import", "scripts/vite-consumer-check.mjs"]],
     "jansinger__ostsee-tiere__112": [["config-tampering", "eslint.config.js"]],
+    "jeffpriz__azure-devops-deploy-dashboard__3": [["type-suppression", "src/app/services/azure-devops.service.spec.ts"]],
+    "jeffpriz__azure-devops-deploy-dashboard__5": [["type-suppression", "src/app/components/dashboard/dashboard.component.spec.ts"]],
     "juliusolsson05__agent-code__1413": [
       ["type-suppression", "src/renderer/src/workspace/hook/actions/history.renderer.test.tsx"],
       ["type-suppression", "src/renderer/src/workspace/tile-tree/TileLeaf.olderHistory.renderer.test.tsx"]
@@ -21,33 +42,85 @@
       ["type-suppression", "src/main/browserPocket/controller/BrowserPocketController.test.ts"],
       ["type-suppression", "src/renderer/src/features/browser-pocket/ui/pick.renderer.test.ts"]
     ],
+    "kubestellar__console__153": [["stub-left", "web/src/components/compute/ClusterComparisonPage.tsx"]],
+    "nandojans__learn-quest__33": [["type-suppression", "learn-quest-app/src/app/view/teacher/lesson-section-create/lesson-section-create.component.spec.ts"]],
+    "patilgayatri22__callguard-ai__3": [
+      ["type-suppression", "meetstream_mcp_demo/src/lib/auth.ts"],
+      ["type-suppression", "meetstream_mcp_demo/src/lib/middleware.ts"],
+      ["type-suppression", "meetstream_mcp_demo/src/lib/scalekit-agent-client.ts"],
+      ["config-tampering", "meetstream_mcp_demo/tsconfig.json"],
+      ["swallowed-error", "meetstream_mcp_demo/src/lib/auth.ts"]
+    ],
+    "ralphschuler__.screeps-gpt__1529": [["type-suppression", "tests/unit/behavior/dismantler-controller.test.ts"]],
+    "ralphschuler__.screeps-gpt__1534": [["type-suppression", "tests/regression/hauler-delivery-containers-storage.test.ts"]],
+    "raven-farms__beancount-io__4": [
+      ["type-suppression", "backend-cluster/backend-v2/src/config/config.test.ts"],
+      ["type-suppression", "backend-cluster/backend-v2/src/features/auth/service/__tests__/auth-service-signup-policy.test.ts"]
+    ],
+    "report-zone__mfe-demo__91": [["type-suppression", "apps/preferences/src/__tests__/themeUtils.test.ts"]],
     "shaulab__prompt-bank__71": [["type-suppression", "test/sync-edge-cases.test.ts"]],
+    "shawnswu__obsidian-canvas-markdown-side-editor__23": [["type-suppression", "tests/integration/canvas-listener-lifecycle.test.ts"]],
     "stealth-factory__gh-manager-cli__14": [
       ["type-suppression", "src/ui/RepoList.main.tsx"],
       ["type-suppression", "src/ui/RepoList.tsx"],
       ["swallowed-error", "src/ui/RepoList.main.tsx"],
       ["swallowed-error", "src/ui/RepoList.tsx"]
     ],
-    "alaarab__phren__208": [
-      ["swallowed-error", "packages/cli/src/bridge/folder-trust.ts"],
-      ["swallowed-error", "packages/cli/src/bridge/folder-trust.test.ts"]
-    ]
+    "vil3ntec-it__shop__256": [["swallowed-error", "server/public/admin/app.js"]],
+    "yeomyeonggeori__oort__3122": [["type-suppression", "packages/momo-core/src/features/workbench/permissionPreview.test.ts"]]
   },
   "human": {
+    "apollographql__apollo-client__8678": [
+      ["type-suppression", "src/cache/inmemory/policies.ts"],
+      ["stub-left", "src/cache/inmemory/policies.ts"]
+    ],
+    "apollographql__apollo-client__9718": [
+      ["type-suppression", "src/utilities/observables/Concast.ts"],
+      ["type-suppression", "src/utilities/observables/__tests__/Concast.ts"]
+    ],
     "axios__axios__4704": [
       ["type-suppression", "lib/helpers/toFormData.js"],
       ["type-suppression", "lib/utils.js"]
     ],
+    "chakra-ui__chakra-ui__4982": [["type-suppression", "packages/number-input/tests/custom-format.test.tsx"]],
+    "chakra-ui__chakra-ui__900": [["type-suppression", "packages/system/src/system.utils.ts"]],
+    "colinhacks__zod__421": [
+      ["type-suppression", "deno/lib/types.ts"],
+      ["type-suppression", "src/types.ts"]
+    ],
+    "fastify__fastify__2903": [["type-suppression", "test/types/schema.test-d.ts"]],
     "jaredpalmer__formik__181": [["type-suppression", "src/formik.tsx"]],
+    "mikro-orm__mikro-orm__2676": [["swallowed-error", "tests/issues/GH2675.test.ts"]],
+    "mikro-orm__mikro-orm__2847": [["type-suppression", "packages/core/src/utils/Utils.ts"]],
+    "mobxjs__mobx__1340": [["type-suppression", "src/api/whyrun.ts"]],
+    "mswjs__msw__102": [["type-suppression", "src/logger.ts"]],
+    "mswjs__msw__421": [
+      ["type-suppression", "src/rest.ts"],
+      ["type-suppression", "test/rest-api/params.mocks.ts"]
+    ],
+    "nestjs__nest__7171": [["config-tampering", "integration/cache/src/multi-store/tsconfig.json"]],
+    "pmndrs__valtio__386": [
+      ["type-suppression", "src/macro/vite.ts"],
+      ["phantom-import", "tests/macro-vite.test.ts"]
+    ],
     "pmndrs__zustand__550": [
       ["type-suppression", "src/react.ts"],
       ["stub-left", "src/react.ts"]
     ],
+    "puppeteer__puppeteer__2661": [["stub-left", "lib/Launcher.js"]],
+    "puppeteer__puppeteer__8330": [["stub-left", "src/node/Launcher.ts"]],
+    "reduxjs__redux-toolkit__1250": [["type-suppression", "packages/toolkit/src/query/tests/fetchBaseQuery.test.tsx"]],
+    "sindresorhus__got__2047": [["type-suppression", "source/core/utils/is-unix-socket-url.ts"]],
+    "socketio__socket.io__4234": [["type-suppression", "lib/broadcast-operator.ts"]],
+    "solidjs__solid__843": [["type-suppression", "packages/solid/store/test/store.spec.ts"]],
     "statelyai__xstate__2286": [["type-suppression", "packages/core/src/Actor.ts"]],
     "statelyai__xstate__2391": [
       ["type-suppression", "packages/core/src/model.types.ts"],
       ["type-suppression", "packages/core/src/types.ts"]
     ],
+    "testing-library__react-testing-library__1070": [["type-suppression", "src/act-compat.js"]],
+    "testing-library__react-testing-library__991": [["type-suppression", "src/__tests__/renderHook.js"]],
+    "testing-library__react-testing-library__994": [["type-suppression", "src/index.js"]],
     "trpc__trpc__19": [["type-suppression", "packages/server/src/router.ts"]],
     "trpc__trpc__23": [
       ["type-suppression", "packages/client/src/createTRPCClient.ts"],
@@ -59,15 +132,19 @@
       ["type-suppression", "packages/client/src/createTRPCClient.ts"]
     ],
     "vercel__swr__1986": [["stub-left", "core/use-swr.ts"]],
-    "colinhacks__zod__421": [
-      ["type-suppression", "deno/lib/types.ts"],
-      ["type-suppression", "src/types.ts"]
+    "vuejs__core__75": [["type-suppression", "packages/runtime-dom/__tests__/modules/class.spec.ts"]],
+    "vuejs__core__82": [
+      ["type-suppression", "packages/runtime-core/__tests__/apiOptions.spec.ts"],
+      ["type-suppression", "packages/runtime-core/__tests__/componentProxy.spec.ts"],
+      ["type-suppression", "packages/runtime-core/src/componentProxy.ts"]
     ]
   },
   "notes": {
     "agent": "False positives kept unlabeled on purpose: alaarab__phren__208 (test moved+rewritten, warn), aleksejdix__minuta__4 (include patterns restructured, warn), awebai__oats__1100 (expected version bumped after a non-code data change, block), conorluddy__persuader__31 test file (SDK option renamed, warn). Generated files in lupinum-dev__better-convex__11 are correctly ignored.",
     "human": "Expected-value changes in zod#421, formik#2556/#2794, xstate#2379 are legitimate behavior changes (false positives, warn). axios#2982 removed a test together with the code path it covered in lib/defaults.js (false positive, block). Known false negatives: new `any` added while other `any`s were removed in the same file (zod#421, xstate#2379, trpc#24 createTRPCClient.ts) — the per-file growth heuristic misses swaps.",
     "agent-v2": "Version 2 (after the hardening pass, same single AI-assisted annotator, same guide): new findings from the stricter rules were labeled correct when they match the rule's definition — `.catch(() => undefined)` existence probes in alaarab__phren__208 (folder-trust.ts and its test) and the `.catch(() => null)` compatibility helper in awebai__oats__1133 swallow every error, not only the expected one; `'s1' as never` in a juliusolsson05__agent-code__1426 test double is a type escape like `as any`. All four are reasonable code a reviewer would likely accept; the rules surface them, which is their job (see 'When a finding is correct').",
-    "human-v2": "Version 2 correction: statelyai__xstate__2379 packages/core/src/actions.ts was labeled in v1 as a missed type-suppression, but its `currentState as any` existed before the change (the line was only re-indented), so the label was removed. The v1 misses in colinhacks__zod__421 (src/types.ts, deno/lib/types.ts) and trpc__trpc__24 are now found: they were new `any`s in changes that also removed other `any`s."
+    "human-v2": "Version 2 correction: statelyai__xstate__2379 packages/core/src/actions.ts was labeled in v1 as a missed type-suppression, but its `currentState as any` existed before the change (the line was only re-indented), so the label was removed. The v1 misses in colinhacks__zod__421 (src/types.ts, deno/lib/types.ts) and trpc__trpc__24 are now found: they were new `any`s in changes that also removed other `any`s.",
+    "agent-v3": "Version 3 added 90 merged pull requests (Claude Code, Copilot coding agent, Devin, Cursor, Jules, and Codex `codex/` branches), labeled by the same single AI-assisted annotator with the same guide. Every new test-weakened finding is a wrong flag: expected values and tests updated together with an intended behavior change (version bumps in iraklidevelop__fieldnotes__26/__32, UI text in hota911__markdown-outliner__84 and baptouuuuuu__fitness-tracker__8, renamed prompt tags in fmflex__devin4discord__14, a changed call signature in advanced-security__generate-sbom-action__175, a stronger objectContaining in djav1985__v-serpbear__802, an API refactor from values to getters in dalyisaac__gitlab-ci-template__3 (block), forex fields now supported in fiale-plus__tradingview-mcp-server__36 (block), an inverted shortcut behavior in keepsoftwaresimple__compass-calendar__1019 (block)). In marceloatpixelsmith__idoc.club__270/__275 the agent removed a check that refused to run staging scripts against the production database, together with its tests; the code path was removed on purpose, so by the guide the finding is wrong (block), though a reviewer would want to see it. In wakua__github-progress-board__86 and github__gh-aw-firewall__9139 the code under test changed in files the corpus does not store (a hand-written dist/ module, a workflow .lock.yml), so the expected values follow a real change (block). Two tool fixes came out of this set: a package.json gate script that only gains another run of a command it already runs (`&& node --check another.mjs`, wakua__github-progress-board__86) is no longer reported, and comments at the end of a line of code are now read (the `return 'N/A' // TODO` in kubestellar__console__153 was missed before; it is a correct stub-left warning). Screened signals that were not misses: removed assertions reformatted or renamed (primer__agent-eval__328, fmflex__devin4discord__14 triggers.test.ts), an assertion flipped with an intended attribute removal in a .vue component the corpus does not store (bootstrap-vue-next__bootstrap-vue-next__3235), the word 'todo' in a string (hota911__markdown-outliner__84).",
+    "human-v3": "Version 3 added 75 merged pull requests (before June 2022) from 21 more repositories, same annotator and guide. Wrong flags among them: expected values updated with an intended behavior change (facebook__docusaurus__5048 error message, mobxjs__mobx__1340 exported API list (block), reduxjs__redux-toolkit__1250 errors gaining statusText), a type-level test removed together with the signature change it covered (mobxjs__mobx__3180, block), and a test:flow script that now builds before running flow (mobxjs__mobx__2344, warning). Correct but debatable: a new integration-test tsconfig with noImplicitAny: false (nestjs__nest__7171) and imports of @typed-macro packages that resolve only through another dependency (pmndrs__valtio__386). Fixes from this set: tests that import their package by its own name through tsconfig paths now find the code under test (reduxjs__redux-toolkit__1250 went from 14 blocking findings to warnings); `Function` as the test of a conditional type (`T extends Function ? never : T`, solidjs__solid__576) is no longer a suppression; a script that drops a package-manager prefix (`yarn tsc` → `tsc`) is no longer reported. Corpus fixes: --fill-imports also follows tsconfig paths aliases, and chakra-ui__chakra-ui__4982 got the package.json of its @chakra-ui/test-utils workspace package (the miner keeps at most 40), which removed a wrong phantom-import flag a real checkout would not produce. Screened signals that were not misses: assertions re-numbered when a new statement was added (knex__knex__3855), lines that existed before (mobxjs__mobx__1340), `any` inside rule-test fixture strings (typescript-eslint__typescript-eslint__2401)."
   }
 }

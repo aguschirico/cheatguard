@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-10-14T21:28:16.663Z",
+  "generatedAt": "2026-10-20T07:54:01.354Z",
   "sets": {
     "synthetic": {
       "cases": 347,
@@ -9,9 +9,9 @@
       "blockPrecision": 1,
       "falseBlockFlagsPer1000Lines": 0,
       "latencyMs": {
-        "p50": 0.5007079999999178,
-        "p95": 1.7215830000000096,
-        "max": 25.742624999999975
+        "p50": 0.48175000000003365,
+        "p95": 1.4139999999999873,
+        "max": 13.943375000000003
       },
       "overall": {
         "tp": 227,
@@ -90,36 +90,36 @@
       "errors": []
     },
     "agent": {
-      "cases": 64,
-      "changedLines": 8645,
-      "flags": 23,
-      "blockFlags": 7,
-      "blockPrecision": 0.8571428571428571,
-      "falseBlockFlagsPer1000Lines": 0.1156737998843262,
+      "cases": 154,
+      "changedLines": 20313,
+      "flags": 67,
+      "blockFlags": 22,
+      "blockPrecision": 0.5909090909090909,
+      "falseBlockFlagsPer1000Lines": 0.44306601683650865,
       "latencyMs": {
-        "p50": 18.432624999999916,
-        "p95": 129.5194160000001,
-        "max": 618.0713750000001
+        "p50": 13.733666999999514,
+        "p95": 163.59483400000045,
+        "max": 350.6925
       },
       "overall": {
-        "tp": 20,
-        "fp": 3,
+        "tp": 48,
+        "fp": 19,
         "fn": 0,
-        "precision": 0.8695652173913043,
+        "precision": 0.7164179104477612,
         "recall": 1,
-        "f1": 0.9302325581395349
+        "f1": 0.8347826086956522
       },
       "perRule": {
         "test-weakened": {
           "tp": 0,
-          "fp": 3,
+          "fp": 19,
           "fn": 0,
           "precision": 0,
           "recall": null,
           "f1": null
         },
         "type-suppression": {
-          "tp": 11,
+          "tp": 32,
           "fp": 0,
           "fn": 0,
           "precision": 1,
@@ -127,7 +127,7 @@
           "f1": 1
         },
         "config-tampering": {
-          "tp": 1,
+          "tp": 2,
           "fp": 0,
           "fn": 0,
           "precision": 1,
@@ -135,12 +135,12 @@
           "f1": 1
         },
         "stub-left": {
-          "tp": 0,
+          "tp": 1,
           "fp": 0,
           "fn": 0,
-          "precision": null,
-          "recall": null,
-          "f1": null
+          "precision": 1,
+          "recall": 1,
+          "f1": 1
         },
         "phantom-import": {
           "tp": 1,
@@ -151,7 +151,7 @@
           "f1": 1
         },
         "swallowed-error": {
-          "tp": 7,
+          "tp": 12,
           "fp": 0,
           "fn": 0,
           "precision": 1,
@@ -177,6 +177,13 @@
       },
       "errors": [
         {
+          "id": "advanced-security__generate-sbom-action__175",
+          "kind": "fp",
+          "rule": "test-weakened",
+          "file": "__tests__/generate-sbom.test.ts",
+          "detail": "Expected value changed in \"generateSBOM > should retrieve the SBOM for a repository\": expect(mockWriteFile).toHaveBeenCalledWith(`sbom-${owner}-${repo}-${sha}.json`, JSON.stringify(JSON.parse(mockSBOM)), expect.any(Function)) → (`sbom-${owner}-${repo}-${sha}.json`, JSON.stringify(JSON.parse(mockSBOM)))"
+        },
+        {
           "id": "alaarab__phren__208",
           "kind": "fp",
           "rule": "test-weakened",
@@ -191,45 +198,150 @@
           "detail": "Expected value changed in \"v2 preparation aligns standalone OKF and Git-only theory catalog pins\": expect(gettingStarted).assert.match(/^ oats\\.framework: v1\\.9\\.3\\b/m, \"the getting-started skill shows the catalog's oats.framework version\") → (/^ oats\\.framework: v1\\.9\\.4\\b/m, \"the getting-started skill shows the catalog's oats.framework version\")"
         },
         {
+          "id": "baptouuuuuu__fitness-tracker__8",
+          "kind": "fp",
+          "rule": "test-weakened",
+          "file": "__tests__/smoke.test.tsx",
+          "detail": "Test \"UI smoke test > shows empty state, then creates an exercise that appears in today recommendations and can be logged\" went from 6 to 5 assertions that can run and check something"
+        },
+        {
           "id": "conorluddy__persuader__31",
           "kind": "fp",
           "rule": "test-weakened",
           "file": "tests/adapters/vercel-ai-sdk.test.ts",
           "detail": "Expected value changed in \"VercelAISDKAdapter > sendPrompt > should generate text when no schema provided\": expect(mockGenerateText).toHaveBeenCalledWith({ model: mockLanguageModel, messages: [{ role: 'user', content: 'Test prompt' }], temperature: 0.8, maxTokens: 1000, }) → ({ model: mockLanguageModel, messages: [{ role: 'user', content: 'Test prompt' }], temperature: 0.8, maxOutputTokens: 1000, })"
+        },
+        {
+          "id": "dalyisaac__gitlab-ci-template__3",
+          "kind": "fp",
+          "rule": "test-weakened",
+          "file": "utils/env-vars.test.mts",
+          "detail": "Deleted test: \"getPipelineEnvVars > Environment variable retrieval > should return string values for simple string variables\" (1 assertions)"
+        },
+        {
+          "id": "djav1985__v-serpbear__802",
+          "kind": "fp",
+          "rule": "test-weakened",
+          "file": "__tests__/api/adwords.test.ts",
+          "detail": "Expected value changed in \"Google Ads OAuth state flow > starts integration with a random state cookie and trusted callback origin\": expect(cookieSet).toHaveBeenCalledWith('adwords_oauth_state', url.searchParams.get('state'), expect.objectContaining({ httpOnly: true, secure: true, sameSite: 'lax' })) → ('adwords_oauth_state', url.searchParams.get('state'), expect.objectContaining({ httpOnly: true, secure: true, sameSite: 'lax', maxAge: 600 }))"
+        },
+        {
+          "id": "fiale-plus__tradingview-mcp-server__36",
+          "kind": "fp",
+          "rule": "test-weakened",
+          "file": "src/tests/fields.test.ts",
+          "detail": "Deleted test: \"FieldsTool > should return message for unsupported asset types\" (2 assertions)"
+        },
+        {
+          "id": "fmflex__devin4discord__14",
+          "kind": "fp",
+          "rule": "test-weakened",
+          "file": "test/bridge.test.ts",
+          "detail": "Expected value changed in \"a mention opens the thread on the message and posts Stop / Sleep buttons\": expect(t.started[0].prompt).assert.match(/<untrusted_discord_context>[\\s\\S]*Bob[\\s\\S]*see this/) → (/<untrusted_discord_context_\\w+>[\\s\\S]*Bob[\\s\\S]*see this/)"
+        },
+        {
+          "id": "fmflex__devin4discord__14",
+          "kind": "fp",
+          "rule": "test-weakened",
+          "file": "test/mcp.test.ts",
+          "detail": "Expected value changed in \"MCP channel reads follow the allowed channels and mark content untrusted\": expect(text).assert.match(/‹\\/untrusted-tag/) → (/‹\\/untrusted_discord_context›/)"
+        },
+        {
+          "id": "fmflex__devin4discord__14",
+          "kind": "fp",
+          "rule": "test-weakened",
+          "file": "test/tenancy.test.ts",
+          "detail": "Expected value changed in \"an @mention starts a task with the mention stripped and channel context\": expect(t.started[0].prompt).assert.match(/UNTRUSTED[\\s\\S]*<untrusted_discord_context>[\\s\\S]*earlier/) → (/UNTRUSTED[\\s\\S]*<untrusted_discord_context_\\w+>[\\s\\S]*earlier/)"
+        },
+        {
+          "id": "github__gh-aw-firewall__9139",
+          "kind": "fp",
+          "rule": "test-weakened",
+          "file": "scripts/ci/smoke-enclave-workflow.test.ts",
+          "detail": "Expected value changed in \"smoke enclave build workflow > allows Copilot to invoke only the required enclave tool\": expect(source).toContain('args: [\"--allow-tool\", \"awf-enclave-enclave_run_script\"]') → ('args: [\"--allow-tool\", \"awf-enclave(enclave_run_script)\"]')"
+        },
+        {
+          "id": "hota911__markdown-outliner__84",
+          "kind": "fp",
+          "rule": "test-weakened",
+          "file": "test/ui/language.test.js",
+          "detail": "Expected value changed in \"Japanese UI > keeps the Japanese wording\": expect(container.querySelector('.help').textContent).toBe('↑↓（macOS では Ctrl+P / Ctrl+N も）: カーソル移動 · Enter: 追加（本文の先頭では上に追加） · ⌘/Ctrl+Enter: 進行中→完了 · Tab / Shift+Tab: 階層 · Shift+Enter: タスク⇄ノート · ⠿: ドラッグ（挿入線の字下げで階層を表示） · Shift / ⌘クリック: 複数選択 · 先頭か空白の後の / と #: コマンドとタグ · ⌘/Ctrl+F: 絞り込みの入力欄へ · #タグをクリック: 絞り込みに追加、リンクをクリック: 開く（編集中は⌘/Ctrlクリック）') → ('↑↓（macOS では Ctrl+P / Ctrl+N も）: カーソル移動 · Enter: 追加（本文の先頭では上に追加） · ⌘/Ctrl+Enter: 進行中→完了 · Tab / Shift+Tab: 階層 · Shift+Enter: タスク⇄ノート · ⌘/Ctrl+Shift+Backspace: 子項目ごと削除 · ⠿: ドラッグ（挿入線の字下げで階層を表示） · Shift / ⌘クリック: 複数選択 · 先頭か空白の後の / と #: コマンドとタグ · ⌘/Ctrl+F: 絞り込みの入力欄へ · #タグをクリック: 絞り込みに追加、リンクをクリック: 開く（編集中は⌘/Ctrlクリック）')"
+        },
+        {
+          "id": "iraklidevelop__fieldnotes__26",
+          "kind": "fp",
+          "rule": "test-weakened",
+          "file": "packages/core/src/index.test.ts",
+          "detail": "Expected value changed in \"core > exports version\": expect(VERSION).toBe('0.8.2') → ('0.8.4')"
+        },
+        {
+          "id": "iraklidevelop__fieldnotes__32",
+          "kind": "fp",
+          "rule": "test-weakened",
+          "file": "packages/core/src/index.test.ts",
+          "detail": "Expected value changed in \"core > exports version\": expect(VERSION).toBe('0.8.7') → ('0.8.8')"
+        },
+        {
+          "id": "keepsoftwaresimple__compass-calendar__1019",
+          "kind": "fp",
+          "rule": "test-weakened",
+          "file": "packages/web/src/views/Forms/SomedayEventForm/useSomedayFormShortcuts.test.tsx",
+          "detail": "Deleted test: \"SomedayEventForm shortcuts hook > meta+enter shortcut ignores menu interactions\" (3 assertions)"
+        },
+        {
+          "id": "marceloatpixelsmith__idoc.club__270",
+          "kind": "fp",
+          "rule": "test-weakened",
+          "file": "tests/staging-database-url.test.ts",
+          "detail": "Deleted test: \"refuses to run when the staging URL matches the known production URL\" (2 assertions)"
+        },
+        {
+          "id": "marceloatpixelsmith__idoc.club__275",
+          "kind": "fp",
+          "rule": "test-weakened",
+          "file": "tests/staging-database-url.test.ts",
+          "detail": "Deleted test: \"refuses to run when the staging URL matches the known production URL\" (2 assertions)"
+        },
+        {
+          "id": "wakua__github-progress-board__86",
+          "kind": "fp",
+          "rule": "test-weakened",
+          "file": "tests/bug-github-view.test.mjs",
+          "detail": "Deleted test: \"共通の利用者へ対応と確認の次の操作を表示する\" (4 assertions)"
         }
       ]
     },
     "human": {
-      "cases": 47,
-      "changedLines": 3418,
-      "flags": 25,
-      "blockFlags": 18,
-      "blockPrecision": 0.8333333333333334,
-      "falseBlockFlagsPer1000Lines": 0.8777062609713282,
+      "cases": 122,
+      "changedLines": 8700,
+      "flags": 61,
+      "blockFlags": 38,
+      "blockPrecision": 0.868421052631579,
+      "falseBlockFlagsPer1000Lines": 0.5747126436781609,
       "latencyMs": {
-        "p50": 13.55158400000073,
-        "p95": 160.5954160000001,
-        "max": 264.92862500000047
+        "p50": 10.215417000000343,
+        "p95": 95.42399999999998,
+        "max": 145.0049999999992
       },
       "overall": {
-        "tp": 17,
-        "fp": 8,
+        "tp": 46,
+        "fp": 15,
         "fn": 0,
-        "precision": 0.68,
+        "precision": 0.7540983606557377,
         "recall": 1,
-        "f1": 0.8095238095238095
+        "f1": 0.8598130841121495
       },
       "perRule": {
         "test-weakened": {
           "tp": 0,
-          "fp": 8,
+          "fp": 14,
           "fn": 0,
           "precision": 0,
           "recall": null,
           "f1": null
         },
         "type-suppression": {
-          "tp": 15,
+          "tp": 38,
           "fp": 0,
           "fn": 0,
           "precision": 1,
@@ -237,15 +349,15 @@
           "f1": 1
         },
         "config-tampering": {
-          "tp": 0,
-          "fp": 0,
+          "tp": 1,
+          "fp": 1,
           "fn": 0,
-          "precision": null,
-          "recall": null,
-          "f1": null
+          "precision": 0.5,
+          "recall": 1,
+          "f1": 0.6666666666666666
         },
         "stub-left": {
-          "tp": 2,
+          "tp": 5,
           "fp": 0,
           "fn": 0,
           "precision": 1,
@@ -253,20 +365,20 @@
           "f1": 1
         },
         "phantom-import": {
-          "tp": 0,
+          "tp": 1,
           "fp": 0,
           "fn": 0,
-          "precision": null,
-          "recall": null,
-          "f1": null
+          "precision": 1,
+          "recall": 1,
+          "f1": 1
         },
         "swallowed-error": {
-          "tp": 0,
+          "tp": 1,
           "fp": 0,
           "fn": 0,
-          "precision": null,
-          "recall": null,
-          "f1": null
+          "precision": 1,
+          "recall": 1,
+          "f1": 1
         },
         "duplicate-export": {
           "tp": 0,
@@ -322,6 +434,13 @@
           "detail": "Expected value changed in \"required\": expect(requiredObject.shape.field).toBeInstanceOf(z.ZodString) → (z.ZodDefault)"
         },
         {
+          "id": "facebook__docusaurus__5048",
+          "kind": "fp",
+          "rule": "test-weakened",
+          "file": "packages/docusaurus-plugin-content-docs/src/__tests__/lastUpdate.test.ts",
+          "detail": "Expected value changed in \"lastUpdate > non-existing file\": expect(consoleMock.mock.calls[0][0].message).toContain(`Command failed with exit code 128: git log -1 --format=%ct, %an ${nonExistingFilePath}`) → (`Command failed with exit code 128: git log -1 --format=%ct, %an ${nonExistingFileName}`)"
+        },
+        {
           "id": "jaredpalmer__formik__2556",
           "kind": "fp",
           "rule": "test-weakened",
@@ -334,6 +453,48 @@
           "rule": "test-weakened",
           "file": "packages/formik/test/Formik.test.tsx",
           "detail": "Expected value changed in \"<Formik> > handleSubmit > should touch all fields\": expect(getProps().touched).toEqual({ name: true }) → ({ name: true, age: true })"
+        },
+        {
+          "id": "mobxjs__mobx__1340",
+          "kind": "fp",
+          "rule": "test-weakened",
+          "file": "test/base/api.js",
+          "detail": "Expected value changed in \"correct api should be exposed\": expect(Object.keys(mobx).sort()).toEqual([ \"Atom\", \"BaseAtom\", // TODO: remove somehow \"IDerivationState\", \"ObservableMap\", \"Reaction\", \"action\", \"asFlat\", \"asMap\", \"asReference\", \"asStructure\", \"autorun\", \"autorunAsync\", \"computed\", \"comparer\", \"createTransformer\", \"default\", \"expr\", \"extendObservable\", \"extendShallowObservable\", \"extras\", \"intercept\", \"isAction\", \"isArrayLike\", \"isBoxedObservable\", \"isComputed\", \"isModifierDescriptor\", \"isObservable\", \"isObservableArray\", \"isObservableMap\", \"isObservableObject\", \"isStrictModeEnabled\", \"map\", \"observable\", \"observe\", \"reaction\", \"runInAction\", \"spy\", \"toJS\", \"transaction\", \"untracked\", \"useStrict\", \"when\", \"whyRun\" ].sort()) → ([ \"Atom\", \"BaseAtom\", // TODO: remove somehow \"IDerivationState\", \"ObservableMap\", \"Reaction\", \"action\", \"asFlat\", \"asMap\", \"asReference\", \"asStructure\", \"autorun\", \"autorunAsync\", \"computed\", \"comparer\", \"createTransformer\", \"default\", \"expr\", \"extendObservable\", \"extendShallowObservable\", \"extras\", \"intercept\", \"isAction\", \"isArrayLike\", \"isBoxedObservable\", \"isComputed\", \"isModifierDescriptor\", \"isObservable\", \"isObservableArray\", \"isObservableMap\", \"isObservableObject\", \"isStrictModeEnabled\", \"map\", \"observable\", \"observe\", \"reaction\", \"runInAction\", \"spy\", \"toJS\", \"trace\", \"transaction\", \"untracked\", \"useStrict\", \"when\", \"whyRun\" ].sort())"
+        },
+        {
+          "id": "mobxjs__mobx__2344",
+          "kind": "fp",
+          "rule": "config-tampering",
+          "file": "package.json",
+          "detail": "The \"test:flow\" script changed: \"flow check\" → \"yarn build && flow check\""
+        },
+        {
+          "id": "mobxjs__mobx__3180",
+          "kind": "fp",
+          "rule": "test-weakened",
+          "file": "packages/mobx/__tests__/v5/base/typescript-tests.ts",
+          "detail": "Deleted test: \"typing\" (0 assertions)"
+        },
+        {
+          "id": "reduxjs__redux-toolkit__1250",
+          "kind": "fp",
+          "rule": "test-weakened",
+          "file": "packages/toolkit/src/query/tests/errorHandling.test.tsx",
+          "detail": "Expected value changed in \"fetchBaseQuery > error\": expect(baseQuery( '/error', { signal: new AbortController().signal, dispatch: storeRef.store.dispatch, getState: storeRef.store.getState, }, {} )).resolves.toEqual({ error: { data: { value: 'error' }, status: 500 }, meta: { request: expect.any(Object), response: expect.any(Object), }, }) → ({ error: { data: { value: 'error' }, statusText: 'Internal Server Error', status: 500, }, meta: { request: expect.any(Object), response: expect.any(Object), }, })"
+        },
+        {
+          "id": "reduxjs__redux-toolkit__1250",
+          "kind": "fp",
+          "rule": "test-weakened",
+          "file": "packages/toolkit/src/query/tests/fetchBaseQuery.test.tsx",
+          "detail": "Expected value changed in \"fetchBaseQuery > basic functionality > should return an error and status for error responses\": expect(res.error).toEqual({ status: 500, data: { value: 'error' } }) → ({ status: 500, statusText: 'Internal Server Error', data: { value: 'error' }, })"
+        },
+        {
+          "id": "reduxjs__redux-toolkit__1250",
+          "kind": "fp",
+          "rule": "test-weakened",
+          "file": "packages/toolkit/src/query/tests/queryLifecycle.test.tsx",
+          "detail": "Expected value changed in \"generic cases: %s > ${type}: onStart and onError\": expect(onError).toHaveBeenCalledWith({ error: { status: 500, data: { value: 'error' }, }, isUnhandledError: false, meta: { request: expect.any(Request), response: expect.any(Object), // Response is not available in jest env }, }) → ({ error: { status: 500, statusText: 'Internal Server Error', data: { value: 'error' }, }, isUnhandledError: false, meta: { request: expect.any(Request), response: expect.any(Object), // Response is not available in jest env }, })"
         },
         {
           "id": "statelyai__xstate__2379",

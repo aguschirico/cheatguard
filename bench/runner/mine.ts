@@ -11,6 +11,7 @@ import * as fsModule from "node:fs";
 import { existsSync } from "node:fs";
 import { join, posix } from "node:path";
 import { parseArgs } from "node:util";
+import { createProjectContext, memorySource } from "@cheatguard/core";
 import { z } from "zod";
 import {
   type CaseChange,
@@ -67,7 +68,14 @@ const AGENT_QUERIES = [
   ['"Generated with Claude Code"', "language:javascript", "is:merged"],
   ["author:app/copilot-swe-agent", "language:typescript", "is:merged"],
   ["author:app/devin-ai-integration", "language:typescript", "is:merged"],
-  ['"Co-Authored-By: Claude"', "language:typescript", "is:merged"],
+  // Version 3: more agents. Codex cloud tasks open PRs from `codex/` branches under the user's name.
+  ...MONTHS.slice(-4).flatMap((m) => [
+    ["author:app/cursor", "language:typescript", "is:merged", `merged:${m}-01..${m}-28`],
+    ["author:app/google-labs-jules", "language:typescript", "is:merged", `merged:${m}-01..${m}-28`],
+    ["head:codex/", "language:typescript", "is:merged", `merged:${m}-01..${m}-28`],
+  ]),
+  ["author:app/devin-ai-integration", "language:javascript", "is:merged"],
+  ["author:app/copilot-swe-agent", "language:javascript", "is:merged"],
 ];
 const HUMAN_REPOS = [
   "vercel/swr",
@@ -92,6 +100,29 @@ const HUMAN_REPOS = [
   "excalidraw/excalidraw",
   "pmndrs/jotai",
   "unjs/ofetch",
+  // Version 3: more repositories.
+  "reduxjs/redux-toolkit",
+  "mobxjs/mobx",
+  "apollographql/apollo-client",
+  "graphql/graphql-js",
+  "nestjs/nest",
+  "vuejs/core",
+  "sindresorhus/got",
+  "mswjs/msw",
+  "testing-library/react-testing-library",
+  "pmndrs/valtio",
+  "moment/luxon",
+  "puppeteer/puppeteer",
+  "typescript-eslint/typescript-eslint",
+  "vitejs/vite",
+  "mikro-orm/mikro-orm",
+  "knex/knex",
+  "preactjs/preact",
+  "solidjs/solid",
+  "socketio/socket.io",
+  "yargs/yargs",
+  "unjs/h3",
+  "fastify/fastify",
 ];
 
 function gh(args: string[], accept?: string): string {
@@ -331,7 +362,7 @@ function refresh(): void {
 }
 
 const IMPORT_RE =
-  /(?:import|export)\s[^'"]*?from\s*['"](\.[^'"]+)['"]|require\(\s*['"](\.[^'"]+)['"]\s*\)/g;
+  /(?:import|export)\s[^'"]*?from\s*['"]([^'"]+)['"]|require\(\s*['"]([^'"]+)['"]\s*\)/g;
 const EXTS = [
   "",
   ".ts",
@@ -345,7 +376,11 @@ const EXTS = [
   "/index.js",
 ];
 
-/** Fetches the content of unchanged modules imported (transitively, 3 levels) by changed test files. */
+/**
+ * Fetches the content of unchanged modules imported (transitively, 3 levels) by changed test files:
+ * relative imports, and bare ones that tsconfig paths map into the repository (a package's tests
+ * often import it by its own name).
+ */
 function fillImports(): void {
   const { readdirSync, writeFileSync } = require_fs();
   const dir = join(ROOT, SET);
@@ -363,6 +398,9 @@ function fillImports(): void {
     } catch {
       continue;
     }
+    const files: Record<string, string> = { ...c.context };
+    for (const ch of c.changes) if (ch.after !== null) files[ch.path] = ch.after;
+    const project = createProjectContext("/corpus", memorySource(files));
     let frontier = tests.map((t) => ({ path: t.path, text: t.after ?? t.before ?? "" }));
     let fetched = 0;
     for (let depth = 0; depth < 3 && frontier.length > 0 && fetched < 40; depth += 1) {
@@ -372,8 +410,11 @@ function fillImports(): void {
           const spec = m[1] ?? m[2];
           if (!spec) continue;
           const base = posix.normalize(posix.join(posix.dirname(path), spec.replace(/\.js$/, "")));
-          const target = EXTS.map((e) => `${base}${e}`).find((p) => p in c.context);
-          if (!target || c.context[target] !== "" || fetched >= 40) continue;
+          const target = spec.startsWith(".")
+            ? EXTS.map((e) => `${base}${e}`).find((p) => p in c.context)
+            : project.resolveAlias(spec);
+          if (!target || !(target in c.context) || c.context[target] !== "" || fetched >= 40)
+            continue;
           const content = raw(c.source.repo, target, head);
           fetched += 1;
           if (content === null || content.length > 300_000) continue;

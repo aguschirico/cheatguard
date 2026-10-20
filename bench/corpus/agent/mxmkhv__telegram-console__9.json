@@ -90,5 +90,5 @@
     "src/components/__snapshots__/WelcomeSplash.test.tsx.snap": ""
   },
   "expected": [],
-  "notes": "LABELED v2 (single annotator, AI-assisted; see corpus/LABELING.md)"
+  "notes": "LABELED v3 (single annotator, AI-assisted; see corpus/LABELING.md)"
 }

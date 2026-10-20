@@ -78,5 +78,5 @@
     "test/__snapshots__/suite.test.ts.snap": ""
   },
   "expected": [],
-  "notes": "LABELED v2 (single annotator, AI-assisted; see corpus/LABELING.md)"
+  "notes": "LABELED v3 (single annotator, AI-assisted; see corpus/LABELING.md)"
 }

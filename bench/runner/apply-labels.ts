@@ -18,7 +18,7 @@ for (const set of REAL_SETS) {
   for (const c of cases) {
     const flags = forSet[c.id] ?? [];
     c.expected = flags.map(([rule, file]) => ({ rule, file }));
-    c.notes = "LABELED v2 (single annotator, AI-assisted; see corpus/LABELING.md)";
+    c.notes = "LABELED v3 (single annotator, AI-assisted; see corpus/LABELING.md)";
     if (flags.length > 0) positives += 1;
     writeCase(ROOT, c);
   }

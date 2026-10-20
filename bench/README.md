@@ -14,10 +14,10 @@ node bench/runner/corpus.ts --errors  # score every set, list each wrong or miss
 | Set | What it is |
 |---|---|
 | `corpus/synthetic` | 347 cases: realistic modules × mutations (shortcuts, hard negatives, everyday edits), including the evasions found by the adversarial review. Written alongside the rules, so it is a regression test, not evidence. |
-| `corpus/agent` | Merged pull requests opened by coding agents (Claude Code, Copilot coding agent, Devin) in permissively licensed repositories. |
+| `corpus/agent` | Merged pull requests opened by coding agents (Claude Code, Copilot coding agent, Devin, Cursor, Jules, and Codex, found by its `codex/` branch names) in permissively licensed repositories, at most three per repository. |
 | `corpus/human` | Merged pull requests by people in popular TypeScript repositories, before June 2022. |
 
-Real pull requests are mined with `node bench/runner/mine.ts --set agent|human` (needs an authenticated `gh`), refreshed with `--refresh` and `--fill-imports`, and labeled in `corpus/labels.json` (applied with `node bench/runner/apply-labels.ts`). Labels come from a single annotator, AI-assisted (version 2 re-labeled the findings of the hardened rules and corrected one v1 label); how they are decided: [corpus/LABELING.md](corpus/LABELING.md). Recall on real pull requests is an upper bound: misses nobody screened for are not counted. The quoted repositories' licenses are in [corpus/licenses](corpus/licenses/README.md). `node bench/runner/screen.ts --set <set>` lists regex-based signals of shortcuts that cheatguard did not flag, which is how missed findings were searched for.
+Real pull requests are mined with `node bench/runner/mine.ts --set agent|human` (needs an authenticated `gh`), refreshed with `--refresh` and `--fill-imports`, and labeled in `corpus/labels.json` (applied with `node bench/runner/apply-labels.ts`). Labels come from a single annotator, AI-assisted (version 2 re-labeled the findings of the hardened rules and corrected one v1 label; version 3 added and labeled more pull requests); how they are decided: [corpus/LABELING.md](corpus/LABELING.md). Recall on real pull requests is an upper bound: misses nobody screened for are not counted. The quoted repositories' licenses are in [corpus/licenses](corpus/licenses/README.md). `node bench/runner/screen.ts --set <set>` lists regex-based signals of shortcuts that cheatguard did not flag, which is how missed findings were searched for.
 
 Scoring is per (rule, file): several findings of one rule in one file count once, and warnings count as findings. Reported: precision, recall, precision of blocking findings, and wrong blocking findings per 1,000 changed lines. Per-rule numbers are in `results/corpus-latest.md`; note that on real pull requests `test-weakened` has produced no correct finding yet (all of its findings there were legitimate expectation updates).
 
@@ -49,6 +49,8 @@ Interventions (how often cheatguard pushed back) are read from its audit log (`i
 node bench/runner/lint.ts
 ```
 
-Clones real repositories (zustand, ofetch, jotai, axios) outside this repository, installs them with scripts disabled, records a lint baseline, appends a seeded function with lint and type errors, then compares what an agent would read from the project's own linters with `cheatguard lint` (with and without a baseline): size in tokens (characters / 4), wall time, and how many seeded problems are still reported.
+Clones real repositories (zustand, ofetch, jotai, axios, vue-test-utils, update-electron-app, unstorage, consola, TanStack/form, better-auth) outside this repository, installs them with scripts disabled, records a lint baseline, appends a seeded function with lint and type errors, then compares what an agent would read from the project's own linters with `cheatguard lint` (with and without a baseline): size in tokens (characters / 4), wall time, and how many seeded problems are still reported.
+
+In the two monorepos (TanStack/form, better-auth) the raw commands are the ones an agent would run for the package it edited (`tsc -p packages/form-core`) or the project's own `tsc --build`, while cheatguard type-checks every tsc project of the workspace (60 and 46), so errors the change causes in other packages are included and it is slower there. Monorepos are installed with the pnpm version they pin (`packageManager`).
 
 Note that running ESLint executes the repository's config file; only well-known repositories are used.

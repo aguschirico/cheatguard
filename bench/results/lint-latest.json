@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-10-16T13:45:07.730Z",
+  "generatedAt": "2026-10-20T07:02:11.666Z",
   "results": [
     {
       "repo": "zustand",
@@ -11,21 +11,21 @@
       "raw": {
         "chars": 731,
         "tokens": 183,
-        "ms": 3678.5073330000014,
+        "ms": 3639.224042,
         "diagnostics": 4,
         "seededFound": 3
       },
       "cheatguard": {
         "chars": 472,
         "tokens": 118,
-        "ms": 2941.5209159999977,
+        "ms": 2172.3049169999977,
         "diagnostics": 3,
         "seededFound": 3
       },
       "cheatguardWithBaseline": {
         "chars": 472,
         "tokens": 118,
-        "ms": 3072.8076660000006,
+        "ms": 2240.9187500000007,
         "diagnostics": 3,
         "seededFound": 3
       }
@@ -40,21 +40,21 @@
       "raw": {
         "chars": 722,
         "tokens": 181,
-        "ms": 1678.0324579999979,
+        "ms": 1621.273500000003,
         "diagnostics": 6,
         "seededFound": 3
       },
       "cheatguard": {
         "chars": 466,
         "tokens": 117,
-        "ms": 1308.7209580000017,
+        "ms": 940.1043329999957,
         "diagnostics": 3,
         "seededFound": 3
       },
       "cheatguardWithBaseline": {
         "chars": 466,
         "tokens": 117,
-        "ms": 1268.7242909999986,
+        "ms": 938.3312080000032,
         "diagnostics": 3,
         "seededFound": 3
       }
@@ -69,21 +69,21 @@
       "raw": {
         "chars": 744,
         "tokens": 186,
-        "ms": 5114.428874999998,
+        "ms": 5076.713332999992,
         "diagnostics": 4,
         "seededFound": 3
       },
       "cheatguard": {
         "chars": 487,
         "tokens": 122,
-        "ms": 3727.0235420000026,
+        "ms": 2486.053291000004,
         "diagnostics": 3,
         "seededFound": 3
       },
       "cheatguardWithBaseline": {
         "chars": 487,
         "tokens": 122,
-        "ms": 3838.9689579999977,
+        "ms": 2454.1500839999935,
         "diagnostics": 3,
         "seededFound": 3
       }
@@ -97,21 +97,21 @@
       "raw": {
         "chars": 1001,
         "tokens": 250,
-        "ms": 1092.3286670000089,
+        "ms": 1049.255375000008,
         "diagnostics": 6,
         "seededFound": 1
       },
       "cheatguard": {
         "chars": 362,
         "tokens": 91,
-        "ms": 1662.6600000000035,
+        "ms": 1508.0761249999923,
         "diagnostics": 1,
         "seededFound": 1
       },
       "cheatguardWithBaseline": {
         "chars": 276,
         "tokens": 69,
-        "ms": 1697.0021669999987,
+        "ms": 1496.5505419999972,
         "diagnostics": 1,
         "seededFound": 1
       }
@@ -124,23 +124,23 @@
       ],
       "seededDiagnostics": 3,
       "raw": {
-        "chars": 17043,
-        "tokens": 4261,
-        "ms": 3932.2718330000007,
+        "chars": 17183,
+        "tokens": 4296,
+        "ms": 4899.067708000002,
         "diagnostics": 77,
         "seededFound": 3
       },
       "cheatguard": {
         "chars": 474,
         "tokens": 119,
-        "ms": 4123.286917000001,
+        "ms": 4738.224791999994,
         "diagnostics": 3,
         "seededFound": 3
       },
       "cheatguardWithBaseline": {
         "chars": 388,
         "tokens": 97,
-        "ms": 3919.6919589999998,
+        "ms": 4854.366500000004,
         "diagnostics": 3,
         "seededFound": 3
       }
@@ -155,23 +155,139 @@
       "raw": {
         "chars": 567,
         "tokens": 142,
-        "ms": 1737.945249000004,
+        "ms": 1706.7328739999793,
         "diagnostics": 3,
         "seededFound": 3
       },
       "cheatguard": {
         "chars": 445,
         "tokens": 111,
-        "ms": 1598.1292079999985,
+        "ms": 1558.1225419999973,
         "diagnostics": 3,
         "seededFound": 3
       },
       "cheatguardWithBaseline": {
         "chars": 445,
         "tokens": 111,
-        "ms": 1588.2648340000014,
+        "ms": 1527.5517079999845,
         "diagnostics": 3,
         "seededFound": 3
+      }
+    },
+    {
+      "repo": "unstorage",
+      "linters": [
+        "oxlint",
+        "tsc"
+      ],
+      "seededDiagnostics": 3,
+      "raw": {
+        "chars": 14305,
+        "tokens": 3576,
+        "ms": 682.2145420000306,
+        "diagnostics": 3,
+        "seededFound": 3
+      },
+      "cheatguard": {
+        "chars": 532,
+        "tokens": 133,
+        "ms": 606.5170829999843,
+        "diagnostics": 3,
+        "seededFound": 3
+      },
+      "cheatguardWithBaseline": {
+        "chars": 446,
+        "tokens": 112,
+        "ms": 613.9327920000069,
+        "diagnostics": 3,
+        "seededFound": 3
+      }
+    },
+    {
+      "repo": "consola",
+      "linters": [
+        "eslint",
+        "tsc"
+      ],
+      "seededDiagnostics": 2,
+      "raw": {
+        "chars": 931,
+        "tokens": 233,
+        "ms": 2624.624875999987,
+        "diagnostics": 6,
+        "seededFound": 2
+      },
+      "cheatguard": {
+        "chars": 412,
+        "tokens": 103,
+        "ms": 1701.893624999997,
+        "diagnostics": 2,
+        "seededFound": 2
+      },
+      "cheatguardWithBaseline": {
+        "chars": 326,
+        "tokens": 82,
+        "ms": 1651.9866670000192,
+        "diagnostics": 2,
+        "seededFound": 2
+      }
+    },
+    {
+      "repo": "tanstack-form",
+      "linters": [
+        "eslint",
+        "tsc"
+      ],
+      "seededDiagnostics": 2,
+      "raw": {
+        "chars": 423,
+        "tokens": 106,
+        "ms": 4810.274666999991,
+        "diagnostics": 4,
+        "seededFound": 2
+      },
+      "cheatguard": {
+        "chars": 438,
+        "tokens": 110,
+        "ms": 23188.423165999993,
+        "diagnostics": 2,
+        "seededFound": 2
+      },
+      "cheatguardWithBaseline": {
+        "chars": 352,
+        "tokens": 88,
+        "ms": 23121.305458000046,
+        "diagnostics": 2,
+        "seededFound": 2
+      }
+    },
+    {
+      "repo": "better-auth",
+      "linters": [
+        "biome",
+        "tsc"
+      ],
+      "seededDiagnostics": 4,
+      "raw": {
+        "chars": 3407,
+        "tokens": 852,
+        "ms": 5325.189667000028,
+        "diagnostics": 1,
+        "seededFound": 4
+      },
+      "cheatguard": {
+        "chars": 697,
+        "tokens": 174,
+        "ms": 22790.599125000008,
+        "diagnostics": 4,
+        "seededFound": 4
+      },
+      "cheatguardWithBaseline": {
+        "chars": 611,
+        "tokens": 153,
+        "ms": 22933.05462499999,
+        "diagnostics": 4,
+        "seededFound": 4
       }
     }
   ]

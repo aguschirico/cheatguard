@@ -1,0 +1,88 @@
+{
+  "id": "testing-library__react-testing-library__1070",
+  "set": "human",
+  "description": "testing-library/react-testing-library#1070",
+  "source": {
+    "url": "https://github.com/testing-library/react-testing-library/pull/1070",
+    "repo": "testing-library/react-testing-library",
+    "license": "MIT",
+    "author": "eps1lon",
+    "mergedAt": "2022-05-28T08:18:07Z"
+  },
+  "changes": [
+    {
+      "path": "package.json",
+      "before": "{\n  \"name\": \"@testing-library/react\",\n  \"version\": \"0.0.0-semantically-released\",\n  \"description\": \"Simple and complete React DOM testing utilities that encourage good testing practices.\",\n  \"main\": \"dist/index.js\",\n  \"types\": \"types/index.d.ts\",\n  \"module\": \"dist/@testing-library/react.esm.js\",\n  \"engines\": {\n    \"node\": \">=12\"\n  },\n  \"scripts\": {\n    \"prebuild\": \"rimraf dist\",\n    \"build\": \"npm-run-all --parallel build:main build:bundle:main build:bundle:pure\",\n    \"build:bundle:main\": \"dotenv -e .bundle.main.env kcd-scripts build -- --bundle --no-clean\",\n    \"build:bundle:pure\": \"dotenv -e .bundle.main.env -e .bundle.pure.env kcd-scripts build -- --bundle --no-clean\",\n    \"build:main\": \"kcd-scripts build --no-clean\",\n    \"format\": \"kcd-scripts format\",\n    \"install:csb\": \"npm install\",\n    \"lint\": \"kcd-scripts lint\",\n    \"setup\": \"npm install && npm run validate -s\",\n    \"test\": \"kcd-scripts test\",\n    \"test:update\": \"npm test -- --updateSnapshot --coverage\",\n    \"typecheck\": \"kcd-scripts typecheck --build types\",\n    \"validate\": \"kcd-scripts validate\"\n  },\n  \"files\": [\n    \"dist\",\n    \"dont-cleanup-after-each.js\",\n    \"pure.js\",\n    \"pure.d.ts\",\n    \"types/*.d.ts\"\n  ],\n  \"keywords\": [\n    \"testing\",\n    \"react\",\n    \"ui\",\n    \"dom\",\n    \"jsdom\",\n    \"unit\",\n    \"integration\",\n    \"functional\",\n    \"end-to-end\",\n    \"e2e\"\n  ],\n  \"author\": \"Kent C. Dodds <me@kentcdodds.com> (https://kentcdodds.com)\",\n  \"license\": \"MIT\",\n  \"dependencies\": {\n    \"@babel/runtime\": \"^7.12.5\",\n    \"@testing-library/dom\": \"^8.5.0\",\n    \"@types/react-dom\": \"^18.0.0\"\n  },\n  \"devDependencies\": {\n    \"@testing-library/jest-dom\": \"^5.11.6\",\n    \"dotenv-cli\": \"^4.0.0\",\n    \"kcd-scripts\": \"^11.1.0\",\n    \"npm-run-all\": \"^4.1.5\",\n    \"react\": \"^18.0.0\",\n    \"react-dom\": \"^18.0.0\",\n    \"rimraf\": \"^3.0.2\",\n    \"typescript\": \"^4.1.2\"\n  },\n  \"peerDependencies\": {\n    \"react\": \"^18.0.0\",\n    \"react-dom\": \"^18.0.0\"\n  },\n  \"eslintConfig\": {\n    \"extends\": \"./node_modules/kcd-scripts/eslint.js\",\n    \"rules\": {\n      \"react/prop-types\": \"off\",\n      \"react/no-adjacent-inline-elements\": \"off\",\n      \"import/no-unassigned-import\": \"off\",\n      \"import/named\": \"off\",\n      \"testing-library/no-container\": \"off\",\n      \"testing-library/no-dom-import\": \"off\",\n      \"testing-library/no-unnecessary-act\": \"off\",\n      \"testing-library/prefer-user-event\": \"off\"\n    }\n  },\n  \"eslintIgnore\": [\n    \"node_modules\",\n    \"coverage\",\n    \"dist\",\n    \"*.d.ts\"\n  ],\n  \"repository\": {\n    \"type\": \"git\",\n    \"url\": \"https://github.com/testing-library/react-testing-library\"\n  },\n  \"bugs\": {\n    \"url\": \"https://github.com/testing-library/react-testing-library/issues\"\n  },\n  \"homepage\": \"https://github.com/testing-library/react-testing-library#readme\"\n}\n",
+      "after": "{\n  \"name\": \"@testing-library/react\",\n  \"version\": \"0.0.0-semantically-released\",\n  \"description\": \"Simple and complete React DOM testing utilities that encourage good testing practices.\",\n  \"main\": \"dist/index.js\",\n  \"types\": \"types/index.d.ts\",\n  \"module\": \"dist/@testing-library/react.esm.js\",\n  \"engines\": {\n    \"node\": \">=12\"\n  },\n  \"scripts\": {\n    \"prebuild\": \"rimraf dist\",\n    \"build\": \"npm-run-all --parallel build:main build:bundle:main build:bundle:pure\",\n    \"build:bundle:main\": \"dotenv -e .bundle.main.env kcd-scripts build -- --bundle --no-clean\",\n    \"build:bundle:pure\": \"dotenv -e .bundle.main.env -e .bundle.pure.env kcd-scripts build -- --bundle --no-clean\",\n    \"build:main\": \"kcd-scripts build --no-clean\",\n    \"format\": \"kcd-scripts format\",\n    \"install:csb\": \"npm install\",\n    \"lint\": \"kcd-scripts lint\",\n    \"setup\": \"npm install && npm run validate -s\",\n    \"test\": \"kcd-scripts test\",\n    \"test:update\": \"npm test -- --updateSnapshot --coverage\",\n    \"typecheck\": \"kcd-scripts typecheck --build types\",\n    \"validate\": \"kcd-scripts validate\"\n  },\n  \"files\": [\n    \"dist\",\n    \"dont-cleanup-after-each.js\",\n    \"pure.js\",\n    \"pure.d.ts\",\n    \"types/*.d.ts\"\n  ],\n  \"keywords\": [\n    \"testing\",\n    \"react\",\n    \"ui\",\n    \"dom\",\n    \"jsdom\",\n    \"unit\",\n    \"integration\",\n    \"functional\",\n    \"end-to-end\",\n    \"e2e\"\n  ],\n  \"author\": \"Kent C. Dodds <me@kentcdodds.com> (https://kentcdodds.com)\",\n  \"license\": \"MIT\",\n  \"dependencies\": {\n    \"@babel/runtime\": \"^7.12.5\",\n    \"@testing-library/dom\": \"^8.5.0\",\n    \"@types/react-dom\": \"^18.0.0\"\n  },\n  \"devDependencies\": {\n    \"@testing-library/jest-dom\": \"^5.11.6\",\n    \"dotenv-cli\": \"^4.0.0\",\n    \"kcd-scripts\": \"^11.1.0\",\n    \"npm-run-all\": \"^4.1.5\",\n    \"react\": \"^18.0.0\",\n    \"react-dom\": \"^18.0.0\",\n    \"rimraf\": \"^3.0.2\",\n    \"typescript\": \"^4.1.2\"\n  },\n  \"peerDependencies\": {\n    \"react\": \"^18.0.0\",\n    \"react-dom\": \"^18.0.0\"\n  },\n  \"eslintConfig\": {\n    \"extends\": \"./node_modules/kcd-scripts/eslint.js\",\n    \"globals\": {\n      \"globalThis\": \"readonly\"\n    },\n    \"rules\": {\n      \"react/prop-types\": \"off\",\n      \"react/no-adjacent-inline-elements\": \"off\",\n      \"import/no-unassigned-import\": \"off\",\n      \"import/named\": \"off\",\n      \"testing-library/no-container\": \"off\",\n      \"testing-library/no-dom-import\": \"off\",\n      \"testing-library/no-unnecessary-act\": \"off\",\n      \"testing-library/prefer-user-event\": \"off\"\n    }\n  },\n  \"eslintIgnore\": [\n    \"node_modules\",\n    \"coverage\",\n    \"dist\",\n    \"*.d.ts\"\n  ],\n  \"repository\": {\n    \"type\": \"git\",\n    \"url\": \"https://github.com/testing-library/react-testing-library\"\n  },\n  \"bugs\": {\n    \"url\": \"https://github.com/testing-library/react-testing-library/issues\"\n  },\n  \"homepage\": \"https://github.com/testing-library/react-testing-library#readme\"\n}\n"
+    },
+    {
+      "path": "src/act-compat.js",
+      "before": "import * as testUtils from 'react-dom/test-utils'\n\nconst domAct = testUtils.act\n\nfunction getGlobalThis() {\n  /* istanbul ignore else */\n  if (typeof self !== 'undefined') {\n    return self\n  }\n  /* istanbul ignore next */\n  if (typeof window !== 'undefined') {\n    return window\n  }\n  /* istanbul ignore next */\n  if (typeof global !== 'undefined') {\n    return global\n  }\n  /* istanbul ignore next */\n  throw new Error('unable to locate global object')\n}\n\nfunction setIsReactActEnvironment(isReactActEnvironment) {\n  getGlobalThis().IS_REACT_ACT_ENVIRONMENT = isReactActEnvironment\n}\n\nfunction getIsReactActEnvironment() {\n  return getGlobalThis().IS_REACT_ACT_ENVIRONMENT\n}\n\nfunction withGlobalActEnvironment(actImplementation) {\n  return callback => {\n    const previousActEnvironment = getIsReactActEnvironment()\n    setIsReactActEnvironment(true)\n    try {\n      // The return value of `act` is always a thenable.\n      let callbackNeedsToBeAwaited = false\n      const actResult = actImplementation(() => {\n        const result = callback()\n        if (\n          result !== null &&\n          typeof result === 'object' &&\n          typeof result.then === 'function'\n        ) {\n          callbackNeedsToBeAwaited = true\n        }\n        return result\n      })\n      if (callbackNeedsToBeAwaited) {\n        const thenable = actResult\n        return {\n          then: (resolve, reject) => {\n            thenable.then(\n              returnValue => {\n                setIsReactActEnvironment(previousActEnvironment)\n                resolve(returnValue)\n              },\n              error => {\n                setIsReactActEnvironment(previousActEnvironment)\n                reject(error)\n              },\n            )\n          },\n        }\n      } else {\n        setIsReactActEnvironment(previousActEnvironment)\n        return actResult\n      }\n    } catch (error) {\n      // Can't be a `finally {}` block since we don't know if we have to immediately restore IS_REACT_ACT_ENVIRONMENT\n      // or if we have to await the callback first.\n      setIsReactActEnvironment(previousActEnvironment)\n      throw error\n    }\n  }\n}\n\nconst act = withGlobalActEnvironment(domAct)\n\nexport default act\nexport {\n  setIsReactActEnvironment as setReactActEnvironment,\n  getIsReactActEnvironment,\n}\n\n/* eslint no-console:0 */\n",
+      "after": "import * as testUtils from 'react-dom/test-utils'\n\nconst domAct = testUtils.act\n\nfunction getGlobalThis() {\n  /* istanbul ignore else */\n  if (typeof globalThis !== 'undefined') {\n    return globalThis\n  }\n  /* istanbul ignore next */\n  if (typeof self !== 'undefined') {\n    return self\n  }\n  /* istanbul ignore next */\n  if (typeof window !== 'undefined') {\n    return window\n  }\n  /* istanbul ignore next */\n  if (typeof global !== 'undefined') {\n    return global\n  }\n  /* istanbul ignore next */\n  throw new Error('unable to locate global object')\n}\n\nfunction setIsReactActEnvironment(isReactActEnvironment) {\n  getGlobalThis().IS_REACT_ACT_ENVIRONMENT = isReactActEnvironment\n}\n\nfunction getIsReactActEnvironment() {\n  return getGlobalThis().IS_REACT_ACT_ENVIRONMENT\n}\n\nfunction withGlobalActEnvironment(actImplementation) {\n  return callback => {\n    const previousActEnvironment = getIsReactActEnvironment()\n    setIsReactActEnvironment(true)\n    try {\n      // The return value of `act` is always a thenable.\n      let callbackNeedsToBeAwaited = false\n      const actResult = actImplementation(() => {\n        const result = callback()\n        if (\n          result !== null &&\n          typeof result === 'object' &&\n          typeof result.then === 'function'\n        ) {\n          callbackNeedsToBeAwaited = true\n        }\n        return result\n      })\n      if (callbackNeedsToBeAwaited) {\n        const thenable = actResult\n        return {\n          then: (resolve, reject) => {\n            thenable.then(\n              returnValue => {\n                setIsReactActEnvironment(previousActEnvironment)\n                resolve(returnValue)\n              },\n              error => {\n                setIsReactActEnvironment(previousActEnvironment)\n                reject(error)\n              },\n            )\n          },\n        }\n      } else {\n        setIsReactActEnvironment(previousActEnvironment)\n        return actResult\n      }\n    } catch (error) {\n      // Can't be a `finally {}` block since we don't know if we have to immediately restore IS_REACT_ACT_ENVIRONMENT\n      // or if we have to await the callback first.\n      setIsReactActEnvironment(previousActEnvironment)\n      throw error\n    }\n  }\n}\n\nconst act = withGlobalActEnvironment(domAct)\n\nexport default act\nexport {\n  setIsReactActEnvironment as setReactActEnvironment,\n  getIsReactActEnvironment,\n}\n\n/* eslint no-console:0 */\n"
+    }
+  ],
+  "context": {
+    ".all-contributorsrc": "",
+    ".bundle.main.env": "",
+    ".bundle.pure.env": "",
+    ".codesandbox/ci.json": "",
+    ".gitattributes": "",
+    ".github/ISSUE_TEMPLATE.md": "",
+    ".github/ISSUE_TEMPLATE/Bug_Report.md": "",
+    ".github/ISSUE_TEMPLATE/Feature_Request.md": "",
+    ".github/ISSUE_TEMPLATE/Question.md": "",
+    ".github/PULL_REQUEST_TEMPLATE.md": "",
+    ".github/workflows/validate.yml": "",
+    ".gitignore": "",
+    ".huskyrc.js": "",
+    ".npmrc": "",
+    ".prettierignore": "",
+    ".prettierrc.js": "",
+    "CHANGELOG.md": "",
+    "CODE_OF_CONDUCT.md": "",
+    "CONTRIBUTING.md": "",
+    "LICENSE": "",
+    "README.md": "",
+    "dont-cleanup-after-each.js": "",
+    "other/MAINTAINING.md": "",
+    "other/USERS.md": "",
+    "other/cheat-sheet.pdf": "",
+    "other/design files/README.txt": "",
+    "other/design files/cheat-sheet.afpub": "",
+    "other/goat.png": "",
+    "other/manual-releases.md": "",
+    "other/testingjavascript.jpg": "",
+    "pure.d.ts": "",
+    "pure.js": "",
+    "src/__mocks__/axios.js": "",
+    "src/__tests__/__snapshots__/render.js.snap": "",
+    "src/__tests__/act.js": "",
+    "src/__tests__/auto-cleanup-skip.js": "",
+    "src/__tests__/auto-cleanup.js": "",
+    "src/__tests__/cleanup.js": "",
+    "src/__tests__/debug.js": "",
+    "src/__tests__/end-to-end.js": "",
+    "src/__tests__/events.js": "",
+    "src/__tests__/multi-base.js": "",
+    "src/__tests__/new-act.js": "",
+    "src/__tests__/render.js": "",
+    "src/__tests__/renderHook.js": "",
+    "src/__tests__/rerender.js": "",
+    "src/__tests__/stopwatch.js": "",
+    "src/fire-event.js": "",
+    "src/index.js": "",
+    "src/pure.js": "",
+    "tests/setup-env.js": "",
+    "types/index.d.ts": "",
+    "types/pure.d.ts": "",
+    "types/test.tsx": "",
+    "types/tsconfig.json": "{\n  \"extends\": \"../node_modules/kcd-scripts/shared-tsconfig.json\",\n  \"include\": [\".\"]\n}\n"
+  },
+  "expected": [
+    {
+      "rule": "type-suppression",
+      "file": "src/act-compat.js"
+    }
+  ],
+  "notes": "LABELED v3 (single annotator, AI-assisted; see corpus/LABELING.md)"
+}
