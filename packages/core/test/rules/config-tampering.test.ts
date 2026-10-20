@@ -306,8 +306,59 @@ describe("config-tampering: negatives", () => {
       `export default { entry: ["a.ts", "b.ts"] };\n`,
     ],
     ["new tsconfig with strict on", "tsconfig.node.json", null, TSCONFIG],
+    [
+      "check script runs one more file through the same check",
+      "package.json",
+      pkg({ test: "vitest run", check: "node --check a.mjs && node --check b.mjs" }),
+      pkg({
+        test: "vitest run",
+        check: "node --check a.mjs && node --check c.mjs && node --check b.mjs",
+      }),
+    ],
+    [
+      "package-manager prefix dropped from a check",
+      "package.json",
+      pkg({ test: "yarn jest", typecheck: "yarn tsc --noEmit" }),
+      pkg({ test: "jest", typecheck: "tsc --noEmit" }),
+    ],
   ])("accepts %s", (_name, path, before, after) => {
     expect(run(configTampering, [{ path, before, after }])).toEqual([]);
+  });
+
+  test("a gate script that gains a different command is still a warning", () => {
+    // `rm -rf test` runs before the tests: adding commands is not always harmless.
+    const vs = run(configTampering, [
+      {
+        path: "package.json",
+        before: pkg({ test: "vitest run" }),
+        after: pkg({ test: "rm -rf test && vitest run" }),
+      },
+    ]);
+    expect(vs.map((v) => v.severity)).toEqual(["warn"]);
+  });
+
+  test("a check that gains a run of the same tool with only flags is still a warning", () => {
+    // `jest -u` rewrites the snapshots before the real run: same tool, not the same check.
+    const vs = run(configTampering, [
+      {
+        path: "package.json",
+        before: pkg({ test: "jest src" }),
+        after: pkg({ test: "jest -u && jest src" }),
+      },
+    ]);
+    expect(vs.map((v) => v.severity)).toEqual(["warn"]);
+  });
+
+  test("a package-manager prefix added to a check is still a warning", () => {
+    // `yarn tsc` runs a package script named "tsc" when there is one.
+    const vs = run(configTampering, [
+      {
+        path: "package.json",
+        before: pkg({ typecheck: "tsc --noEmit" }),
+        after: pkg({ typecheck: "yarn tsc --noEmit" }),
+      },
+    ]);
+    expect(vs.map((v) => v.severity)).toEqual(["warn"]);
   });
 
   test("ordinary source files are ignored", () => {

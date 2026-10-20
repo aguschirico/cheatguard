@@ -69,3 +69,47 @@ export function neutralizedScript(was: string, now: string): string | null {
   if (NARROWING_RE.test(now) && !NARROWING_RE.test(was)) return "it now skips files or tests";
   return null;
 }
+
+const commands = (script: string): string[] =>
+  script
+    .split("&&")
+    .map((c) => c.trim().replace(/\s+/g, " "))
+    .filter(Boolean);
+
+/** Everything but the last word: the program and flags a command runs its argument through. */
+const head = (command: string): string => command.split(" ").slice(0, -1).join(" ");
+
+/** `yarn tsc` → `tsc`: the package-manager prefix that runs a binary (or a script of that name). */
+const RUNNER_PREFIX_RE = /^(npx|pnpx|bunx|yarn|pnpm( exec)?|npm exec|bun x) (?=[^-])/;
+
+/**
+ * True when `now` runs every `&&`-chained command of `was` and at most adds more runs of a command
+ * it already ran on other arguments (`node --check a.mjs && node --check b.mjs` gaining `&& node
+ * --check c.mjs`). A command may also drop its package-manager prefix (`yarn tsc` → `tsc`): that
+ * runs the binary itself, where the prefix could have run a script of the same name instead.
+ */
+export function sameChecksOrMore(was: string, now: string): boolean {
+  // Anything but plain `&&` chains (pipes, `;`, `||`, substitutions) is judged by the other checks.
+  const plain = (s: string): boolean => !/[|;&`$<>]/.test(s.replaceAll("&&", ""));
+  if (!plain(was) || !plain(now) || was === now) return false;
+  const before = commands(was);
+  const after = commands(now);
+  const heads = new Set(
+    before.map(head).filter((h) => h.split(" ").some((word) => !WRAPPERS.has(word))),
+  );
+  let next = 0;
+  for (const command of after) {
+    const expected = before[next];
+    if (
+      expected !== undefined &&
+      (command === expected || command === expected.replace(RUNNER_PREFIX_RE, ""))
+    ) {
+      next += 1;
+    } else if (!heads.has(head(command)) || command.split(" ").at(-1)?.startsWith("-")) {
+      // A new run must be the same check on another argument: `jest -u` is the same tool
+      // rewriting snapshots before the real run.
+      return false;
+    }
+  }
+  return next === before.length;
+}

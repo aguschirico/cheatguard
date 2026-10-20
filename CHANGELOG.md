@@ -9,10 +9,14 @@ Categories: **Added** (new rules, checks, commands, integrations), **Changed** (
 ### Changed
 
 - Linters run in parallel, and so do up to four tsc projects, so the end-of-task check takes about as long as the slowest tool instead of the sum.
+- `config-tampering` no longer warns about a test or lint script that only gains more runs of a check it already runs (`&& node --check another.mjs`) or drops a package-manager prefix (`yarn tsc` → `tsc`).
 
 ### Fixed
 
 - tsc in monorepos: a root `tsconfig.json` that compiles only some files (TanStack/form includes just its scripts) no longer hides type errors in workspace packages. Packages that no root project compiles are checked with their own `tsconfig.json`, and a root config that has both files and `references` checks the referenced projects too (`tsc -p` does not).
+- Comments at the end of a line of code are now read: `return 'N/A' // TODO`, `run(); // eslint-disable-line` and `x; /* biome-ignore … */` were missed by `stub-left` and `type-suppression`. Text inside JSX that looks like a comment is still ignored, and a TODO quoted as `inline code` in a comment is a mention, not a TODO.
+- `test-weakened` finds the code under test through tsconfig `paths` too (tests that import their package by its own name), so an expected value updated together with that code is a warning instead of a block.
+- `Function` as the test of a conditional type (`T extends Function ? never : T`) is no longer reported as a type escape.
 
 ## 0.1.2 — 2026-10-16
 

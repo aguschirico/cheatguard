@@ -187,6 +187,39 @@ describe("test-weakened: negatives", () => {
     expect(kinds(vs)).toEqual([["warn", expect.any(String)]]);
   });
 
+  test("the code under test is also found through a tsconfig paths alias", () => {
+    // redux-toolkit's tests import the package by its own name, mapped to src by tsconfig paths.
+    const before = BASE.replace(`"../src/auth"`, `"@app/auth"`);
+    const after = before.replace(
+      `expect(login(null)).toBe(400);`,
+      `expect(login(null)).toBe(422);`,
+    );
+    const vs = run(
+      testWeakened,
+      [
+        { path: T, before, after },
+        {
+          path: "src/auth/index.ts",
+          before: `export * from "./login";\n`,
+          after: `export * from "./login";\n`,
+        },
+        {
+          path: "src/auth/login.ts",
+          before: SRC_BEFORE,
+          after: SRC_BEFORE.replace("return 401;", "return t === null ? 422 : 401;"),
+        },
+      ],
+      {
+        files: {
+          "tsconfig.json": JSON.stringify({
+            compilerOptions: { baseUrl: ".", paths: { "@app/*": ["src/*"] } },
+          }),
+        },
+      },
+    );
+    expect(kinds(vs)).toEqual([["warn", expect.any(String)]]);
+  });
+
   test("non-test files are ignored", () => {
     const after = BASE.replace(`    expect(logout()).toBe(true);\n`, "");
     expect(run(testWeakened, [{ path: "src/checks.ts", before: BASE, after }])).toEqual([]);

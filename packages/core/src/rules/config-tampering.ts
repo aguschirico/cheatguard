@@ -7,7 +7,7 @@ import { agentSettingsFindings } from "./config-agent.js";
 import { ciFindings } from "./config-ci.js";
 import { type ConfigKind, configEntries, configKindOf, parseJsonc } from "./config-files.js";
 import { dirOf, filesLost, filesNotMatched, listSample } from "./config-scope.js";
-import { neutralizedScript } from "./config-scripts.js";
+import { neutralizedScript, sameChecksOrMore } from "./config-scripts.js";
 import type { AnalyzedChange, Rule, RuleContext } from "./types.js";
 
 const STRICT_FLAGS = [
@@ -568,7 +568,7 @@ function packageFindings(
           detail: `The "${name}" script was weakened (${reason}): "${was}" → "${now}"`,
           fix: `Restore "${was}" and make it pass for real.`,
         });
-      } else {
+      } else if (!sameChecksOrMore(was, now)) {
         findings.push({
           severity: "warn",
           line: nowEntry.line,

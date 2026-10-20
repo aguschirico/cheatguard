@@ -154,6 +154,48 @@ const j = 2;
     const f = facts("const   x  =  y as any;\r\n");
     expect(f.suppressions[0]?.text).toBe("const x = y as any;");
   });
+
+  test("Function as the test of a conditional type is not a suppression", () => {
+    const f = facts(
+      "type NotFn<T> = T extends Function ? never : T;\nlet cb: Function;\ntype X<T> = T extends string ? Function : T;\n",
+    );
+    expect(f.suppressions.map((s) => [s.kind, s.line])).toEqual([
+      ["function-type", 2],
+      ["function-type", 3],
+    ]);
+  });
+
+  test("finds directives and TODOs in comments at the end of a line of code", () => {
+    const f = facts(
+      [
+        "export function version(): string {",
+        "  return 'N/A' // TODO: add version data",
+        "}",
+        "run(); // eslint-disable-line no-undef",
+        "const x = 1; /* biome-ignore lint: legacy */",
+        "",
+      ].join("\n"),
+    );
+    expect(f.suppressions.map((s) => [s.kind, s.line])).toEqual([
+      ["eslint-disable", 4],
+      ["biome-ignore", 5],
+    ]);
+    expect(f.todos.map((t) => [t.text, t.line])).toEqual([["TODO: add version data", 2]]);
+  });
+
+  test("a TODO quoted as inline code in a comment is a mention, not a TODO", () => {
+    const f = facts("/** Reads `return 1; // TODO` too. */\nexport const a = 1; // TODO: real\n");
+    expect(f.todos.map((t) => t.text)).toEqual(["TODO: real"]);
+  });
+
+  test("text inside JSX that looks like a comment is not one", () => {
+    const f = facts(
+      "export const A = () => <p>// TODO eslint-disable-line</p>; // real TODO\n",
+      "a.tsx",
+    );
+    expect(f.suppressions).toEqual([]);
+    expect(f.todos.map((t) => t.text)).toEqual(["real TODO"]);
+  });
 });
 
 describe("imports", () => {
