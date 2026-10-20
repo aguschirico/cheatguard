@@ -94,7 +94,8 @@ const RUNNER_PREFIX_RE = /^(npx|pnpx|bunx|yarn|pnpm( exec)?|npm exec|bun x) (?=[
  * oxlint, vue-tsc plugins) or write files, so another argument can run another program.
  */
 function repeatableHead(head: string): boolean {
-  const words = head.replace(RUNNER_PREFIX_RE, "").split(" ").filter(Boolean);
+  // No package-manager prefix: `yarn tsc` runs a package script named "tsc" when there is one.
+  const words = head.split(" ").filter(Boolean);
   const [program, ...flags] = words;
   if (program === "node")
     return flags.length === 1 && (flags[0] === "--check" || flags[0] === "-c");
@@ -121,8 +122,7 @@ export function sameChecksOrMore(was: string, now: string): boolean {
   if (!plain(was) || !plain(now) || was === now) return false;
   const before = commands(was);
   const after = commands(now);
-  const unprefixed = (h: string): string => h.replace(RUNNER_PREFIX_RE, "");
-  const heads = new Set(before.map(head).filter(repeatableHead).map(unprefixed));
+  const heads = new Set(before.map(head).filter(repeatableHead));
   let next = 0;
   for (const command of after) {
     const expected = before[next];
@@ -131,10 +131,7 @@ export function sameChecksOrMore(was: string, now: string): boolean {
       (command === expected || command === expected.replace(RUNNER_PREFIX_RE, ""))
     ) {
       next += 1;
-    } else if (
-      !heads.has(unprefixed(head(command))) ||
-      command.split(" ").at(-1)?.startsWith("-")
-    ) {
+    } else if (!heads.has(head(command)) || command.split(" ").at(-1)?.startsWith("-")) {
       // A new run must be the same check on another argument: `jest -u` is the same tool
       // rewriting snapshots before the real run.
       return false;
