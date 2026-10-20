@@ -77,7 +77,7 @@ export function cliToolProblems(
   ];
 }
 
-export function runLintCommand(argv: string[]): number {
+export async function runLintCommand(argv: string[]): Promise<number> {
   const { values } = parseArgs({
     args: argv,
     options: {
@@ -100,13 +100,13 @@ export function runLintCommand(argv: string[]): number {
     // Internal: background baseline for a Claude Code session (spawned by the SessionStart hook).
     const session = loadSession(root, sessionId);
     if (!session) return EXIT.ok;
-    let baseline = snapshotLintBaseline(root, session.tools);
+    let baseline = await snapshotLintBaseline(root, session.tools);
     // If the agent edited files while the linters ran, the baseline may contain its errors (also in
     // files it did not touch): record it again from the session's starting tree.
     const now = snapshotWorkingTree(root, { sparse: new Set(session.sparse) });
     const dirty = changedPaths(root, session.baselineTree, now);
     if (dirty.length > 0) {
-      const atStart = snapshotLintBaselineAt(root, session.baselineTree, session.tools);
+      const atStart = await snapshotLintBaselineAt(root, session.baselineTree, session.tools);
       // A checkout without generated files can make a tool fail; then keep the working-tree
       // baseline and attribute the edited files by changed lines.
       if (atStart.errors.length <= baseline.errors.length) baseline = atStart;
@@ -118,7 +118,7 @@ export function runLintCommand(argv: string[]): number {
   const plan = planTools(root, config);
   const tools = plan.tools;
   if (values.snapshot) {
-    const baseline = snapshotLintBaseline(root, tools);
+    const baseline = await snapshotLintBaseline(root, tools);
     writeFileSync(values.snapshot, JSON.stringify(baseline));
     process.stdout.write(
       `Recorded ${baseline.fingerprints.length} diagnostics from ${tools.join(", ") || "no tools"} to ${values.snapshot}\n`,
@@ -140,7 +140,7 @@ export function runLintCommand(argv: string[]): number {
     scopes: [],
   });
   const baseline = values.baseline ? readBaselineFile(values.baseline) : null;
-  const lint = runLint({
+  const lint = await runLint({
     root,
     tools,
     changes: result.changes,

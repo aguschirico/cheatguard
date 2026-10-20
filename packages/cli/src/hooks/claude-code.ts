@@ -209,7 +209,7 @@ function lintBaseline(root: string, session: SessionState): LintBaseline | null 
   return lintStatus(root, session.id) === "ready" ? loadLintBaseline(root, session.id) : null;
 }
 
-function postToolUse(root: string, payload: HookPayload): void {
+async function postToolUse(root: string, payload: HookPayload): Promise<void> {
   if (!payload.toolName || !EDIT_TOOLS.has(payload.toolName) || !payload.filePath) return;
   const path = repoPath(root, payload.filePath);
   if (!path) return;
@@ -222,7 +222,7 @@ function postToolUse(root: string, payload: HookPayload): void {
   );
   if (tools.length > 0 && result.changes.length > 0) {
     const baseline = lintBaseline(root, session);
-    lint = runLint({
+    lint = await runLint({
       root,
       tools,
       changes: result.changes,
@@ -324,7 +324,7 @@ function blockingKeys(report: Report, config: CheatguardConfig): string[] {
 const NO_SESSION_NOTE =
   "cheatguard had no record of this session's start (its SessionStart hook did not run), so it compared against HEAD: anything committed during the session was not checked.";
 
-function stop(root: string, payload: HookPayload): void {
+async function stop(root: string, payload: HookPayload): Promise<void> {
   const loaded = loadSession(root, payload.sessionId);
   const session =
     loaded ??
@@ -347,7 +347,7 @@ function stop(root: string, payload: HookPayload): void {
   let lint: LintResult | undefined;
   const tools = inPhase(plan.tools, config.lint.onStop);
   if (tools.length > 0 && result.changes.length > 0) {
-    lint = runLint({
+    lint = await runLint({
       root,
       tools,
       changes: result.changes,
@@ -482,15 +482,16 @@ function notifyNotARepo(cwd: string, sessionId: string): void {
 }
 
 /** Entry point for `cheatguard hook claude-code`. Always exits 0: a broken guard must never brick the agent. */
-export function runClaudeCodeHook(raw: string): number {
+export async function runClaudeCodeHook(raw: string): Promise<number> {
   let root: string | null = null;
   let payload: HookPayload | null = null;
   try {
     payload = parsePayload(raw);
     root = repoRoot(payload.cwd);
     if (payload.event === "SessionStart") sessionStart(root, payload);
-    else if (payload.event === "PostToolUse") postToolUse(root, payload);
-    else if (payload.event === "Stop" || payload.event === "SubagentStop") stop(root, payload);
+    else if (payload.event === "PostToolUse") await postToolUse(root, payload);
+    else if (payload.event === "Stop" || payload.event === "SubagentStop")
+      await stop(root, payload);
   } catch (error) {
     const event = payload?.event ?? "";
     const isStop = event === "Stop" || event === "SubagentStop";

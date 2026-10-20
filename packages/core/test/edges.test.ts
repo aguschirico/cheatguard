@@ -9,6 +9,7 @@ import { typescriptAdapter } from "../src/lang/typescript/index.js";
 import { scriptKindFor } from "../src/lang/typescript/parse.js";
 import { detectTools } from "../src/lint/detect.js";
 import { runTool, tsconfigProjects } from "../src/lint/run.js";
+import { createTempRepo } from "./helpers/repo.js";
 
 function facts(text: string, path: string): FileFacts {
   const r = typescriptAdapter.analyze(path, text);
@@ -85,9 +86,9 @@ describe("detectTools", () => {
 });
 
 describe("runTool", () => {
-  test("reports a missing tool instead of throwing", () => {
+  test("reports a missing tool instead of throwing", async () => {
     const dir = mkdtempSync(join(tmpdir(), "cg-run-"));
-    expect(runTool(dir, "tsc", "all").error).toContain("not installed");
+    expect((await runTool(dir, "tsc", "all")).error).toContain("not installed");
   });
 
   test("solution-style tsconfigs expand to their references", () => {
@@ -106,5 +107,40 @@ describe("runTool", () => {
     writeFileSync(join(dir, "tsconfig.json"), JSON.stringify({ include: ["src"] }));
     expect(tsconfigProjects(dir)).toEqual(["tsconfig.json"]);
     expect(tsconfigProjects(mkdtempSync(join(tmpdir(), "cg-run-")))).toEqual([]);
+  });
+
+  test("a root tsconfig that leaves workspace packages out also checks their tsconfigs", () => {
+    // TanStack/form: the root project includes only scripts; packages have their own tsconfig.
+    const repo = createTempRepo({
+      "pnpm-workspace.yaml": "packages:\n  - packages/*\n",
+      "tsconfig.json": JSON.stringify({ include: ["scripts"] }),
+      "scripts/build.ts": "export {};\n",
+      "packages/a/tsconfig.json": JSON.stringify({ include: ["src"] }),
+      "packages/a/src/index.ts": "export const a = 1;\n",
+      "packages/b/tsconfig.json": JSON.stringify({ include: ["src"] }),
+      "packages/b/src/index.ts": "export const b = 1;\n",
+    });
+    expect(tsconfigProjects(repo.root)).toEqual([
+      "tsconfig.json",
+      "packages/a/tsconfig.json",
+      "packages/b/tsconfig.json",
+    ]);
+    // A root project that already includes every package is enough on its own.
+    repo.write("tsconfig.json", JSON.stringify({ include: ["**/*.ts"] }));
+    expect(tsconfigProjects(repo.root)).toEqual(["tsconfig.json"]);
+  });
+
+  test("a root tsconfig with its own files and references checks both", () => {
+    // better-auth: the root includes ./*.ts and references every package.
+    const repo = createTempRepo({
+      "tsconfig.json": JSON.stringify({
+        include: ["./*.ts"],
+        references: [{ path: "./packages/core" }],
+      }),
+      "root.ts": "export {};\n",
+      "packages/core/tsconfig.json": JSON.stringify({ include: ["src"] }),
+      "packages/core/src/index.ts": "export const c = 1;\n",
+    });
+    expect(tsconfigProjects(repo.root)).toEqual(["tsconfig.json", "packages/core/tsconfig.json"]);
   });
 });

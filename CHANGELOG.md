@@ -6,6 +6,14 @@ Categories: **Added** (new rules, checks, commands, integrations), **Changed** (
 
 ## Unreleased
 
+### Changed
+
+- Linters run in parallel, and so do up to four tsc projects, so the end-of-task check takes about as long as the slowest tool instead of the sum.
+
+### Fixed
+
+- tsc in monorepos: a root `tsconfig.json` that compiles only some files (TanStack/form includes just its scripts) no longer hides type errors in workspace packages. Packages that no root project compiles are checked with their own `tsconfig.json`, and a root config that has both files and `references` checks the referenced projects too (`tsc -p` does not).
+
 ## 0.1.2 — 2026-10-16
 
 ### Added

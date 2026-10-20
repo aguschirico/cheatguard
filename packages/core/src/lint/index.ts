@@ -86,22 +86,29 @@ export interface RunLintOptions {
 
 const SEVERITY_RANK = { error: 0, warning: 1 } as const;
 
-export function runLint(options: RunLintOptions): LintResult {
+/** Runs the linters (all at once) on the changed files and keeps what the change introduced. */
+export async function runLint(options: RunLintOptions): Promise<LintResult> {
   const start = performance.now();
   const files = options.changes
     .filter((c) => c.after !== null && LINTABLE_RE.test(c.path))
     .map((c) => c.path);
   const tsRelevant = options.changes.some((c) => TS_RELEVANT_RE.test(c.path));
+  const selected = options.tools.filter((tool) => (tool === "tsc" ? tsRelevant : files.length > 0));
+  const outputs = await Promise.all(
+    selected.map((tool) =>
+      runTool(
+        options.root,
+        tool,
+        tool === "tsc" ? "all" : files,
+        options.timeoutMs ?? DEFAULT_TIMEOUT_MS,
+      ),
+    ),
+  );
   const tools: ToolRun[] = [];
   const diagnostics: Diagnostic[] = [];
-  for (const tool of options.tools) {
-    if (tool === "tsc" ? !tsRelevant : files.length === 0) continue;
-    const output = runTool(
-      options.root,
-      tool,
-      tool === "tsc" ? "all" : files,
-      options.timeoutMs ?? DEFAULT_TIMEOUT_MS,
-    );
+  for (const [index, tool] of selected.entries()) {
+    const output = outputs[index];
+    if (!output) continue;
     const run: ToolRun = {
       tool,
       ok: output.error === undefined,
@@ -147,15 +154,17 @@ export interface LintBaseline {
 }
 
 /** Records every current diagnostic of every tool, so later runs can report only new ones. */
-export function snapshotLintBaseline(
+export async function snapshotLintBaseline(
   root: string,
   tools: readonly LintToolName[],
   timeoutMs = DEFAULT_TIMEOUT_MS,
-): LintBaseline {
+): Promise<LintBaseline> {
   const diagnostics: Diagnostic[] = [];
   const errors: string[] = [];
-  for (const tool of tools) {
-    const output = runTool(root, tool, "all", timeoutMs);
+  const outputs = await Promise.all(tools.map((tool) => runTool(root, tool, "all", timeoutMs)));
+  for (const [index, tool] of tools.entries()) {
+    const output = outputs[index];
+    if (!output) continue;
     if (output.error) errors.push(`${tool}: ${output.error}`);
     diagnostics.push(...output.diagnostics);
   }
@@ -173,12 +182,12 @@ export function snapshotLintBaseline(
  * temporary directory (with the project's installed dependencies linked in) and linted there. Used
  * when the agent edited files while the working-tree baseline was being recorded.
  */
-export function snapshotLintBaselineAt(
+export async function snapshotLintBaselineAt(
   root: string,
   tree: string,
   tools: readonly LintToolName[],
   timeoutMs = DEFAULT_TIMEOUT_MS,
-): LintBaseline {
+): Promise<LintBaseline> {
   const dir = mkdtempSync(join(tmpdir(), "cheatguard-baseline-"));
   try {
     checkoutTree(root, tree, dir);
@@ -186,7 +195,7 @@ export function snapshotLintBaselineAt(
       mkdirSync(dirname(join(dir, deps)), { recursive: true });
       symlinkSync(join(root, deps), join(dir, deps), "junction");
     }
-    return snapshotLintBaseline(dir, tools, timeoutMs);
+    return await snapshotLintBaseline(dir, tools, timeoutMs);
   } finally {
     rmSync(dir, { recursive: true, force: true });
   }
