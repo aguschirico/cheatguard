@@ -26,7 +26,7 @@ Node 20 or newer. The code is TypeScript with `strict`, `noUncheckedIndexedAcces
 1. Write tests first in `packages/core/test/rules/`: at least ten cases that must be reported and ten that must not, including "hard negatives" (legitimate changes that look like the shortcut).
 2. Rules are pure functions over a `RuleContext` (changed files with parsed facts, plus read-only project access). Report only what the change introduced.
 3. Every finding needs a `fix` that tells an agent what to do instead.
-4. Run the corpus (`node bench/runner/corpus.ts --errors`) and look at every new wrong flag on real pull requests before opening a pull request.
+4. Run the corpus (`node bench/runner/corpus.ts --errors`) and look at every new wrong flag on real pull requests before opening a pull request. Commit the updated `bench/results/corpus-latest.*`: CI reruns the corpus (`--check`) and fails when the scores differ from the committed ones or the synthetic set is no longer perfect.
 
 ## Reporting a false positive or a missed shortcut
 

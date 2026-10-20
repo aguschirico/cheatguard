@@ -35,6 +35,24 @@ jobs:
           if git cat-file -e "$BASE^{commit}" 2>/dev/null; then range="$BASE..HEAD"; else range="HEAD"; fi
           "$RUNNER_TEMP/gitleaks" git --no-banner --redact --log-opts="$range" .
 
+  benchmark:
+    # Benchmark A is deterministic: a change to what the rules report on the labeled corpus
+    # fails here until the new results are reviewed and committed with the change.
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm build
+      - name: benchmark A matches bench/results (synthetic set must stay perfect)
+        run: node bench/runner/corpus.ts --check
+
   test:
     strategy:
       fail-fast: false

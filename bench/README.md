@@ -9,6 +9,7 @@ Build first: `pnpm build` (the benchmarks import `@cheatguard/core` from its bui
 ```bash
 node bench/corpus/synthetic.ts        # regenerate the synthetic set
 node bench/runner/corpus.ts --errors  # score every set, list each wrong or missed flag
+node bench/runner/corpus.ts --check   # compare with the committed results instead of writing them (CI)
 ```
 
 | Set | What it is |
