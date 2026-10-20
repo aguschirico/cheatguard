@@ -1,6 +1,7 @@
-import { writeFileSync } from "node:fs";
+import { readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { parseArgs } from "node:util";
+import { z } from "zod";
 import {
   CORPUS_SETS,
   type CorpusCase,
@@ -9,6 +10,7 @@ import {
   corpusSetOption,
   loadCases,
   percentile,
+  type RuleScore,
   runCase,
   score,
 } from "./corpus-lib.ts";
@@ -18,6 +20,8 @@ const { values } = parseArgs({
     set: { type: "string", default: "all" },
     out: { type: "string", default: join(import.meta.dirname, "..", "results") },
     errors: { type: "boolean", default: false },
+    // Compare with the committed results instead of overwriting them (CI).
+    check: { type: "boolean", default: false },
   },
 });
 
@@ -26,7 +30,14 @@ const SETS: CorpusSet[] = values.set === "all" ? [...CORPUS_SETS] : [corpusSetOp
 
 const fmt = (n: number | null): string => (n === null ? "—" : n.toFixed(2));
 
-const sets: Record<string, unknown> = {};
+const sets: Record<string, Record<string, unknown>> = {};
+const scoresBySet: Partial<Record<CorpusSet, RuleScore>> = {};
+const committedSchema = z.object({ sets: z.record(z.string(), z.record(z.string(), z.unknown())) });
+const stable = (set: Record<string, unknown> | undefined): string => {
+  if (set === undefined) return "missing";
+  const { latencyMs: _latency, ...rest } = set;
+  return JSON.stringify(rest);
+};
 const report = { generatedAt: new Date().toISOString(), sets };
 const lines: string[] = [
   "# Benchmark A — labeled corpus",
@@ -74,6 +85,7 @@ for (const set of SETS) {
         .find((r) => r.id === e.id)
         ?.predicted.some((v) => v.rule === e.rule && v.file === e.file && v.severity === "block"),
   ).length;
+  scoresBySet[set] = scored.overall;
   sets[set] = {
     cases: cases.length,
     changedLines: lineCount,
@@ -118,6 +130,38 @@ for (const set of SETS) {
   }
 }
 
-writeFileSync(join(values.out, "corpus-latest.json"), `${JSON.stringify(report, null, 2)}\n`);
-writeFileSync(join(values.out, "corpus-latest.md"), `${lines.join("\n")}\n`);
 console.log(lines.join("\n"));
+
+if (values.check) {
+  process.exitCode = checkAgainstCommitted() ? 0 : 1;
+} else {
+  writeFileSync(join(values.out, "corpus-latest.json"), `${JSON.stringify(report, null, 2)}\n`);
+  writeFileSync(join(values.out, "corpus-latest.md"), `${lines.join("\n")}\n`);
+}
+
+/**
+ * Scores are deterministic (latency is not), so any change in what the rules report on the
+ * corpus shows up here: the pull request has to rerun the benchmark and commit the new results.
+ */
+function checkAgainstCommitted(): boolean {
+  const committed = committedSchema.parse(
+    JSON.parse(readFileSync(join(values.out, "corpus-latest.json"), "utf8")),
+  );
+  let ok = true;
+  const synthetic = scoresBySet.synthetic;
+  if (synthetic && (synthetic.fp > 0 || synthetic.fn > 0)) {
+    console.error(
+      `synthetic set is no longer perfect: ${synthetic.fp} wrong, ${synthetic.fn} missed`,
+    );
+    ok = false;
+  }
+  for (const set of SETS) {
+    if (stable(sets[set]) !== stable(committed.sets[set])) {
+      console.error(
+        `${set}: scores differ from bench/results/corpus-latest.json. Run \`node bench/runner/corpus.ts --errors\`, review the changed flags and commit the new results.`,
+      );
+      ok = false;
+    }
+  }
+  return ok;
+}

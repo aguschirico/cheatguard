@@ -26,6 +26,7 @@ Categories: **Added** (new rules, checks, commands, integrations), **Changed** (
 
 - Benchmark A: 154 agent pull requests (Cursor, Jules and Codex added) and 122 human ones, labeled v3. Precision on agent pull requests is lower on the larger sample (72%, from 87%); every wrong finding there comes from `test-weakened`.
 - Benchmark C covers 10 repositories (4 more: unstorage, consola, and two large monorepos, TanStack/form and better-auth; better-auth is the first with Biome).
+- CI reruns benchmark A on every pull request and fails when its scores differ from the committed results or the synthetic set misses or wrongly flags anything, so a change in precision or recall is always published with the change that caused it.
 - The license list of quoted repositories keeps the license a repository's code was quoted under when the repository is later removed or relicensed.
 
 ## 0.1.2 — 2026-10-16
