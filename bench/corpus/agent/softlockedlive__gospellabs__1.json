@@ -1,0 +1,59 @@
+{
+  "id": "softlockedlive__gospellabs__1",
+  "set": "agent",
+  "description": "SoftLockedLive/GospelLabs#1",
+  "source": {
+    "url": "https://github.com/SoftLockedLive/GospelLabs/pull/1",
+    "repo": "SoftLockedLive/GospelLabs",
+    "license": "MIT",
+    "author": "Copilot",
+    "mergedAt": "2026-10-20T04:21:10Z"
+  },
+  "changes": [
+    {
+      "path": "eslint.config.mjs",
+      "before": null,
+      "after": "import { defineConfig, globalIgnores } from \"eslint/config\";\nimport nextVitals from \"eslint-config-next/core-web-vitals\";\nimport nextTs from \"eslint-config-next/typescript\";\n\nconst eslintConfig = defineConfig([\n  ...nextVitals,\n  ...nextTs,\n  // Override default ignores of eslint-config-next.\n  globalIgnores([\n    // Default ignores of eslint-config-next:\n    \".next/**\",\n    \"out/**\",\n    \"build/**\",\n    \"next-env.d.ts\",\n  ]),\n]);\n\nexport default eslintConfig;\n"
+    },
+    {
+      "path": "next.config.ts",
+      "before": null,
+      "after": "import type { NextConfig } from \"next\";\n\nconst nextConfig: NextConfig = {\n  /* config options here */\n  cacheComponents: true,\n  partialPrefetching: true,\n  turbopack: {\n    rules: {\n      \"*.css\": {\n        loaders: [\"@tailwindcss/turbopack\"],\n        as: \"*.css\",\n      },\n    },\n  },\n};\n\nexport default nextConfig;\n"
+    },
+    {
+      "path": "package.json",
+      "before": null,
+      "after": "{\n  \"name\": \"gospellabs\",\n  \"version\": \"0.1.0\",\n  \"private\": true,\n  \"scripts\": {\n    \"dev\": \"next dev\",\n    \"build\": \"next build\",\n    \"start\": \"next start\",\n    \"lint\": \"eslint\"\n  },\n  \"dependencies\": {\n    \"next\": \"16.4.2\",\n    \"react\": \"19.3.0\",\n    \"react-dom\": \"19.3.0\"\n  },\n  \"devDependencies\": {\n    \"@tailwindcss/turbopack\": \"^4\",\n    \"@types/node\": \"^20\",\n    \"@types/react\": \"^19\",\n    \"@types/react-dom\": \"^19\",\n    \"eslint\": \"^9\",\n    \"eslint-config-next\": \"16.4.2\",\n    \"tailwindcss\": \"^4\",\n    \"typescript\": \"^5\"\n  }\n}\n"
+    },
+    {
+      "path": "src/app/layout.tsx",
+      "before": null,
+      "after": "import type { Metadata } from \"next\";\nimport \"./globals.css\";\n\nexport const metadata: Metadata = {\n  title: \"GospelLabs\",\n  description:\n    \"A structured scripture study app for gospel questions and source-based research.\",\n};\n\nexport default function RootLayout({ children }: LayoutProps<\"/\">) {\n  return (\n    <html lang=\"en\" className=\"h-full antialiased\">\n      <body className=\"min-h-full flex flex-col\">{children}</body>\n    </html>\n  );\n}\n"
+    },
+    {
+      "path": "src/app/page.tsx",
+      "before": null,
+      "after": "import Image from \"next/image\";\n\nexport default function Home() {\n  return (\n    <div className=\"flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black\">\n      <main className=\"flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start\">\n        <Image\n          className=\"dark:invert h-5 w-[100px]\"\n          src=\"/next.svg\"\n          alt=\"Next.js logo\"\n          width={100}\n          height={20}\n          priority\n        />\n        <div className=\"flex flex-col items-center gap-6 text-center sm:items-start sm:text-left\">\n          <h1 className=\"max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50\">\n            To get started, edit the{\" \"}\n            <code className=\"rounded bg-black/[.06] px-1.5 py-0.5 font-mono text-[0.9em] dark:bg-white/[.08]\">\n              page.tsx\n            </code>{\" \"}\n            file.\n          </h1>\n          <p className=\"max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400\">\n            Looking for a starting point or more instructions? Head over to{\" \"}\n            <a\n              href=\"https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app\"\n              className=\"font-medium text-zinc-950 dark:text-zinc-50\"\n            >\n              Templates\n            </a>{\" \"}\n            or the{\" \"}\n            <a\n              href=\"https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app\"\n              className=\"font-medium text-zinc-950 dark:text-zinc-50\"\n            >\n              Learning\n            </a>{\" \"}\n            center.\n          </p>\n        </div>\n        <div className=\"flex flex-col gap-4 text-base font-medium sm:flex-row\">\n          <a\n            className=\"flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]\"\n            href=\"https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app\"\n            target=\"_blank\"\n            rel=\"noopener noreferrer\"\n          >\n            <Image\n              className=\"dark:invert h-[14px] w-4\"\n              src=\"/vercel.svg\"\n              alt=\"Vercel logomark\"\n              width={16}\n              height={14}\n            />\n            Deploy Now\n          </a>\n          <a\n            className=\"flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]\"\n            href=\"https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app\"\n            target=\"_blank\"\n            rel=\"noopener noreferrer\"\n          >\n            Documentation\n          </a>\n        </div>\n      </main>\n    </div>\n  );\n}\n"
+    },
+    {
+      "path": "tsconfig.json",
+      "before": null,
+      "after": "{\n  \"compilerOptions\": {\n    \"target\": \"ES2017\",\n    \"lib\": [\"dom\", \"dom.iterable\", \"esnext\"],\n    \"allowJs\": true,\n    \"skipLibCheck\": true,\n    \"strict\": true,\n    \"noEmit\": true,\n    \"esModuleInterop\": true,\n    \"module\": \"esnext\",\n    \"moduleResolution\": \"bundler\",\n    \"resolveJsonModule\": true,\n    \"isolatedModules\": true,\n    \"jsx\": \"react-jsx\",\n    \"incremental\": true,\n    \"plugins\": [\n      {\n        \"name\": \"next\"\n      }\n    ],\n    \"paths\": {\n      \"@/*\": [\"./src/*\"]\n    }\n  },\n  \"include\": [\n    \"next-env.d.ts\",\n    \"**/*.ts\",\n    \"**/*.tsx\",\n    \".next/types/**/*.ts\",\n    \".next/dev/types/**/*.ts\",\n    \"**/*.mts\"\n  ],\n  \"exclude\": [\"node_modules\"]\n}\n"
+    }
+  ],
+  "context": {
+    ".gitignore": "",
+    "LICENSE": "",
+    "README.md": "",
+    "package-lock.json": "",
+    "public/file.svg": "",
+    "public/globe.svg": "",
+    "public/next.svg": "",
+    "public/vercel.svg": "",
+    "public/window.svg": "",
+    "src/app/favicon.ico": "",
+    "src/app/globals.css": ""
+  },
+  "expected": [],
+  "notes": "LABELED v3 (single annotator, AI-assisted; see corpus/LABELING.md)"
+}

@@ -1,0 +1,46 @@
+{
+  "id": "vasinl124__max-skills__7",
+  "set": "agent",
+  "description": "vasinl124/max-skills#7",
+  "source": {
+    "url": "https://github.com/vasinl124/max-skills/pull/7",
+    "repo": "vasinl124/max-skills",
+    "license": "MIT",
+    "author": "vasinl124",
+    "mergedAt": "2026-10-20T01:08:56Z"
+  },
+  "changes": [
+    {
+      "path": "skills/merge-develop/evals/grade.js",
+      "before": "#!/usr/bin/env node\n// Grade a merge-develop run against a fixture repo.\n//   node grade.js <scenario> <repoPath>\n// Prints { \"expectations\": [ { text, passed, evidence } ] } to stdout.\nconst cp = require(\"child_process\");\nconst fs = require(\"fs\");\nconst path = require(\"path\");\n\nconst [, , scenario, repoArg] = process.argv;\nif (!scenario || !repoArg) {\n  console.error(\"usage: node grade.js <scenario> <repoPath>\");\n  process.exit(2);\n}\nconst repo = path.resolve(repoArg);\nconst git = (args) => cp.execSync(`git ${args}`, { cwd: repo, encoding: \"utf8\" }).trim();\nconst tryGit = (args) => { try { return { ok: true, out: git(args) }; } catch (e) { return { ok: false, out: (e.stdout || \"\") + (e.stderr || \"\") }; } };\nconst read = (p) => fs.readFileSync(path.join(repo, p), \"utf8\");\nconst exists = (p) => fs.existsSync(path.join(repo, p));\n\nconst expectations = [];\nconst check = (text, fn) => {\n  try {\n    const { passed, evidence } = fn();\n    expectations.push({ text, passed: !!passed, evidence: String(evidence || \"\") });\n  } catch (e) {\n    expectations.push({ text, passed: false, evidence: \"error: \" + e.message });\n  }\n};\n\n// --- assertions common to every scenario ---\ncheck(\"Merge was completed (no merge left in progress)\", () => {\n  const mh = tryGit(\"rev-parse -q --verify MERGE_HEAD\");\n  return { passed: !mh.ok || !mh.out, evidence: mh.out ? \"MERGE_HEAD still present: \" + mh.out : \"no MERGE_HEAD\" };\n});\ncheck(\"origin/develop is now merged into HEAD\", () => {\n  const r = tryGit(\"merge-base --is-ancestor origin/develop HEAD\");\n  return { passed: r.ok, evidence: r.ok ? \"develop is an ancestor of HEAD\" : \"develop NOT merged into HEAD\" };\n});\ncheck(\"No unmerged (conflicted) paths remain\", () => {\n  const r = tryGit(\"diff --name-only --diff-filter=U\");\n  return { passed: r.ok && !r.out, evidence: r.out ? \"unmerged: \" + r.out : \"none\" };\n});\ncheck(\"No conflict markers anywhere in tracked files\", () => {\n  // git grep exits 1 (no matches) on success here.\n  const r = tryGit(\"grep -nE '^(<<<<<<<|=======|>>>>>>>)' -- . :^*.generated.json\");\n  const hits = r.out ? r.out : \"\";\n  return { passed: !hits, evidence: hits ? \"markers found:\\n\" + hits : \"no markers\" };\n});\n\n// --- scenario-specific assertions ---\nif (scenario === \"code-intent-merge\") {\n  check(\"Both intents preserved: timeout (develop) AND retries (feature) kept\", () => {\n    const src = read(\"src/settings.ts\");\n    const hasBoth = src.includes(\"timeout\") && src.includes(\"retries\") && src.includes(\"name\");\n    return { passed: hasBoth, evidence: src };\n  });\n  check(\"Verification test passes (node test.js)\", () => {\n    const r = tryGit; // not git\n    try { const out = cp.execSync(\"node test.js\", { cwd: repo, encoding: \"utf8\" }); return { passed: true, evidence: out.trim() }; }\n    catch (e) { return { passed: false, evidence: ((e.stdout||\"\") + (e.stderr||\"\")).trim() }; }\n  });\n}\n\nif (scenario === \"generated-file-regen\") {\n  check(\"chains.json contains all three chains (ethereum, base, arbitrum)\", () => {\n    const names = JSON.parse(read(\"data/chains.json\")).map((c) => c.name);\n    const missing = [\"ethereum\", \"base\", \"arbitrum\"].filter((n) => !names.includes(n));\n    return { passed: missing.length === 0, evidence: \"names: \" + JSON.stringify(names) };\n  });\n  check(\"Generated file was REGENERATED (matches a fresh run of the generator), not hand-merged\", () => {\n    const committed = read(\"data/chains.generated.json\").trim();\n    cp.execSync(\"node scripts/generate.js\", { cwd: repo });\n    const fresh = read(\"data/chains.generated.json\").trim();\n    return { passed: committed === fresh, evidence: committed === fresh ? \"generated output is consistent (count=3 expected)\" : \"committed generated file did NOT match regenerate\" };\n  });\n}\n\nif (scenario === \"dirty-tree-stash\") {\n  check(\"Conflict resolved: all routes present (/home, /about, /contact)\", () => {\n    const src = read(\"src/routes.ts\");\n    const missing = [\"/home\", \"/about\", \"/contact\"].filter((r) => !src.includes(r));\n    return { passed: missing.length === 0, evidence: src };\n  });\n  check(\"Uncommitted tracked change preserved (src/notes.txt == 'v2 WIP')\", () => {\n    const v = exists(\"src/notes.txt\") ? read(\"src/notes.txt\").trim() : \"<missing>\";\n    return { passed: v === \"v2 WIP\", evidence: \"notes.txt = \" + JSON.stringify(v) };\n  });\n  check(\"Untracked file preserved (scratch.txt still present)\", () => {\n    const v = exists(\"scratch.txt\") ? read(\"scratch.txt\").trim() : \"<missing>\";\n    return { passed: v === \"scratch work\", evidence: \"scratch.txt = \" + JSON.stringify(v) };\n  });\n}\n\nconst passed = expectations.filter((e) => e.passed).length;\nconst total = expectations.length;\nconst summary = { passed, failed: total - passed, total, pass_rate: total ? passed / total : 0 };\nprocess.stdout.write(JSON.stringify({ summary, expectations }, null, 2) + \"\\n\");\n",
+      "after": null
+    }
+  ],
+  "context": {
+    ".claude-plugin/marketplace.json": "",
+    ".claude-plugin/plugin.json": "",
+    ".gitignore": "",
+    "LICENSE": "",
+    "README.md": "",
+    "link.sh": "",
+    "skills/pr-screenshots/SKILL.md": "",
+    "skills/pr-screenshots/scripts/alloc-ports.mjs": "",
+    "skills/pr-screenshots/scripts/before-after.mjs": "",
+    "skills/pr-screenshots/scripts/capture.mjs": "",
+    "skills/pr-screenshots/scripts/publish-media.sh": "",
+    "skills/pr-screenshots/scripts/update-pr-body.mjs": "",
+    "skills/pr-summary/SKILL.md": "",
+    "skills/pr-video/SKILL.md": "",
+    "skills/pr-video/references/desktop-recording.md": "",
+    "skills/pr-video/scripts/alloc-ports.mjs": "",
+    "skills/pr-video/scripts/before-after.mjs": "",
+    "skills/pr-video/scripts/compose.sh": "",
+    "skills/pr-video/scripts/crossfade.py": "",
+    "skills/pr-video/scripts/publish-media.sh": "",
+    "skills/pr-video/scripts/record-flow.mjs": "",
+    "skills/pr-video/scripts/update-pr-body.mjs": "",
+    "test.sh": ""
+  },
+  "expected": [],
+  "notes": "LABELED v3 (single annotator, AI-assisted; see corpus/LABELING.md)"
+}

@@ -104,6 +104,50 @@ const REPOS: Repo[] = [
     ],
     tools: ["oxlint", "tsc"],
   },
+  {
+    name: "unstorage",
+    url: "https://github.com/unjs/unstorage.git",
+    ref: "main",
+    seedFile: "src/utils.ts",
+    raw: [
+      ["npx", "oxlint", "."],
+      ["npx", "tsc", "--noEmit", "--skipLibCheck"],
+    ],
+    tools: ["oxlint", "tsc"],
+  },
+  {
+    name: "consola",
+    url: "https://github.com/unjs/consola.git",
+    ref: "main",
+    seedFile: "src/utils/string.ts",
+    raw: [
+      ["npx", "eslint", "."],
+      ["npx", "tsc", "--noEmit", "-p", "."],
+    ],
+    tools: ["eslint", "tsc"],
+  },
+  {
+    name: "tanstack-form",
+    url: "https://github.com/TanStack/form.git",
+    ref: "main",
+    seedFile: "packages/form-core/src/utils.ts",
+    raw: [
+      ["npx", "eslint", "packages/form-core"],
+      ["npx", "tsc", "--noEmit", "-p", "packages/form-core"],
+    ],
+    tools: ["eslint", "tsc"],
+  },
+  {
+    name: "better-auth",
+    url: "https://github.com/better-auth/better-auth.git",
+    ref: "main",
+    seedFile: "packages/core/src/utils/string.ts",
+    raw: [
+      ["npx", "biome", "lint", "."],
+      ["npx", "tsc", "--build"],
+    ],
+    tools: ["biome", "tsc"],
+  },
 ];
 
 const JS_SEED = `
@@ -122,8 +166,11 @@ export function cheatguardSeed(input: string): number {
 }
 `;
 
-/** oxlint configs often leave no-unused-vars off; \`debugger\` is in its default correctness category. */
-const OXLINT_SEED = `
+/**
+ * oxlint and Biome configs often leave unused variables off or as warnings; \`debugger\` is an error
+ * in oxlint's default correctness category and in Biome's recommended rules.
+ */
+const DEBUGGER_SEED = `
 export function cheatguardSeed(input: string): number {
   let unusedCounter = 0;
   const parsed: number = input;
@@ -133,7 +180,11 @@ export function cheatguardSeed(input: string): number {
 `;
 
 const seedFor = (repo: Repo): string =>
-  repo.js ? JS_SEED : repo.tools.includes("oxlint") ? OXLINT_SEED : SEED;
+  repo.js
+    ? JS_SEED
+    : repo.tools.includes("oxlint") || repo.tools.includes("biome")
+      ? DEBUGGER_SEED
+      : SEED;
 
 function sh(
   cwd: string,
@@ -157,6 +208,13 @@ function sh(
   };
 }
 
+function readPackageManager(dir: string): string {
+  const pkg = z
+    .object({ packageManager: z.string().optional() })
+    .safeParse(JSON.parse(readFileSync(join(dir, "package.json"), "utf8")));
+  return pkg.success ? (pkg.data.packageManager ?? "") : "";
+}
+
 function prepare(repo: Repo): string {
   const dir = join(WORK, repo.name);
   if (!existsSync(join(dir, ".git"))) {
@@ -169,10 +227,16 @@ function prepare(repo: Repo): string {
   execFileSync("git", ["clean", "-fdq", "-e", "node_modules"], { cwd: dir });
   if (!existsSync(join(dir, "node_modules"))) {
     const pnpm = existsSync(join(dir, "pnpm-lock.yaml"));
+    // Monorepos need their workspace packages installed (and linked) for tsc and the linters.
+    const workspace = existsSync(join(dir, "pnpm-workspace.yaml"));
+    // Recent monorepos require the pnpm major they pin (engines, trust policies): run that version.
+    const pinned = /^pnpm@(\d+\.\d+\.\d+)/.exec(readPackageManager(dir))?.[1];
+    const [pnpmCmd, ...pnpmPrefix] = pinned ? ["npx", "--yes", `pnpm@${pinned}`] : ["pnpm"];
     let r = pnpm
-      ? sh(dir, "pnpm", [
+      ? sh(dir, pnpmCmd ?? "pnpm", [
+          ...pnpmPrefix,
           "install",
-          "--ignore-workspace",
+          ...(workspace ? [] : ["--ignore-workspace"]),
           "--ignore-scripts",
           "--config.manage-package-manager-versions=false",
           "--frozen-lockfile=false",
@@ -232,13 +296,11 @@ function rawDiagnostics(repo: Repo, dir: string): Array<{ file: string; line: nu
       out.push(
         ...parseOxlintJson(sh(dir, "npx", ["oxlint", "--format=json", repo.seedFile]).stdout, dir),
       );
-    if (tool === "tsc")
-      out.push(
-        ...parseTscOutput(
-          sh(dir, "npx", ["tsc", "--noEmit", "--pretty", "false", "-p", "."]).stdout,
-          dir,
-        ),
-      );
+    if (tool === "tsc") {
+      // The project's own type-check command (monorepos point it at a package or use --build).
+      const [, ...args] = repo.raw.find((c) => c[1] === "tsc") ?? ["npx", "tsc", "--noEmit"];
+      out.push(...parseTscOutput(sh(dir, "npx", [...args, "--pretty", "false"]).stdout, dir));
+    }
   }
   return out;
 }

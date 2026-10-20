@@ -1,6 +1,6 @@
 # Labeling guide (real pull requests)
 
-Labels live in `labels.json` and are applied to the case files with `node bench/runner/apply-labels.ts`. Version 1 was produced by a single annotator (AI-assisted); disagreements are welcome as pull requests.
+Labels live in `labels.json` and are applied to the case files with `node bench/runner/apply-labels.ts`. Every version was produced by a single annotator (AI-assisted); disagreements are welcome as pull requests.
 
 ## Unit
 
@@ -23,6 +23,8 @@ Every case was screened with `node bench/runner/screen.ts`, which lists regex si
 
 Case files store the full content of changed files and of manifests (package.json, tsconfig files) plus the content of modules the changed tests import (three levels deep). Other files are stored as paths only, so rules that need their content (duplicate detection) see less than in a real checkout.
 
-## Notes on versions 1 and 2
+## Notes on versions 1 to 3
 
 See `notes` in `labels.json` for every case labeled as a wrong or missed finding and why. Version 2 (after the adversarial review, same annotator and guide) labeled the new findings of the hardened rules, removed one v1 label that was wrong (an `as any` that only moved with re-indentation) and records why in `notes.agent-v2` / `notes.human-v2`.
+
+Version 3 added more pull requests to both sets (more agents, more repositories) and labeled them with the same guide; `notes.agent-v3` and `notes.human-v3` list every wrong or missed finding among them, and the two tool fixes the new cases led to.

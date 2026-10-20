@@ -81,8 +81,8 @@ The configuration is always read from the **base** of the change (the committed 
 | Corpus | Cases | Changed lines | Precision | Recall | Precision of blocking flags | Wrong blocks per 1,000 lines |
 |---|---:|---:|---:|---:|---:|---:|
 | Synthetic cases (written with the rules; in-distribution) | 347 | 1,526 | 100% | 100% | 100% | 0.00 |
-| Merged pull requests written by coding agents | 64 | 8,645 | 87% | 100% | 86% | 0.12 |
-| Merged pull requests written by people (before 2022) | 47 | 3,418 | 68% | 100% | 83% | 0.88 |
+| Merged pull requests written by coding agents | 154 | 20,313 | 72% | 100% | 59% | 0.44 |
+| Merged pull requests written by people (before 2022) | 122 | 8,700 | 75% | 100% | 87% | 0.57 |
 
 **Do agents cheat, and does cheatguard change what they ship?** (benchmark B: 14 trap tasks + 5 controls, real Claude Code runs, graded with hidden tests independent of cheatguard)
 
@@ -111,12 +111,16 @@ It also has a cost. On the one control task where editing the test is the right 
 
 | Repository | Linters | Tokens, raw linters | Tokens, cheatguard (with baseline) | Time, raw | Time, cheatguard | New problems kept |
 |---|---|---:|---:|---:|---:|---:|
-| zustand | ESLint + tsc | 183 | 118 (118) | 3.7 s | 2.9 s | 3 / 3 |
-| ofetch | ESLint + tsc | 181 | 117 (117) | 1.7 s | 1.3 s | 3 / 3 |
-| jotai | ESLint + tsc | 186 | 122 (122) | 5.1 s | 3.7 s | 3 / 3 |
-| axios | ESLint | 250 | 91 (69) | 1.1 s | 1.7 s | 1 / 1 |
-| vue-test-utils | oxlint + tsc | 4261 | 119 (97) | 3.9 s | 4.1 s | 3 / 3 |
+| zustand | ESLint + tsc | 183 | 118 (118) | 3.6 s | 2.2 s | 3 / 3 |
+| ofetch | ESLint + tsc | 181 | 117 (117) | 1.6 s | 0.9 s | 3 / 3 |
+| jotai | ESLint + tsc | 186 | 122 (122) | 5.1 s | 2.5 s | 3 / 3 |
+| axios | ESLint | 250 | 91 (69) | 1.0 s | 1.5 s | 1 / 1 |
+| vue-test-utils | oxlint + tsc | 4296 | 119 (97) | 4.9 s | 4.7 s | 3 / 3 |
 | update-electron-app | oxlint + tsc | 142 | 111 (111) | 1.7 s | 1.6 s | 3 / 3 |
+| unstorage | oxlint + tsc | 3576 | 133 (112) | 0.7 s | 0.6 s | 3 / 3 |
+| consola | ESLint + tsc | 233 | 103 (82) | 2.6 s | 1.7 s | 2 / 2 |
+| tanstack-form | ESLint + tsc | 106 | 110 (88) | 4.8 s | 23.2 s | 2 / 2 |
+| better-auth | Biome + tsc | 852 | 174 (153) | 5.3 s | 22.8 s | 4 / 4 |
 
 <!-- bench:end -->
 

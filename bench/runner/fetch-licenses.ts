@@ -7,7 +7,7 @@
  * Writes bench/corpus/licenses/<owner>__<repo>.txt and bench/corpus/licenses/README.md.
  */
 import { execFileSync } from "node:child_process";
-import { mkdirSync, readdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, readdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 
 const CORPUS = join(import.meta.dirname, "..", "corpus");
@@ -52,18 +52,41 @@ function sources(): Source[] {
     .sort((a, b) => a.repo.localeCompare(b.repo));
 }
 
+/** The SPDX id GitHub detects for the license file, or null. */
+function spdxOf(value: unknown): string | null {
+  return isRecord(value) && isRecord(value.license) && typeof value.license.spdx_id === "string"
+    ? value.license.spdx_id
+    : null;
+}
+
+// A repository removed or relicensed since its cases were mined keeps the license its code was
+// quoted under: the copy written by an earlier run.
+const previous = new Map<string, string>();
+// On the first run there is no directory yet; any other read error should stop the script.
+if (existsSync(OUT)) {
+  for (const file of readdirSync(OUT).filter((f) => f.endsWith(".txt")))
+    previous.set(file, readFileSync(join(OUT, file), "utf8"));
+}
 rmSync(OUT, { recursive: true, force: true });
 mkdirSync(OUT, { recursive: true });
 const rows: string[] = [];
 const missing: string[] = [];
+const kept: string[] = [];
 for (const { repo, license } of sources()) {
-  const text = decoded(ghJson(`repos/${repo}/license`));
+  const name = `${repo.replace("/", "__")}.txt`;
+  const response = ghJson(`repos/${repo}/license`);
+  const text = spdxOf(response) === license ? decoded(response) : null;
   if (!text) {
-    missing.push(repo);
+    const earlier = previous.get(name);
+    if (earlier === undefined) missing.push(repo);
+    else {
+      writeFileSync(join(OUT, name), earlier);
+      rows.push(`| [${repo}](https://github.com/${repo}) | ${license} | [${name}](${name}) |`);
+      kept.push(repo);
+    }
     continue;
   }
   const notice = license === "Apache-2.0" ? decoded(ghJson(`repos/${repo}/contents/NOTICE`)) : null;
-  const name = `${repo.replace("/", "__")}.txt`;
   const parts = [`Source: https://github.com/${repo}`, `License: ${license}`, "", text.trim()];
   if (notice) parts.push("", "---- NOTICE ----", "", notice.trim());
   writeFileSync(join(OUT, name), `${parts.join("\n")}\n`);
@@ -80,6 +103,12 @@ writeFileSync(
     "|---|---|---|",
     ...rows,
     "",
+    ...(kept.length > 0
+      ? [
+          `Removed or relicensed since their cases were mined (the file is the license the code was quoted under, from an earlier run): ${kept.join(", ")}.`,
+          "",
+        ]
+      : []),
     ...(missing.length > 0
       ? [
           `Not retrievable (repository renamed, removed or without a detectable license file): ${missing.join(", ")}. Their cases are listed in \`../NOTICE.md\`.`,
@@ -89,5 +118,5 @@ writeFileSync(
   ].join("\n"),
 );
 console.log(
-  `Wrote ${rows.length} license files${missing.length ? `; missing: ${missing.join(", ")}` : ""}.`,
+  `Wrote ${rows.length} license files${kept.length ? `; kept from an earlier run: ${kept.join(", ")}` : ""}${missing.length ? `; missing: ${missing.join(", ")}` : ""}.`,
 );

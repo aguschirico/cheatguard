@@ -1,0 +1,67 @@
+{
+  "id": "advanced-security__generate-sbom-action__175",
+  "set": "agent",
+  "description": "advanced-security/generate-sbom-action#175",
+  "source": {
+    "url": "https://github.com/advanced-security/generate-sbom-action/pull/175",
+    "repo": "advanced-security/generate-sbom-action",
+    "license": "MIT",
+    "author": "Copilot",
+    "mergedAt": "2026-05-28T22:14:51Z"
+  },
+  "changes": [
+    {
+      "path": "__tests__/generate-sbom.test.ts",
+      "before": "import {describe, expect, vi, it, beforeEach} from 'vitest'\nimport {generateSBOM} from '../src/generate-sbom'\nimport fs from 'fs'\n\n// Mock the Octokit import\nvi.mock('octokit', () => ({\n  Octokit: vi.fn().mockImplementation(() => ({\n    request: vi.fn()\n  }))\n}))\n\nconst mockSBOM = fs.readFileSync('./__tests__/mock-sbom.json', 'utf-8')\n\n// Mock fs.writeFile\nconst mockWriteFile = vi\n  .spyOn(fs, 'writeFile')\n  .mockImplementation((f, d, callback: any) => {\n    console.log('[mock] writing file')\n    callback(null)\n  })\n\ndescribe('generateSBOM', () => {\n  beforeEach(() => {\n    vi.clearAllMocks()\n  })\n\n  it('should retrieve the SBOM for a repository', async () => {\n    const token = 'test-token'\n    const owner = 'octocat'\n    const repo = 'hello-world'\n    const sha = 'fe43fdf'\n\n    // Create a mock Octokit instance\n    const mockRequest = (vi.fn() as any).mockResolvedValue({\n      data: {\n        sbom: JSON.parse(mockSBOM)\n      }\n    })\n\n    const mockOctokit = {\n      request: mockRequest\n    }\n\n    await generateSBOM(token, owner, repo, sha, mockOctokit as any)\n\n    expect(mockRequest).toHaveBeenCalledWith(\n      'GET /repos/{owner}/{repo}/dependency-graph/sbom',\n      {\n        owner,\n        repo,\n        headers: {\n          'X-GitHub-Api-Version': '2022-11-28'\n        }\n      }\n    )\n\n    expect(mockWriteFile).toHaveBeenCalledWith(\n      `sbom-${owner}-${repo}-${sha}.json`,\n      JSON.stringify(JSON.parse(mockSBOM)),\n      expect.any(Function)\n    )\n  })\n})\n",
+      "after": "import {describe, expect, vi, it, beforeEach} from 'vitest'\nimport {generateSBOM} from '../src/generate-sbom'\nimport fs from 'fs'\nimport fsPromises from 'fs/promises'\n\n// Mock the Octokit import\nvi.mock('octokit', () => ({\n  Octokit: vi.fn().mockImplementation(() => ({\n    request: vi.fn()\n  }))\n}))\n\nconst mockSBOM = fs.readFileSync('./__tests__/mock-sbom.json', 'utf-8')\n\n// Mock fs.writeFile\nconst mockWriteFile = vi\n  .spyOn(fsPromises, 'writeFile')\n  .mockImplementation((async () => {\n    console.log('[mock] writing file')\n  }) as any)\n\ndescribe('generateSBOM', () => {\n  beforeEach(() => {\n    vi.clearAllMocks()\n  })\n\n  it('should retrieve the SBOM for a repository', async () => {\n    const token = 'test-token'\n    const owner = 'octocat'\n    const repo = 'hello-world'\n    const sha = 'fe43fdf'\n\n    // Create a mock Octokit instance\n    const mockRequest = (vi.fn() as any).mockResolvedValue({\n      data: {\n        sbom: JSON.parse(mockSBOM)\n      }\n    })\n\n    const mockOctokit = {\n      request: mockRequest\n    }\n\n    await generateSBOM(token, owner, repo, sha, mockOctokit as any)\n\n    expect(mockRequest).toHaveBeenCalledWith(\n      'GET /repos/{owner}/{repo}/dependency-graph/sbom',\n      {\n        owner,\n        repo,\n        headers: {\n          'X-GitHub-Api-Version': '2022-11-28'\n        }\n      }\n    )\n\n    expect(mockWriteFile).toHaveBeenCalledWith(\n      `sbom-${owner}-${repo}-${sha}.json`,\n      JSON.stringify(JSON.parse(mockSBOM))\n    )\n  })\n\n  it('should reject unsafe file name characters', async () => {\n    const mockRequest = (vi.fn() as any).mockResolvedValue({\n      data: {\n        sbom: JSON.parse(mockSBOM)\n      }\n    })\n\n    const mockOctokit = {\n      request: mockRequest\n    }\n\n    await expect(\n      generateSBOM(\n        'test-token',\n        'octocat',\n        '../hello-world',\n        'fe43fdf',\n        mockOctokit as any\n      )\n    ).rejects.toThrow('repo contains unsupported characters')\n\n    expect(mockWriteFile).not.toHaveBeenCalled()\n  })\n})\n"
+    },
+    {
+      "path": "package.json",
+      "before": "{\n  \"name\": \"typescript-action\",\n  \"version\": \"0.0.0\",\n  \"private\": true,\n  \"description\": \"TypeScript template action\",\n  \"main\": \"lib/main.js\",\n  \"scripts\": {\n    \"build\": \"tsc\",\n    \"format\": \"prettier --write '**/*.ts'\",\n    \"format-check\": \"prettier --check '**/*.ts'\",\n    \"lint\": \"eslint src/**/*.ts\",\n    \"package\": \"ncc build lib/main.js --license licenses.txt\",\n    \"test\": \"vitest run\",\n    \"btest\": \"npm run build & vitest run\",\n    \"all\": \"npm run build && npm run format && npm run lint && npm run package && npm test\"\n  },\n  \"repository\": {\n    \"type\": \"git\",\n    \"url\": \"git+https://github.com/actions/typescript-action.git\"\n  },\n  \"keywords\": [\n    \"actions\",\n    \"node\",\n    \"setup\"\n  ],\n  \"author\": \"\",\n  \"license\": \"MIT\",\n  \"dependencies\": {\n    \"@actions/core\": \"^1.11.1\",\n    \"octokit\": \"^5.0.3\"\n  },\n  \"devDependencies\": {\n    \"@types/node\": \"^24.0.10\",\n    \"@typescript-eslint/eslint-plugin\": \"^8.35.1\",\n    \"@typescript-eslint/parser\": \"^8.35.1\",\n    \"@vercel/ncc\": \"^0.38.3\",\n    \"@vitest/ui\": \"^3.2.4\",\n    \"eslint\": \"^9.27.0\",\n    \"eslint-plugin-github\": \"^6.0.0\",\n    \"eslint-plugin-prettier\": \"^5.4.0\",\n    \"eslint-plugin-vitest\": \"^0.5.4\",\n    \"js-yaml\": \"^4.1.0\",\n    \"prettier\": \"^3.0.0\",\n    \"typescript\": \"^5.2.2\",\n    \"typescript-eslint\": \"^8.35.1\",\n    \"vitest\": \"^3.2.4\"\n  }\n}\n",
+      "after": "{\n  \"name\": \"typescript-action\",\n  \"version\": \"0.0.0\",\n  \"private\": true,\n  \"description\": \"TypeScript template action\",\n  \"main\": \"lib/main.js\",\n  \"scripts\": {\n    \"build\": \"tsc\",\n    \"format\": \"prettier --write '**/*.ts'\",\n    \"format-check\": \"prettier --check '**/*.ts'\",\n    \"lint\": \"eslint src/**/*.ts\",\n    \"package\": \"ncc build lib/main.js --license licenses.txt\",\n    \"test\": \"vitest run\",\n    \"btest\": \"npm run build & vitest run\",\n    \"all\": \"npm run build && npm run format && npm run lint && npm run package && npm test\"\n  },\n  \"repository\": {\n    \"type\": \"git\",\n    \"url\": \"git+https://github.com/actions/typescript-action.git\"\n  },\n  \"keywords\": [\n    \"actions\",\n    \"node\",\n    \"setup\"\n  ],\n  \"author\": \"\",\n  \"license\": \"MIT\",\n  \"dependencies\": {\n    \"@actions/core\": \"^2.0.3\",\n    \"octokit\": \"^5.0.3\"\n  },\n  \"devDependencies\": {\n    \"@types/node\": \"^24.0.10\",\n    \"@typescript-eslint/eslint-plugin\": \"^8.35.1\",\n    \"@typescript-eslint/parser\": \"^8.35.1\",\n    \"@vercel/ncc\": \"^0.38.4\",\n    \"@vitest/ui\": \"^3.2.4\",\n    \"eslint\": \"^9.27.0\",\n    \"eslint-plugin-github\": \"^6.0.0\",\n    \"eslint-plugin-prettier\": \"^5.4.0\",\n    \"eslint-plugin-vitest\": \"^0.5.4\",\n    \"js-yaml\": \"^4.1.0\",\n    \"prettier\": \"^3.0.0\",\n    \"typescript\": \"^5.2.2\",\n    \"typescript-eslint\": \"^8.35.1\",\n    \"vitest\": \"^3.2.4\"\n  }\n}\n"
+    },
+    {
+      "path": "src/generate-sbom.ts",
+      "before": "import * as core from '@actions/core'\nimport {Octokit} from 'octokit'\nimport fs from 'fs'\nimport {wrapError} from './utils'\n\nexport async function generateSBOM(\n  token: string,\n  owner: string,\n  repo: string,\n  sha: string,\n  octokit?: Octokit\n): Promise<void> {\n  const kit = octokit || new Octokit({auth: token})\n\n  const res = await kit.request(\n    'GET /repos/{owner}/{repo}/dependency-graph/sbom',\n    {\n      owner,\n      repo,\n      headers: {\n        'X-GitHub-Api-Version': '2022-11-28'\n      }\n    }\n  )\n\n  const fileName = `sbom-${owner}-${repo}-${sha}.json`\n  fs.writeFile(fileName, JSON.stringify(res.data.sbom), err => {\n    if (err) {\n      const e = wrapError(err)\n      core.setFailed(e.message)\n    } else {\n      core.setOutput('fileName', fileName)\n      core.info(`SBOM written to ${fileName}`)\n    }\n  })\n}\n",
+      "after": "import * as core from '@actions/core'\nimport {Octokit} from 'octokit'\nimport fs from 'fs/promises'\nimport path from 'path'\nimport {wrapError} from './utils'\n\nconst safeFileNameCharacters = /^[A-Za-z0-9._-]+$/\n\nfunction safeFileNameSegment(value: string, name: string): string {\n  const baseName = path.basename(value)\n  if (\n    baseName !== value ||\n    baseName === '.' ||\n    baseName === '..' ||\n    !safeFileNameCharacters.test(baseName)\n  ) {\n    throw new Error(`${name} contains unsupported characters`)\n  }\n\n  return baseName\n}\n\nexport async function generateSBOM(\n  token: string,\n  owner: string,\n  repo: string,\n  sha: string,\n  octokit?: Octokit\n): Promise<void> {\n  const kit = octokit || new Octokit({auth: token})\n\n  const res = await kit.request(\n    'GET /repos/{owner}/{repo}/dependency-graph/sbom',\n    {\n      owner,\n      repo,\n      headers: {\n        'X-GitHub-Api-Version': '2022-11-28'\n      }\n    }\n  )\n\n  const fileName = `sbom-${safeFileNameSegment(owner, 'owner')}-${safeFileNameSegment(repo, 'repo')}-${safeFileNameSegment(sha, 'sha')}.json`\n\n  try {\n    await fs.writeFile(fileName, JSON.stringify(res.data.sbom))\n    core.setOutput('fileName', fileName)\n    core.info(`SBOM written to ${fileName}`)\n  } catch (error) {\n    const e = wrapError(error)\n    core.setFailed(e.message)\n  }\n}\n"
+    }
+  ],
+  "context": {
+    ".gitattributes": "",
+    ".github/dependabot.yml": "",
+    ".github/workflows/check-dist.yml": "",
+    ".github/workflows/codeql-analysis.yml": "",
+    ".github/workflows/security-quality-alert-fixer.lock.yml": "",
+    ".github/workflows/security-quality-alert-fixer.md": "",
+    ".github/workflows/test.yml": "",
+    ".gitignore": "",
+    ".prettierignore": "",
+    ".prettierrc.json": "",
+    "CODEOWNERS": "",
+    "CODE_OF_CONDUCT.md": "",
+    "CONTRIBUTING.md": "",
+    "LICENSE": "",
+    "README.md": "",
+    "SECURITY.md": "",
+    "SUPPORT.md": "",
+    "__tests__/mock-sbom.json": "",
+    "action.yml": "",
+    "dist/index.js": "",
+    "dist/licenses.txt": "",
+    "eslint.config.js": "",
+    "package-lock.json": "",
+    "sbom-octocat-hello-world-fe43fdf.json": "",
+    "src/main.ts": "",
+    "src/utils.ts": "",
+    "tsconfig.json": "{\n  \"compilerOptions\": {\n    \"target\": \"ES2020\",                       /* Specify ECMAScript target version */\n    \"module\": \"CommonJS\",                     /* Specify module code generation for Node.js compatibility */\n    \"moduleResolution\": \"node\",               /* Use Node.js-style module resolution */\n    \"outDir\": \"./lib\",                        /* Redirect output structure to the directory */\n    \"rootDir\": \"./src\",                       /* Specify the root directory of input files */\n    \"strict\": true,                           /* Enable all strict type-checking options */\n    \"noImplicitAny\": true,                    /* Raise error on expressions and declarations with an implied 'any' type */\n    \"esModuleInterop\": true,                  /* Enables emit interoperability between CommonJS and ES Modules */\n    \"allowSyntheticDefaultImports\": true,     /* Allow default imports from modules with no default export */\n    \"skipLibCheck\": true,                     /* Skip type checking of declaration files */\n    \"forceConsistentCasingInFileNames\": true, /* Disallow inconsistently-cased references to the same file */\n    \"resolveJsonModule\": true,                /* Include modules imported with '.json' extension */\n    \"lib\": [\"ES2020\"]                         /* Specify library files to be included in the compilation */\n  },\n  \"exclude\": [\"node_modules\", \"**/*.test.ts\", \"vitest.config.ts\"]\n}\n",
+    "tsconfig.test.json": "{\n  \"extends\": \"./tsconfig.json\",\n  \"compilerOptions\": {\n    \"module\": \"ESNext\",\n    \"moduleResolution\": \"node\",\n    \"target\": \"ES2020\",\n    \"esModuleInterop\": true,\n    \"allowSyntheticDefaultImports\": true,\n    \"types\": [\"vitest/globals\", \"node\"]\n  },\n  \"include\": [\"src/**/*\", \"__tests__/**/*\"],\n  \"exclude\": [\"node_modules\"]\n}\n",
+    "vitest.config.ts": ""
+  },
+  "expected": [
+    {
+      "rule": "type-suppression",
+      "file": "__tests__/generate-sbom.test.ts"
+    }
+  ],
+  "notes": "LABELED v3 (single annotator, AI-assisted; see corpus/LABELING.md)"
+}

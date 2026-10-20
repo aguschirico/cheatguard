@@ -18,6 +18,12 @@ Categories: **Added** (new rules, checks, commands, integrations), **Changed** (
 - `test-weakened` finds the code under test through tsconfig `paths` too (tests that import their package by its own name), so an expected value updated together with that code is a warning instead of a block.
 - `Function` as the test of a conditional type (`T extends Function ? never : T`) is no longer reported as a type escape.
 
+### Benchmarks
+
+- Benchmark A: 154 agent pull requests (Cursor, Jules and Codex added) and 122 human ones, labeled v3. Precision on agent pull requests is lower on the larger sample (72%, from 87%); every wrong finding there comes from `test-weakened`.
+- Benchmark C covers 10 repositories (4 more: unstorage, consola, and two large monorepos, TanStack/form and better-auth; better-auth is the first with Biome).
+- The license list of quoted repositories keeps the license a repository's code was quoted under when the repository is later removed or relicensed.
+
 ## 0.1.2 — 2026-10-16
 
 ### Added
