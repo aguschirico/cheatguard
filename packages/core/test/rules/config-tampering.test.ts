@@ -321,6 +321,15 @@ describe("config-tampering: negatives", () => {
       pkg({ test: "yarn jest", typecheck: "yarn tsc --noEmit" }),
       pkg({ test: "jest", typecheck: "tsc --noEmit" }),
     ],
+    [
+      "lint script type-checks one more project",
+      "package.json",
+      pkg({ test: "vitest run", lint: "tsc -p a && npx eslint src" }),
+      pkg({
+        test: "vitest run",
+        lint: "tsc -p a && tsc -p b && npx eslint src && npx eslint test",
+      }),
+    ],
   ])("accepts %s", (_name, path, before, after) => {
     expect(run(configTampering, [{ path, before, after }])).toEqual([]);
   });
@@ -362,6 +371,18 @@ describe("config-tampering: negatives", () => {
       "rm -f out.log && vitest run",
       "rm -f test/a.test.ts && rm -f out.log && vitest run",
     ],
+    [
+      "node behind a wrapper with a preload",
+      "npx node --require ./hook.cjs a.js",
+      "npx node --require ./hook.cjs b.js && npx node --require ./hook.cjs a.js",
+    ],
+    ["an interpreter not listed anywhere", "perl check.pl", "perl other.pl && perl check.pl"],
+    [
+      "a test runner on another file",
+      "vitest run a.test.ts",
+      "vitest run b.test.ts && vitest run a.test.ts",
+    ],
+    ["a checker that writes", "eslint --fix src", "eslint --fix test && eslint --fix src"],
   ])("a gate that gains %s is still a warning", (_name, was, now) => {
     const vs = run(configTampering, [
       { path: "package.json", before: pkg({ test: was }), after: pkg({ test: now }) },

@@ -87,43 +87,42 @@ const head = (command: string): string => command.split(" ").slice(0, -1).join("
 /** `yarn tsc` → `tsc`: the package-manager prefix that runs a binary (or a script of that name). */
 const RUNNER_PREFIX_RE = /^(npx|pnpx|bunx|yarn|pnpm( exec)?|npm exec|bun x) (?=[^-])/;
 
-/** Programs that run, execute or destroy their argument: another argument is another program. */
-const RUNS_ITS_ARGUMENT = new Set([
-  "sh",
-  "bash",
-  "zsh",
-  "dash",
-  "tsx",
-  "ts-node",
-  "esno",
-  "jiti",
-  "python",
-  "python3",
-  "deno",
-  "bun",
-  "rm",
-  "mv",
-  "cp",
-  "ln",
-  "chmod",
-  "git",
-  "sed",
-  "find",
-  "xargs",
-  "curl",
-  "wget",
-  "eval",
-  "source",
-]);
+/**
+ * Programs that only read and check the files they are given. Anything else (test runners,
+ * interpreters, shells, file tools) may run or change its argument, so another argument is another
+ * program. Biome's subcommands are listed with it.
+ */
+const CHECKERS = new Set(["tsc", "vue-tsc", "eslint", "oxlint", "biome", "prettier", "stylelint"]);
+const BIOME_READS = new Set(["lint", "check", "ci"]);
+/** Flags that make a checker change files instead of only reading them. */
+const WRITES_RE = /^(--fix|--fix-type|--write|--apply|--apply-unsafe|--unsafe|-w)(=|$)/;
 
-/** A head whose extra runs only check more files: a known program with its flags, never a runner. */
+/**
+ * A head whose extra runs only check more files: a listed checker (or `node --check`) with flags
+ * that do not write, after any wrapper (`npx`, `pnpm exec`, `cross-env`) or variable assignment.
+ */
 function repeatableHead(head: string): boolean {
   const words = head.split(" ").filter(Boolean);
-  // `node --check` only parses; any other `node <flags>` runs its argument.
-  if (words[0] === "node")
-    return words.length === 2 && (words[1] === "--check" || words[1] === "-c");
-  const program = words.find((w) => !WRAPPERS.has(w) && !w.startsWith("-"));
-  return program !== undefined && !RUNS_ITS_ARGUMENT.has(program.replace(/^.*\//, ""));
+  const launcher = (w: string): boolean => WRAPPERS.has(w) || /^[A-Z_][A-Z0-9_]*=/.test(w);
+  // `node --check` only parses its argument; `node <anything else>` runs it.
+  const node = words.indexOf("node");
+  if (node !== -1) {
+    const after = words.slice(node + 1);
+    return (
+      words.slice(0, node).every(launcher) &&
+      after.length === 1 &&
+      (after[0] === "--check" || after[0] === "-c")
+    );
+  }
+  const start = words.findIndex((w) => !launcher(w));
+  const program = words[start]?.replace(/^.*\//, "");
+  if (program === undefined || !CHECKERS.has(program)) return false;
+  const rest = words.slice(start + 1);
+  const args = program === "biome" && BIOME_READS.has(rest[0] ?? "") ? rest.slice(1) : rest;
+  return (
+    args.every((w) => w.startsWith("-") && !WRITES_RE.test(w)) &&
+    (program !== "prettier" || args.includes("--check"))
+  );
 }
 
 /**
