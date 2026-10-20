@@ -36,6 +36,10 @@ Open an issue with the diff (or a minimal reproduction) and the cheatguard outpu
 
 cheatguard is a guardrail, not a sandbox, but bypasses that a shortcut-taking agent could plausibly hit are bugs. Please report them as issues (or privately if you prefer).
 
+## Changelog
+
+Every change a user could notice (a rule that reports more or less, new output, a fix, a benchmark number that moved) adds a line to `CHANGELOG.md` under **Unreleased**, in the same commit, in the right category (Added, Changed, Fixed, Removed, Security, Benchmarks). Say what changes for the user, with an example when it helps; numbers that got worse are recorded too. Refactors and tests with no visible effect need no entry.
+
 ## Releases
 
-Version numbers follow semver. The CLI package and the Claude Code plugin manifest share a version (a test enforces it).
+Version numbers follow semver. The CLI package and the Claude Code plugin manifest share a version (a test enforces it). To release, rename **Unreleased** in `CHANGELOG.md` to `<version> — <YYYY-MM-DD>`, start a new empty **Unreleased** section, and bump the version in the same commit.
