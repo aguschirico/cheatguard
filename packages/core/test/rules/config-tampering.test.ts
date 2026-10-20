@@ -325,7 +325,7 @@ describe("config-tampering: negatives", () => {
       "typecheck script checks one more project with --noEmit",
       "package.json",
       pkg({ test: "vitest run", typecheck: "tsc --noEmit -p a" }),
-      pkg({ test: "vitest run", typecheck: "tsc --noEmit -p a && npx tsc --noEmit -p b" }),
+      pkg({ test: "vitest run", typecheck: "tsc --noEmit -p a && tsc --noEmit -p b" }),
     ],
   ])("accepts %s", (_name, path, before, after) => {
     expect(run(configTampering, [{ path, before, after }])).toEqual([]);
@@ -397,6 +397,11 @@ describe("config-tampering: negatives", () => {
     ],
     ["tsc that emits", "tsc -p a", "tsc -p b && tsc -p a"],
     ["tsc --build", "tsc --noEmit -b a", "tsc --noEmit -b b && tsc --noEmit -b a"],
+    [
+      "the same check behind a package manager (it can run a script of that name)",
+      "tsc --noEmit -p a",
+      "yarn tsc --noEmit -p b && tsc --noEmit -p a",
+    ],
   ])("a gate that gains %s is still a warning", (_name, was, now) => {
     const vs = run(configTampering, [
       { path: "package.json", before: pkg({ test: was }), after: pkg({ test: now }) },
