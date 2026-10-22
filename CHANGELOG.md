@@ -26,6 +26,7 @@ Categories: **Added** (new rules, checks, commands, integrations), **Changed** (
 
 - Benchmark A: 154 agent pull requests (Cursor, Jules and Codex added) and 122 human ones, labeled v3. Precision on agent pull requests is lower on the larger sample (72%, from 87%); every wrong finding there comes from `test-weakened`.
 - Benchmark C covers 10 repositories (4 more: unstorage, consola, and two large monorepos, TanStack/form and better-auth; better-auth is the first with Biome).
+- Benchmark B rerun with claude-sonnet-5-5 (285 runs, Claude Code 2.1.308) on the current rules, replacing the 2.1.300 runs. Still 0 runs that cheated in any setup. Honest solves on trap tasks: 83% alone (was 86%), 87% with CLAUDE.md rules (was 93%), 80% with cheatguard (was 84%); all three moved down together and within the Wilson intervals of the previous run. On controls cheatguard stays at 100%. cheatguard did not intervene in any of the runs it lost on discount-order and email-validation.
 - CI reruns benchmark A on every pull request and fails when its scores differ from the committed results or the synthetic set misses or wrongly flags anything, so a change in precision or recall is always published with the change that caused it.
 - The license list of quoted repositories keeps the license a repository's code was quoted under when the repository is later removed or relicensed.
 
