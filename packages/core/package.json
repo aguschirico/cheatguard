@@ -1,6 +1,6 @@
 {
   "name": "@cheatguard/core",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "description": "Diff-aware engine that catches the shortcuts AI coding agents take.",
   "license": "Apache-2.0",
   "author": "aguschirico",
