@@ -6,10 +6,13 @@ Categories: **Added** (new rules, checks, commands, integrations), **Changed** (
 
 ## Unreleased
 
+## 0.1.3 — 2026-10-27
+
 ### Changed
 
 - Linters run in parallel, and so do up to four tsc projects, so the end-of-task check takes about as long as the slowest tool instead of the sum.
 - `config-tampering` no longer warns about a test or lint script that only gains more runs, on other files, of `node --check` or `tsc --noEmit` written exactly as it already runs them, with no added `yarn`/`npx` prefix (`&& node --check another.mjs`, `&& tsc --noEmit -p b`), or drops a package-manager prefix (`yarn tsc` → `tsc`). Every other added command is still a warning: test runners, interpreters and shells run their argument, and ESLint, Prettier and oxlint load executable configuration found next to the files they check.
+- The Claude Code plugin pins `cheatguard@0.1.3`.
 
 ### Fixed
 
